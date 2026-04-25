@@ -3,127 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie | Ultimate Pro Portal</title>
+    <title>NEET Genie Ultra | Diagrams & History</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --p: #6366f1; --s: #10b981; --d: #ef4444; --bg: #f8fafc; --sur: #ffffff; --border: #e2e8f0; }
+        :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
         
-        /* Dashboard Cards */
-        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
-        .test-card { background: white; padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); transition: 0.3s; position: relative; }
-        .test-card:hover { border-color: var(--p); transform: translateY(-3px); }
-        .saved-score { font-size: 0.8rem; font-weight: 700; color: var(--s); background: #f0fdf4; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-top: 10px; }
+        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        
+        /* Diagram Styling */
+        .q-img { max-width: 100%; height: auto; border-radius: 12px; margin: 15px 0; border: 1px solid #eee; display: block; }
 
-        /* Quiz Layout */
+        /* History List */
+        .hist-tag { font-size: 0.7rem; background: #eef2ff; color: var(--p); padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
+        
+        /* Quiz Grid */
         .quiz-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
-        .option { padding: 1rem; border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .option { padding: 1rem; border: 1.5px solid #e5e7eb; border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; }
         .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
         .option.correct { background: #dcfce7; border-color: var(--s); color: #166534; }
         .option.wrong { background: #fee2e2; border-color: var(--d); color: #991b1b; }
-        
-        /* Navigator Palette */
-        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; cursor: pointer; font-size: 0.85rem; font-weight: 700; }
-        .dot.answered { background: var(--s); color: white; }
-        .dot.active { border: 2px solid var(--p); color: var(--p); }
 
-        /* Stats & Result */
-        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
-        .stat-item { padding: 15px; background: #f8fafc; border-radius: 15px; text-align: center; border: 1px solid var(--border); }
-        .big-val { font-size: 1.5rem; font-weight: 800; display: block; }
-        
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; cursor: pointer; font-weight: 700; }
+        .dot.answered { background: var(--s); color: white; }
+        .dot.active { border: 2px solid var(--p); }
+
         .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-p { background: var(--p); color: white; }
+        .btn-p { background: var(--p); color: white; width: 100%; }
         .btn-s { background: #f1f5f9; color: #1e293b; }
-        
-        textarea, input { width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; font-family: inherit; }
-        @media (max-width: 850px) { .quiz-layout { grid-template-columns: 1fr; } .sidebar { order: -1; } }
+
+        /* In-App Solution Frame */
+        .sol-frame { width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 12px; margin-top: 15px; }
+
+        @media (max-width: 850px) { .quiz-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo" onclick="location.reload()" style="cursor:pointer">NEET GENIE <span style="font-weight:400; opacity:0.6">PRO</span></div>
-    <div id="timer" style="display:none; font-family:monospace; font-weight:800;">00:00:00</div>
+    <div class="logo" onclick="location.reload()" style="cursor:pointer">NEET GENIE <span style="font-weight:400; opacity:0.6">ULTRA</span></div>
+    <div id="timer" style="display:none; font-weight:800;">00:00:00</div>
 </header>
 
-<div class="container" id="view-dash">
-    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; border: none;">
-        <h2 style="margin:0">Cloud Sync & Import</h2>
-        <p style="opacity:0.8">Tests ko dusre phone mein bhejane ke liye code copy karein.</p>
-        <div style="display:flex; gap:10px; margin-top:15px">
-            <button class="btn btn-s" style="background:white" onclick="exportData()">Copy Sync Code</button>
-            <button class="btn btn-s" style="background:white" onclick="importData()">Paste Sync Code</button>
+<div class="container" id="v-dash">
+    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white;">
+        <h2 style="margin:0">Universal Test Sync</h2>
+        <p style="opacity:0.8">Bada data hone par file share karein, chota data ho toh code.</p>
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap: wrap;">
+            <button class="btn btn-s" onclick="exportFile()">📤 Share File (.genie)</button>
+            <button class="btn btn-s" onclick="document.getElementById('f-in').click()">📥 Import File</button>
+            <input type="file" id="f-in" style="display:none" accept=".genie" onchange="importFile(event)">
         </div>
     </div>
 
     <div class="card">
-        <h3 style="margin-top:0">Create New Test</h3>
-        <input type="text" id="t-name" placeholder="Test Name">
-        <textarea id="t-qs" rows="4" placeholder="Format: Q1. Text... A) B) C) D)"></textarea>
-        <textarea id="t-ans" rows="2" placeholder="Keys: 1 A | 2 C | 3 B..."></textarea>
-        <button class="btn btn-p" style="width:100%" onclick="saveTest()">Add Test</button>
+        <h3 style="margin-top:0">Add New Test</h3>
+        <input type="text" id="t-name" placeholder="Test Name (e.g. Physics Mock 1)">
+        <textarea id="t-qs" rows="5" placeholder="Q1. Question Text [IMG:https://link-to-image.com]
+A) Option 1
+B) Option 2..."></textarea>
+        <textarea id="t-ans" rows="2" placeholder="Keys: 1 A | 2 C..."></textarea>
+        <button class="btn btn-p" onclick="saveTest()">Save Test to Library</button>
     </div>
 
-    <h3>My Library</h3>
-    <div class="test-grid" id="test-list"></div>
+    <h3>My Tests & Attempts</h3>
+    <div id="test-list" class="test-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:1rem;"></div>
 </div>
 
-<div class="container" id="view-quiz" style="display:none">
+<div class="container" id="v-quiz" style="display:none">
     <div class="quiz-layout">
         <div class="card">
-            <div id="q-box"></div>
+            <div id="q-area"></div>
             <div style="display:flex; gap:10px; margin-top:2rem">
                 <button class="btn btn-s" style="flex:1" onclick="move(-1)">Back</button>
                 <button class="btn btn-s" style="flex:1" onclick="move(1)">Next</button>
-                <button class="btn btn-p" id="sub-btn" style="flex:2" onclick="confirmSubmit()">Submit Exam</button>
+                <button class="btn btn-p" id="sub-btn" style="flex:2" onclick="finish()">Submit Exam</button>
             </div>
         </div>
         <div class="sidebar">
             <div class="card">
-                <h4 style="margin:0 0 15px 0">Jump to Question</h4>
-                <div class="palette" id="grid-nav"></div>
+                <h4 style="margin:0 0 15px 0">Navigator</h4>
+                <div class="palette" id="palette"></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container" id="view-result" style="display:none"></div>
+<div class="container" id="v-res" style="display:none"></div>
 
 <script>
-    let library = JSON.parse(localStorage.getItem('genie_v5')) || [];
-    let state = { t: null, ans: {}, idx: 0, mode: 'exam', time: 0 };
-    let clock;
+    let db = JSON.parse(localStorage.getItem('genie_ultra_v1')) || [];
+    let state = { t: null, ans: {}, idx: 0, mode: 'exam' };
 
     function saveTest() {
-        const name = document.getElementById('t-name').value || "Unnamed Mock";
+        const name = document.getElementById('t-name').value || "New Test";
         const qRaw = document.getElementById('t-qs').value;
         const aRaw = document.getElementById('t-ans').value;
+        
         const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
         const qs = blocks.map((b, i) => {
             const lines = b.trim().split('\n').filter(l => l.trim());
+            const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
+            const text = lines[0].replace(/\[IMG:.*?\]/, "").trim();
             const keyMatch = aRaw.match(new RegExp(`${i+1}\\s*([A-D])`));
-            return { txt: lines[0], opts: lines.slice(1, 5), key: keyMatch ? keyMatch[1] : 'A' };
+            return {
+                txt: text,
+                img: imgMatch ? imgMatch[1] : null,
+                opts: lines.slice(1, 5),
+                key: keyMatch ? keyMatch[1] : 'A'
+            };
         });
-        if(!qs.length) return alert("Format sahi nahi hai!");
-        library.push({ id: Date.now(), name, qs, lastScore: null });
-        updateDB();
+
+        db.push({ id: Date.now(), name, qs, history: [] });
+        saveDB();
         location.reload();
     }
 
     function renderDash() {
         const list = document.getElementById('test-list');
-        list.innerHTML = library.map((t, i) => `
-            <div class="test-card">
+        list.innerHTML = db.map((t, i) => `
+            <div class="card" style="margin-bottom:0">
                 <h3 style="margin:0">${t.name}</h3>
-                <small>${t.qs.length} Qns</small><br>
-                ${t.lastScore !== null ? `<span class="saved-score">Last Score: ${t.lastScore}</span>` : ''}
-                <div style="display:flex; gap:10px; margin-top:15px">
-                    <button class="btn btn-p" style="flex:1" onclick="start(${i})">Attempt</button>
+                <p style="font-size:0.8rem; color:gray">${t.qs.length} Questions</p>
+                <div style="margin: 10px 0;">
+                    ${t.history.slice(-3).map(h => `<span class="hist-tag">S: ${h.score} (${h.date})</span>`).join('')}
+                </div>
+                <div style="display:flex; gap:10px">
+                    <button class="btn btn-p" onclick="start(${i})">Reattempt</button>
                     <button class="btn btn-s" onclick="deleteT(${i})">X</button>
                 </div>
             </div>
@@ -131,25 +140,17 @@
     }
 
     function start(idx, mode = 'exam') {
-        state.t = library[idx]; state.mode = mode; state.idx = 0; state.ans = {};
-        document.getElementById('view-dash').style.display = 'none';
-        document.getElementById('view-quiz').style.display = 'block';
-        document.getElementById('timer').style.display = 'block';
-        if(mode === 'exam') {
-            state.time = state.t.qs.length * 60;
-            clock = setInterval(() => {
-                state.time--;
-                let m = Math.floor(state.time/60), s = state.time%60;
-                document.getElementById('timer').innerText = `Time: ${m}:${s<10?'0'+s:s}`;
-                if(state.time <= 0) finish();
-            }, 1000);
-        }
+        state.t = db[idx]; state.mode = mode; state.idx = 0; state.ans = {};
+        document.getElementById('v-dash').style.display = 'none';
+        document.getElementById('v-quiz').style.display = 'block';
         renderQ();
     }
 
     function renderQ() {
         const q = state.t.qs[state.idx];
         let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
+        if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.src='https://via.placeholder.com/400?text=Image+Not+Found'">`;
+        
         ["A", "B", "C", "D"].forEach((l, i) => {
             let cls = 'option';
             if(state.mode === 'exam') { if(state.ans[state.idx] === l) cls += ' selected'; }
@@ -159,26 +160,25 @@
             }
             html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
         });
+
         if(state.mode === 'analysis') {
-            html += `<div style="margin-top:15px; padding:15px; background:#f0fdf4; border-radius:10px; border:1px solid #dcfce7"><b>Correct Answer: Option ${q.key}</b><br><button class="btn btn-s" style="width:100%; margin-top:10px" onclick="window.open('https://www.google.com/search?q=NCERT+solution+${encodeURIComponent(q.txt)}')">Auto-Search Solution</button></div>`;
+            html += `<div class="card" style="background:#f0fdf4">
+                <b>Explanation/Analysis:</b><br>
+                <iframe class="sol-frame" src="https://www.bing.com/search?q=NCERT+solution+${encodeURIComponent(q.txt)}"></iframe>
+            </div>`;
         }
-        document.getElementById('q-box').innerHTML = html;
+        document.getElementById('q-area').innerHTML = html;
         let p = '';
         state.t.qs.forEach((_, i) => {
-            let cls = 'dot';
-            if(state.ans[i]) cls += ' answered';
-            if(i === state.idx) cls += ' active';
-            p += `<div class="${cls}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`;
+            p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`;
         });
-        document.getElementById('grid-nav').innerHTML = p;
+        document.getElementById('palette').innerHTML = p;
     }
 
     function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
     function move(d) { state.idx = Math.max(0, Math.min(state.t.qs.length - 1, state.idx + d)); renderQ(); }
-    function confirmSubmit() { if(confirm("Do you want to submit the test?")) finish(); }
 
     function finish() {
-        clearInterval(clock);
         let c = 0, w = 0, sk = 0;
         state.t.qs.forEach((q, i) => {
             if(!state.ans[i]) sk++;
@@ -186,48 +186,46 @@
             else w++;
         });
         const score = (c * 4) - w;
-        state.t.lastScore = score;
-        updateDB();
-        
-        document.getElementById('view-quiz').style.display = 'none';
-        document.getElementById('timer').style.display = 'none';
-        const res = document.getElementById('view-result');
+        state.t.history.push({ score, date: new Date().toLocaleDateString(), correct: c, wrong: w });
+        saveDB();
+
+        document.getElementById('v-quiz').style.display = 'none';
+        const res = document.getElementById('v-res');
         res.style.display = 'block';
         res.innerHTML = `
             <div class="card" style="text-align:center">
-                <small>TEST COMPLETED</small>
-                <h1 style="font-size:4rem; margin:0; color:var(--p)">${score}</h1>
-                <p>Predicted Rank: #${Math.floor(Math.random()*20000)+1000}</p>
-                <div class="stat-grid">
-                    <div class="stat-item"><span class="big-val" style="color:var(--s)">${c}</span>Correct</div>
-                    <div class="stat-item"><span class="big-val" style="color:var(--d)">${w}</span>Wrong</div>
-                    <div class="stat-item"><span class="big-val">${sk}</span>Skipped</div>
-                    <div class="stat-item"><span class="big-val">${Math.round((c/(c+w))*100)||0}%</span>Accuracy</div>
+                <h1>Score: ${score}</h1>
+                <div style="display:flex; justify-content:space-around; margin:20px 0">
+                    <div><b>${c}</b><br>Correct</div>
+                    <div><b>${w}</b><br>Wrong</div>
+                    <div><b>${sk}</b><br>Skipped</div>
                 </div>
-                <button class="btn btn-p" style="width:100%" onclick="state.mode='analysis'; state.idx=0; document.getElementById('view-result').style.display='none'; document.getElementById('view-quiz').style.display='block'; renderQ()">Review Answers</button>
-                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Home</button>
+                <button class="btn btn-p" onclick="state.mode='analysis'; state.idx=0; document.getElementById('v-res').style.display='none'; document.getElementById('v-quiz').style.display='block'; renderQ()">Analysis (Solution inside)</button>
+                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Library</button>
             </div>
         `;
     }
 
-    function exportData() {
-        const code = btoa(unescape(encodeURIComponent(JSON.stringify(library))));
-        const temp = document.createElement('input');
-        document.body.appendChild(temp); temp.value = code; temp.select();
-        document.execCommand('copy'); document.body.removeChild(temp);
-        alert("Sync Code Copied! Send it to the other device.");
+    function exportFile() {
+        const blob = new Blob([JSON.stringify(db)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'Tests_Backup.genie';
+        a.click();
     }
-    function importData() {
-        const code = prompt("Paste Sync Code Here:");
-        if(code) {
-            try {
-                library = JSON.parse(decodeURIComponent(escape(atob(code))));
-                updateDB(); location.reload();
-            } catch(e) { alert("Invalid Sync Code!"); }
-        }
+
+    function importFile(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            db = JSON.parse(event.target.result);
+            saveDB(); location.reload();
+        };
+        reader.readAsText(file);
     }
-    function deleteT(i) { if(confirm("Delete?")) { library.splice(i, 1); updateDB(); renderDash(); } }
-    function updateDB() { localStorage.setItem('genie_v5', JSON.stringify(library)); }
+
+    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); saveDB(); renderDash(); } }
+    function saveDB() { localStorage.setItem('genie_ultra_v1', JSON.stringify(db)); }
     renderDash();
 </script>
 </body>
