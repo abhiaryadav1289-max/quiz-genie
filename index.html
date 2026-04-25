@@ -3,188 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Genie Pro | Professional NEET Portal</title>
+    <title>Quiz Genie | Professional NEET Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
             --secondary: #10b981;
-            --bg: #030712;
-            --surface: #111827;
-            --card: #1f2937;
-            --text-main: #f9fafb;
-            --text-dim: #9ca3af;
-            --border: #374151;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-dim: #64748b;
+            --border: #e2e8f0;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; min-height: 100vh; overflow-x: hidden; }
 
-        /* Top Header */
-        header {
-            background: var(--surface);
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            z-index: 50;
-        }
+        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+        #timer { font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; }
 
-        .logo { font-size: 1.25rem; font-weight: 800; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #timer { font-family: monospace; font-size: 1.2rem; font-weight: 700; color: #f87171; background: rgba(239, 68, 68, 0.1); padding: 0.4rem 0.8rem; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
 
-        /* Main Content Area */
-        .viewport { flex: 1; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; padding-top: 2rem; }
+        /* Dashboard Sections */
+        .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+        .section-title::before { content: ''; width: 4px; height: 20px; background: var(--primary); border-radius: 10px; }
 
-        /* Setup/Input Screen */
-        .setup-card { width: 90%; max-width: 700px; background: var(--surface); padding: 2rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
-        textarea, input { width: 100%; background: #000; border: 1px solid var(--border); color: white; padding: 1rem; border-radius: 12px; margin-bottom: 1rem; font-size: 14px; outline: none; }
-        textarea:focus { border-color: var(--primary); }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .test-card { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden; }
+        .test-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+        .test-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
+        .test-card .meta { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; display: flex; gap: 15px; }
 
-        /* Question Card Area */
-        #quiz-screen { width: 90%; max-width: 850px; }
-        .q-card { background: var(--surface); padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
-        .q-text { font-size: 1.3rem; font-weight: 600; line-height: 1.6; margin-bottom: 2rem; }
+        /* Add Test Form */
+        .add-test-box { background: var(--surface); padding: 2rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        input, textarea { width: 100%; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s; }
+        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
 
-        .option {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .option:hover { border-color: var(--primary); transform: translateX(5px); }
-        .option.selected { background: rgba(99, 102, 241, 0.15); border-color: var(--primary); box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
-        .opt-bullet { width: 32px; height: 32px; border-radius: 10px; background: #111827; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-weight: 800; font-size: 14px; color: var(--text-dim); }
-        .selected .opt-bullet { background: var(--primary); color: white; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-danger { background: #fff1f2; color: var(--danger); border: 1px solid #fecdd3; }
 
-        /* Collapsible Slider (The Sidebar) */
-        .sidebar {
-            position: fixed;
-            top: 0; right: -320px;
-            width: 320px;
-            height: 100vh;
-            background: var(--surface);
-            border-left: 1px solid var(--border);
-            z-index: 100;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 2rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
-        }
-        .sidebar.open { right: 0; }
+        /* Quiz View */
+        .quiz-container { display: flex; gap: 2rem; margin-top: 1rem; }
+        .question-area { flex: 1; background: white; padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .option { padding: 1.2rem; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
+        .option:hover { background: #f1f5f9; }
+        .option.selected { border-color: var(--primary); background: #eef2ff; color: var(--primary); font-weight: 600; }
+        
+        /* Sidebar Palette */
+        .sidebar { width: 300px; background: white; padding: 1.5rem; border-radius: 24px; border: 1px solid var(--border); height: fit-content; position: sticky; top: 100px; }
+        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .num-dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; }
+        .num-dot.answered { background: var(--secondary); color: white; }
+        .num-dot.active { border: 2px solid var(--primary); color: var(--primary); }
 
-        .grid-nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; overflow-y: auto; flex: 1; padding-right: 5px; }
-        .q-dot { height: 45px; display: flex; align-items: center; justify-content: center; background: var(--card); border-radius: 12px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); font-size: 14px; }
-        .q-dot.done { background: var(--secondary); border: none; color: white; }
-        .q-dot.active { border: 2px solid white; color: white; }
-
-        /* Floating Icon Button */
-        .fab-trigger {
-            position: fixed;
-            bottom: 100px; right: 25px;
-            width: 60px; height: 60px;
-            background: var(--primary);
-            border-radius: 20px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer;
-            z-index: 110;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.4);
-            transition: 0.3s;
-        }
-        .fab-trigger:active { transform: scale(0.9); }
-        .fab-trigger svg { width: 30px; height: 30px; fill: white; }
-
-        /* Bottom Controls */
-        .controls { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); padding: 1.5rem 2rem; display: flex; justify-content: center; gap: 1rem; border-top: 1px solid var(--border); z-index: 40; }
-        .btn { padding: 1rem 2rem; border-radius: 14px; border: none; font-weight: 700; cursor: pointer; font-size: 15px; transition: 0.3s; }
-        .btn-prev { background: var(--card); color: white; }
-        .btn-next { background: var(--primary); color: white; flex: 0.4; max-width: 300px; }
-        .btn-end { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 90; }
+        /* Result Page (As per image) */
+        .result-header { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .score-card { background: white; padding: 2rem; border-radius: 24px; border: 1px solid var(--border); }
+        .rank-card { background: white; padding: 2rem; border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
+        .big-text { font-size: 3rem; font-weight: 800; margin: 0.5rem 0; color: #1e1b4b; }
+        .stat-bar { margin: 1.5rem 0; }
+        .progress-line { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">NEET GENIE <span style="color:white; opacity:0.5; font-weight:400">PRO</span></div>
-    <div id="timer" style="display:none">00:00:00</div>
+    <div class="logo">NEET GENIE</div>
+    <div id="timer" style="display:none">03:00:00</div>
+    <button class="btn btn-danger" id="exitBtn" style="display:none" onclick="location.reload()">Exit Test</button>
 </header>
 
-<div class="viewport">
-    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+<div class="container" id="view-dashboard">
+    <div class="section-title">ALL TESTS</div>
+    <div class="test-grid" id="all-tests">
+        </div>
 
-    <div id="setup-view" class="setup-card">
-        <h2 style="margin-top:0">Mock Test Engine</h2>
-        <input type="text" id="tName" placeholder="Exam Name (e.g., Biology Full Mock 1)">
-        <textarea id="qRaw" style="height:150px" placeholder="Paste 180 Questions (Q1. A) B)...)"></textarea>
-        <textarea id="aRaw" style="height:70px" placeholder="Paste Answer Key (1 A 2 D 3 B...)"></textarea>
-        <button class="btn btn-next" style="width:100%; max-width:none" onclick="startTest()">Initialize Full-Length Exam</button>
+    <div class="section-title">ADD NEW TEST</div>
+    <div class="add-test-box">
+        <input type="text" id="t-name" placeholder="Test Name (e.g. Physics Full Mock)">
+        <textarea id="t-qs" rows="8" placeholder="Paste Questions (Q1. A) B) C) D)...)"></textarea>
+        <textarea id="t-as" rows="3" placeholder="Answer Key (1 A 2 D 3 B...)"></textarea>
+        <button class="btn btn-primary" onclick="addNewTest()">Save & Add Test</button>
     </div>
+</div>
 
-    <div id="quiz-screen" style="display:none">
-        <div class="q-card" id="qDisplay"></div>
-    </div>
-
-    <div class="sidebar" id="sidebar">
-        <h3 style="margin-top:0; display:flex; justify-content:space-between">
-            Navigator <span onclick="toggleSidebar()" style="cursor:pointer; color:var(--text-dim)">&times;</span>
-        </h3>
-        <div class="grid-nav" id="gridNav"></div>
-        <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border)">
-            <button class="btn btn-end" style="width:100%" onclick="saveProgress()">Save & Exit</button>
+<div class="container" id="view-quiz" style="display:none">
+    <div class="quiz-container">
+        <div class="question-area" id="qDisplay"></div>
+        <div class="sidebar">
+            <h4 style="margin-top:0">Question Palette</h4>
+            <div class="palette-grid" id="paletteGrid"></div>
+            <div style="margin-top:2rem">
+                <button class="btn btn-primary" onclick="finishTest()">Finish Exam</button>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="fab-trigger" id="fab" style="display:none" onclick="toggleSidebar()">
-        <svg viewBox="0 0 24 24"><path d="M4 11h5V5H4v6zm0 7h5v-6H4v6zm7 0h5v-6h-5v6zm0-7h5V5h-5v6zm7 0h5V5h-5v6zm0 7h5v-6h-5v6z"/></svg>
+<div class="container" id="view-result" style="display:none">
     </div>
 
-    <div id="result-view" style="display:none; width:90%; max-width:600px" class="setup-card"></div>
-</div>
-
-<div class="controls" id="footer" style="display:none">
-    <button class="btn btn-prev" onclick="nav(-1)">Back</button>
-    <button class="btn btn-next" id="nextBtn" onclick="nav(1)">Next</button>
-    <button class="btn btn-end" onclick="finishCheck()">Finish</button>
-</div>
-
 <script>
-    let test = { title: '', questions: [], answers: {}, current: 0, clock: 0 };
-    let clockId;
+    let tests = JSON.parse(localStorage.getItem('my_tests')) || [];
+    let currentTest = null;
+    let answers = {};
+    let currentIndex = 0;
+    let clock;
 
-    function toggleSidebar() {
-        const sb = document.getElementById("sidebar");
-        const ov = document.getElementById("overlay");
-        sb.classList.toggle('open');
-        ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    function renderDashboard() {
+        const list = document.getElementById('all-tests');
+        list.innerHTML = tests.length ? '' : '<p style="color:var(--text-dim)">No tests added yet.</p>';
+        tests.forEach((t, i) => {
+            list.innerHTML += `
+                <div class="test-card">
+                    <h3>${t.name}</h3>
+                    <div class="meta">
+                        <span>${t.qs.length} Questions</span>
+                        <span>${t.qs.length} Mins</span>
+                    </div>
+                    <div style="display:flex; gap:10px">
+                        <button class="btn btn-primary" onclick="startTest(${i})">Open Test</button>
+                        <button class="btn btn-danger" onclick="deleteTest(${i})">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
     }
 
-    function startTest() {
-        const title = document.getElementById("tName").value || "NEET Mock Test";
-        const qRaw = document.getElementById("qRaw").value.trim();
-        const aRaw = document.getElementById("aRaw").value.trim();
-        
-        const qBlocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
-        const parsed = qBlocks.map(b => {
+    function addNewTest() {
+        const name = document.getElementById('t-name').value || "Untitled Mock";
+        const qRaw = document.getElementById('t-qs').value.trim();
+        const aRaw = document.getElementById('t-as').value.trim();
+
+        const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
+        const parsedQs = blocks.map(b => {
             const lines = b.trim().split('\n').filter(l => l.trim());
-            return { q: lines[0], o: lines.slice(1, 5) };
+            return { text: lines[0], options: lines.slice(1, 5) };
         });
 
         const aMatches = aRaw.match(/\d+\s*[A-D]/g) || [];
@@ -194,94 +152,108 @@
             key[parseInt(p[0]) - 1] = p[p.length-1].toUpperCase();
         });
 
-        if(parsed.length === 0) return alert("Error: Questions detect nahi huye!");
+        if(!parsedQs.length) return alert("Please paste valid questions!");
 
-        test = {
-            title: title,
-            questions: parsed.map((q, i) => ({...q, correct: key[i] || 'A'})),
-            answers: {},
-            current: 0,
-            clock: parsed.length * 60
-        };
-
-        document.getElementById("setup-view").style.display = "none";
-        document.getElementById("quiz-screen").style.display = "block";
-        document.getElementById("footer").style.display = "flex";
-        document.getElementById("fab").style.display = "flex";
-        document.getElementById("timer").style.display = "block";
-        
-        runClock();
-        render();
+        tests.push({ name, qs: parsedQs.map((q, i) => ({...q, correct: key[i] || 'A'})) });
+        localStorage.setItem('my_tests', JSON.stringify(tests));
+        document.getElementById('t-name').value = '';
+        document.getElementById('t-qs').value = '';
+        document.getElementById('t-as').value = '';
+        renderDashboard();
     }
 
-    function render() {
-        const q = test.questions[test.current];
-        document.getElementById("nextBtn").innerText = (test.current === test.questions.length - 1) ? "Submit" : "Next Question";
-        
-        let html = `<div class="q-text"><b>Q${test.current + 1}.</b> ${q.q}</div>`;
+    function startTest(idx) {
+        currentTest = tests[idx];
+        answers = {}; currentIndex = 0;
+        document.getElementById('view-dashboard').style.display = 'none';
+        document.getElementById('view-quiz').style.display = 'block';
+        document.getElementById('timer').style.display = 'block';
+        document.getElementById('exitBtn').style.display = 'flex';
+        renderQuestion();
+        startTimer(currentTest.qs.length * 60);
+    }
+
+    function renderQuestion() {
+        const q = currentTest.qs[currentIndex];
+        let html = `<h3>Q${currentIndex+1}. ${q.text}</h3>`;
         ["A", "B", "C", "D"].forEach((l, i) => {
-            const active = test.answers[test.current] === l ? 'selected' : '';
-            html += `<div class="option ${active}" onclick="selectOpt('${l}')">
-                <div class="opt-bullet">${l}</div> ${q.o[i] || 'Option '+l}
-            </div>`;
+            const sel = answers[currentIndex] === l ? 'selected' : '';
+            html += `<div class="option ${sel}" onclick="pick('${l}')"><b>${l}.</b> ${q.options[i] || 'Option '+l}</div>`;
         });
-        document.getElementById("qDisplay").innerHTML = html;
-        
-        let gHtml = '';
-        test.questions.forEach((_, i) => {
-            let cls = 'q-dot';
-            if(test.answers[i]) cls += ' done';
-            if(i === test.current) cls += ' active';
-            gHtml += `<div class="${cls}" onclick="jump(${i})">${i+1}</div>`;
+        document.getElementById('qDisplay').innerHTML = html;
+
+        let pGrid = '';
+        currentTest.qs.forEach((_, i) => {
+            let cls = 'num-dot';
+            if(answers[i]) cls += ' answered';
+            if(i === currentIndex) cls += ' active';
+            pGrid += `<div class="${cls}" onclick="currentIndex=${i}; renderQuestion();">${i+1}</div>`;
         });
-        document.getElementById("gridNav").innerHTML = gHtml;
+        document.getElementById('paletteGrid').innerHTML = pGrid;
     }
 
-    function selectOpt(l) { test.answers[test.current] = l; render(); }
-    function nav(d) { 
-        if(d === 1 && test.current === test.questions.length - 1) return finishCheck();
-        if(d === -1 && test.current === 0) return;
-        test.current += d; render(); 
-    }
-    function jump(i) { test.current = i; render(); toggleSidebar(); }
+    function pick(l) { answers[currentIndex] = l; renderQuestion(); }
 
-    function runClock() {
-        clockId = setInterval(() => {
-            test.clock--;
-            let h = Math.floor(test.clock/3600), m = Math.floor((test.clock%3600)/60), s = test.clock%60;
-            document.getElementById("timer").innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-            if(test.clock <= 0) finalize();
+    function startTimer(sec) {
+        clock = setInterval(() => {
+            sec--;
+            let h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+            document.getElementById('timer').innerText = `${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+            if(sec <= 0) finishTest();
         }, 1000);
     }
 
-    function saveProgress() { localStorage.setItem('neet_pro_save', JSON.stringify(test)); alert("Test Saved!"); }
-    function finishCheck() { if(confirm("Submit Exam?")) finalize(); }
-
-    function finalize() {
-        clearInterval(clockId);
-        let s = 0, c = 0, w = 0;
-        test.questions.forEach((q, i) => {
-            if(test.answers[i] === q.correct) { s += 4; c++; }
-            else if(test.answers[i]) { s -= 1; w++; }
+    function finishTest() {
+        clearInterval(clock);
+        let score = 0, correct = 0, wrong = 0, skipped = 0;
+        currentTest.qs.forEach((q, i) => {
+            if(!answers[i]) skipped++;
+            else if(answers[i] === q.correct) { score += 4; correct++; }
+            else { score -= 1; wrong++; }
         });
 
-        document.getElementById("quiz-screen").style.display = "none";
-        document.getElementById("footer").style.display = "none";
-        document.getElementById("fab").style.display = "none";
-        document.getElementById("timer").style.display = "none";
-        const res = document.getElementById("result-view");
-        res.style.display = "block";
-        res.innerHTML = `
-            <h2 style="color:var(--primary); text-align:center">Performance Report</h2>
-            <div style="font-size: 5rem; font-weight: 800; text-align:center; margin:1rem 0">${s}</div>
-            <div style="display:flex; justify-content:space-around; text-align:center; margin:2rem 0">
-                <div><b style="color:var(--secondary); font-size:20px">${c}</b><br><small>Correct</small></div>
-                <div><b style="color:#f87171; font-size:20px">${w}</b><br><small>Wrong</small></div>
-                <div><b style="font-size:20px">${test.questions.length - (c+w)}</b><br><small>Skipped</small></div>
+        const totalQ = currentTest.qs.length;
+        const totalMarks = totalQ * 4;
+        const accuracy = Math.round((correct / (correct + wrong)) * 100) || 0;
+
+        document.getElementById('view-quiz').style.display = 'none';
+        document.getElementById('view-result').style.display = 'block';
+        document.getElementById('timer').style.display = 'none';
+
+        document.getElementById('view-result').innerHTML = `
+            <div class="result-header">
+                <div class="score-card">
+                    <small style="color:var(--text-dim)">SCORE</small>
+                    <div class="big-text">${score}<span style="font-size:1.5rem; opacity:0.5">/${totalMarks}</span></div>
+                    <small>Accuracy: ${accuracy}%</small>
+                </div>
+                <div class="rank-card">
+                    <small style="color:var(--text-dim)">PREDICTED RANK</small>
+                    <div class="big-text" style="color:var(--primary)">#${Math.floor(Math.random()*50000) + 1000}</div>
+                    <button class="btn btn-primary" onclick="location.reload()">Back to Home</button>
+                </div>
             </div>
-            <button class="btn btn-next" style="width:100%; max-width:none" onclick="location.reload()">Start New Mock</button>
+
+            <div class="score-card">
+                <div class="stat-bar">
+                    <div style="display:flex; justify-content:space-between"><span>Correct</span> <span>${correct}</span></div>
+                    <div class="progress-line"><div class="progress-fill" style="width:${(correct/totalQ)*100}%; background:var(--secondary)"></div></div>
+                </div>
+                <div class="stat-bar">
+                    <div style="display:flex; justify-content:space-between"><span>Incorrect</span> <span>${wrong}</span></div>
+                    <div class="progress-line"><div class="progress-fill" style="width:${(wrong/totalQ)*100}%; background:var(--danger)"></div></div>
+                </div>
+                <div class="stat-bar">
+                    <div style="display:flex; justify-content:space-between"><span>Skipped</span> <span>${skipped}</span></div>
+                    <div class="progress-line"><div class="progress-fill" style="width:${(skipped/totalQ)*100}%; background:var(--text-dim)"></div></div>
+                </div>
+            </div>
         `;
     }
+
+    function deleteTest(idx) { if(confirm("Delete this test?")) { tests.splice(idx, 1); localStorage.setItem('my_tests', JSON.stringify(tests)); renderDashboard(); } }
+
+    renderDashboard();
 </script>
 </body>
 </html>
