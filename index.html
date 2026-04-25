@@ -1,287 +1,157 @@
-,<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Quiz Genie Pro</title>
+    <title>Quiz Genie - NEET Ready</title>
     <style>
-        :root {
-            --primary: #6200ee;
-            --secondary: #03dac6;
-            --surface: #121212;
-            --on-surface: #ffffff;
-            --error: #cf6679;
-            --card-bg: #1e1e1e;
-        }
-
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            font-family: 'Roboto', sans-serif;
-        }
-
-        body {
-            background-color: var(--surface);
-            color: var(--on-surface);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* App Bar - Android Style */
-        .app-bar {
-            background: var(--card-bg);
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-
-        .app-title { font-size: 20px; font-weight: 500; margin: 0; color: var(--secondary); }
+        :root { --primary: #2563eb; --bg: #f8fafc; --dark: #1e293b; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
+        body { background: var(--bg); margin: 0; display: flex; flex-direction: column; height: 100vh; color: var(--dark); }
         
-        #timer { font-weight: bold; color: var(--error); font-variant-numeric: tabular-nums; }
+        .header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; }
+        .header h1 { font-size: 18px; margin: 0; color: var(--primary); }
+        #timer { font-weight: bold; font-size: 18px; color: #dc2626; background: #fee2e2; padding: 5px 10px; border-radius: 8px; }
 
-        /* Main Content */
-        .content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
+        .container { flex: 1; overflow-y: auto; padding: 20px; }
+        
+        /* Input Screen */
+        textarea { width: 100%; height: 60vh; border: 2px solid #cbd5e1; border-radius: 12px; padding: 15px; font-size: 14px; margin-bottom: 15px; resize: none; }
+        
+        /* Quiz Card */
+        .q-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .q-text { font-size: 18px; font-weight: 600; margin-bottom: 20px; line-height: 1.4; }
+        
+        .opt { display: flex; align-items: center; width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; cursor: pointer; text-align: left; font-size: 16px; }
+        .opt:active { background: #f1f5f9; }
+        .opt.selected { border-color: var(--primary); background: #eff6ff; border-width: 2px; }
+        .opt-circle { width: 24px; height: 24px; border: 2px solid #cbd5e1; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+        .selected .opt-circle { background: var(--primary); border-color: var(--primary); color: white; }
 
-        textarea {
-            flex: 1;
-            background: #2c2c2c;
-            border: 1px solid #444;
-            border-radius: 12px;
-            color: white;
-            padding: 16px;
-            font-size: 16px;
-            margin-bottom: 20px;
-            outline: none;
-        }
+        .footer { padding: 15px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 15px; border-radius: 10px; border: none; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-s { background: #e2e8f0; color: var(--dark); }
 
-        /* Question Card */
-        .q-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-        }
-
-        .q-text { font-size: 18px; line-height: 1.5; margin-bottom: 20px; }
-
-        /* Android Style Option Buttons */
-        .option-btn {
-            background: #2c2c2c;
-            border: 1px solid #444;
-            color: white;
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            width: 100%;
-            text-align: left;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-        }
-
-        .option-btn.selected {
-            background: rgba(98, 0, 238, 0.2);
-            border: 2px solid var(--primary);
-        }
-
-        .option-label {
-            background: var(--primary);
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 12px;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* Fixed Bottom Action Bar */
-        .action-bar {
-            padding: 16px;
-            background: var(--card-bg);
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: 25px;
-            border: none;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            text-transform: uppercase;
-        }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-secondary { background: #333; color: white; }
-
-        /* Results */
-        .result-screen { text-align: center; padding-top: 40px; }
-        .score-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 8px solid var(--secondary);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin: 0 auto 30px;
-        }
+        .result { text-align: center; }
+        .score-box { font-size: 48px; font-weight: 800; color: var(--primary); margin: 20px 0; }
     </style>
 </head>
 <body>
 
-<div class="app-bar">
-    <h1 class="app-title">Quiz Genie</h1>
-    <div id="timer">00:00</div>
+<div class="header">
+    <h1>Genie Quiz <span id="qCount"></span></h1>
+    <div id="timer" style="display:none">30:00</div>
 </div>
 
-<div class="content" id="mainDisplay">
-    <div id="setupArea" style="height:100%; display:flex; flex-direction:column;">
-        <p style="color:#aaa">Paste your questions below:</p>
-        <textarea id="pasteBox" placeholder="Q1. Capital of India?
-A) Delhi
-B) Mumbai
-C) Goa
-D) Pune
+<div class="container" id="main">
+    <div id="inputBox">
+        <p><b>NEET Format:</b> Har question ke baad options aur fir 'Ans: A' likhein. Ek question ke baad ek line ka space chodein.</p>
+        <textarea id="rawText" placeholder="Q1. Example Question?
+A) Option 1
+B) Option 2
+C) Option 3
+D) Option 4
 Ans: A"></textarea>
-        <button class="btn btn-primary" onclick="generate()">Generate Quiz</button>
+        <button class="btn btn-p" style="width:100%" onclick="init()">Generate NEET Quiz</button>
     </div>
 
-    <div id="quizArea" style="display:none">
-        <div class="q-card" id="quizContent"></div>
+    <div id="quizBox" style="display:none">
+        <div class="q-card" id="qContainer"></div>
     </div>
 
-    <div id="resultArea" style="display:none" class="result-screen"></div>
+    <div id="resultBox" style="display:none" class="result"></div>
 </div>
 
-<div class="action-bar" id="navActions" style="display:none">
-    <button class="btn btn-secondary" onclick="prev()">Back</button>
-    <button class="btn btn-primary" id="nextBtn" onclick="next()">Next</button>
+<div class="footer" id="controls" style="display:none">
+    <button class="btn btn-s" onclick="move(-1)">Back</button>
+    <button class="btn btn-p" id="nextBtn" onclick="move(1)">Next</button>
 </div>
 
 <script>
-    let questions = [], answers = [], current = 0;
-    let time = 1800, timerInt;
+    let questions = [], answers = [], current = 0, time = 1800, timerId;
 
-    function parseQuiz(text) {
-        const blocks = text.trim().split(/\n\s*\n/);
-        return blocks.map(b => {
-            let lines = b.split("\n").filter(l => l.trim() !== "");
+    function init() {
+        const text = document.getElementById("rawText").value.trim();
+        // Improved Parsing Logic
+        const blocks = text.split(/\n\s*\n/);
+        questions = blocks.map(b => {
+            const lines = b.split("\n").map(l => l.trim()).filter(l => l);
             if (lines.length >= 6) {
                 return {
-                    question: lines[0].replace(/^Q\d+\.\s*/, ""),
-                    options: lines.slice(1, 5),
-                    correct: lines[5].replace(/Ans:\s*/i, "").trim().toUpperCase()
+                    q: lines[0],
+                    o: lines.slice(1, 5),
+                    a: lines[5].split(":")[1]?.trim().toUpperCase()
                 };
             }
-        }).filter(q => q);
-    }
+        }).filter(x => x && x.a);
 
-    function generate() {
-        let text = document.getElementById("pasteBox").value;
-        questions = parseQuiz(text);
-        if (questions.length === 0) return alert("Please paste valid questions!");
-        
+        if (questions.length === 0) return alert("Error: Questions detect nahi huye. Format sahi karein!");
+
         answers = new Array(questions.length).fill(null);
-        document.getElementById("setupArea").style.display = "none";
-        document.getElementById("quizArea").style.display = "block";
-        document.getElementById("navActions").style.display = "flex";
+        document.getElementById("inputBox").style.display = "none";
+        document.getElementById("quizBox").style.display = "block";
+        document.getElementById("controls").style.display = "flex";
+        document.getElementById("timer").style.display = "block";
+        
         startTimer();
-        showQ();
+        render();
     }
 
     function startTimer() {
-        timerInt = setInterval(() => {
+        timerId = setInterval(() => {
             time--;
-            let m = Math.floor(time / 60);
-            let s = time % 60;
-            document.getElementById("timer").innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-            if (time <= 0) submit();
+            let m = Math.floor(time / 60), s = time % 60;
+            document.getElementById("timer").innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            if (time <= 0) end();
         }, 1000);
     }
 
-    function showQ() {
-        let q = questions[current];
-        document.getElementById("nextBtn").innerText = (current === questions.length - 1) ? 'Finish' : 'Next';
+    function render() {
+        const item = questions[current];
+        document.getElementById("qCount").innerText = `(${current + 1}/${questions.length})`;
+        document.getElementById("nextBtn").innerText = current === questions.length - 1 ? "Finish" : "Next";
         
-        let html = `<div class="q-text"><b>Q${current + 1}.</b> ${q.question}</div>`;
-        q.options.forEach((opt, i) => {
-            let label = ["A", "B", "C", "D"][i];
-            let isSelected = answers[current] === label ? 'selected' : '';
-            html += `<div class="option-btn ${isSelected}" onclick="select('${label}')">
-                        <div class="option-label">${label}</div>
-                        <div>${opt}</div>
-                     </div>`;
+        let html = `<div class="q-text">${item.q}</div>`;
+        ["A", "B", "C", "D"].forEach((l, i) => {
+            const sel = answers[current] === l ? 'selected' : '';
+            html += `<div class="opt ${sel}" onclick="setAns('${l}')">
+                <div class="opt-circle">${l}</div> ${item.o[i]}
+            </div>`;
         });
-        document.getElementById("quizContent").innerHTML = html;
+        document.getElementById("qContainer").innerHTML = html;
     }
 
-    function select(a) {
-        answers[current] = a;
-        showQ();
+    function setAns(val) { answers[current] = val; render(); }
+
+    function move(step) {
+        if (step === 1 && current === questions.length - 1) return end();
+        if (step === -1 && current === 0) return;
+        current += step;
+        render();
     }
 
-    function next() {
-        if (current < questions.length - 1) {
-            current++;
-            showQ();
-        } else {
-            submit();
-        }
-    }
-
-    function prev() {
-        if (current > 0) {
-            current--;
-            showQ();
-        }
-    }
-
-    function submit() {
-        clearInterval(timerInt);
-        let score = 0, correct = 0, wrong = 0;
+    function end() {
+        clearInterval(timerId);
+        let score = 0, c = 0, w = 0;
         questions.forEach((q, i) => {
-            if (answers[i] === q.correct) { score += 4; correct++; }
-            else if (answers[i]) { score -= 1; wrong++; }
+            if (answers[i] === q.a) { score += 4; c++; }
+            else if (answers[i]) { score -= 1; w++; }
         });
 
-        document.getElementById("quizArea").style.display = "none";
-        document.getElementById("navActions").style.display = "none";
-        const resArea = document.getElementById("resultArea");
-        resArea.style.display = "block";
-        
-        resArea.innerHTML = `
-            <div class="score-circle">
-                <span style="font-size:40px; font-weight:bold">${score}</span>
-                <span style="font-size:14px; opacity:0.7">POINTS</span>
-            </div>
-            <div style="display:flex; justify-content:space-around; margin-bottom:30px">
-                <div><div style="color:var(--secondary); font-size:24px">${correct}</div>Correct</div>
-                <div><div style="color:var(--error); font-size:24px">${wrong}</div>Wrong</div>
-            </div>
-            <button class="btn btn-primary" style="width:200px" onclick="location.reload()">New Quiz</button>
+        document.getElementById("quizBox").style.display = "none";
+        document.getElementById("controls").style.display = "none";
+        document.getElementById("timer").style.display = "none";
+        const res = document.getElementById("resultBox");
+        res.style.display = "block";
+        res.innerHTML = `
+            <h2>Result Summary</h2>
+            <div class="score-box">${score}</div>
+            <p>Correct: <b style="color:green">${c}</b> | Wrong: <b style="color:red">${w}</b></p>
+            <button class="btn btn-p" onclick="location.reload()">Reset Quiz</button>
         `;
     }
 </script>
+
 </body>
 </html>
