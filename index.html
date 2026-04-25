@@ -1,166 +1,110 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html><html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz Genie</title><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script><style>
-body{
-  background:#0a0f1e;
-  color:#ffffff;
-  font-family:sans-serif;
-  padding:20px;
-}
-h1{
-  text-align:center;
-  color:#00d4ff;
-}
-.card{
-  background:#141e35;
-  padding:20px;
-  border-radius:10px;
-  margin-bottom:15px;
-}
-button{
-  padding:10px;
-  margin:5px;
-  background:#00d4ff;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-.option{
-  display:block;
-  width:100%;
-  margin:8px 0;
-  padding:10px;
-  background:#222;
-  border:1px solid #555;
-  color:white;
-}
-</style></head><body><h1>📄 Quiz Genie</h1><div class="card">
-<input type="file" id="pdfFile">
-<br><br>
-<button onclick="generateQuiz()">Generate Quiz</button>
-</div><div id="quiz"></div>
+<title>Quiz Genie</title>
+<style>
+body{font-family:sans-serif;background:#0a0f1e;color:#fff;padding:20px}
+textarea{width:100%;height:200px;margin-bottom:10px}
+button{padding:10px;margin:5px;background:#00d4ff;border:none}
+.option{display:block;width:100%;margin:5px 0;padding:10px;background:#222;color:#fff}
+.correct{background:green}
+.wrong{background:red}
+</style>
+</head><body><h2>Quiz Genie (Paste Questions)</h2><textarea id="pasteBox" placeholder="Paste 45 questions here..."></textarea><br>
+<button onclick="generate()">Generate Quiz</button><h3 id="timer"></h3>
+<div id="quiz"></div>
 <div id="result"></div><script>
 
-let questions = [];
-let answers = [];
-let current = 0;
+let questions=[], answers=[], current=0;
+let time=1800, timerInt;
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// 🔥 Parse
+function parseQuiz(text){
+  const blocks=text.trim().split(/\n\s*\n/);
+  let qs=[];
 
-// 📄 Read PDF
-async function readPDF(file){
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-
-    return new Promise(resolve=>{
-        reader.onload = async function(){
-            let pdf = await pdfjsLib.getDocument({data:new Uint8Array(reader.result)}).promise;
-            let text = "";
-
-            for(let i=1;i<=pdf.numPages;i++){
-                let page = await pdf.getPage(i);
-                let content = await page.getTextContent();
-                text += content.items.map(i=>i.str).join(" ") + "\\n";
-            }
-
-            resolve(text);
-        }
-    });
-}
-
-// 🔥 Convert PDF text → Questions
-function parseQuestions(text){
-    let blocks = text.split(/Q\\d+\\./i).slice(1);
-    let result = [];
-
-    blocks.forEach(b=>{
-        let parts = b.split(/A\\)|B\\)|C\\)|D\\)/);
-
-        if(parts.length>=5){
-            result.push({
-                question: parts[0].trim(),
-                options:[
-                    "A) "+parts[1].trim(),
-                    "B) "+parts[2].trim(),
-                    "C) "+parts[3].trim(),
-                    "D) "+parts[4].trim()
-                ],
-                correct: ["A","B","C","D"][Math.floor(Math.random()*4)]
-            });
-        }
-    });
-
-    return result;
-}
-
-// 🚀 Generate Quiz
-async function generateQuiz(){
-    let file = document.getElementById("pdfFile").files[0];
-    if(!file){
-        alert("PDF upload karo");
-        return;
+  blocks.forEach(b=>{
+    let l=b.split("\n");
+    if(l.length>=6){
+      qs.push({
+        question:l[0].replace(/^Q\d+\.\s*/,""),
+        options:l.slice(1,5),
+        correct:l[5].replace(/Ans:\s*/i,"").trim()
+      });
     }
+  });
 
-    let text = await readPDF(file);
-    questions = parseQuestions(text);
-    answers = new Array(questions.length).fill(null);
-    current = 0;
-
-    showQuestion();
+  return qs;
 }
 
-// 📌 Show Question
-function showQuestion(){
-    let q = questions[current];
-    let html = "<h3>Q"+(current+1)+": "+q.question+"</h3>";
+// 🚀 Generate
+function generate(){
+  let text=document.getElementById("pasteBox").value;
+  questions=parseQuiz(text);
+  answers=new Array(questions.length).fill(null);
+  current=0;
 
-    q.options.forEach((opt,i)=>{
-        let label = ["A","B","C","D"][i];
-        html += "<button class='option' onclick=\\"select('"+label+"')\\">"+opt+"</button>";
-    });
-
-    html += "<br><button onclick='next()'>Next</button>";
-    document.getElementById("quiz").innerHTML = html;
+  startTimer();
+  showQ();
 }
 
-// ✔️ Select Answer
-function select(ans){
-    answers[current] = ans;
+// ⏱ Timer
+function startTimer(){
+  clearInterval(timerInt);
+  time=1800;
+  timerInt=setInterval(()=>{
+    time--;
+    let m=Math.floor(time/60);
+    let s=time%60;
+    document.getElementById("timer").innerText=`Time: ${m}:${s}`;
+
+    if(time<=0){
+      clearInterval(timerInt);
+      submit();
+    }
+  },1000);
 }
 
-// ➡️ Next Question
+// 📌 Show Q
+function showQ(){
+  let q=questions[current];
+  let html=`<h3>Q${current+1}: ${q.question}</h3>`;
+
+  q.options.forEach((opt,i)=>{
+    let label=["A","B","C","D"][i];
+    html+=`<button class="option" onclick="select('${label}')">${opt}</button>`;
+  });
+
+  html+=`<br><button onclick="next()">Next</button>`;
+  document.getElementById("quiz").innerHTML=html;
+}
+
+// ✔️ Select
+function select(a){
+  answers[current]=a;
+}
+
+// ➡️ Next
 function next(){
-    current++;
-    if(current < questions.length){
-        showQuestion();
-    } else {
-        showResult();
-    }
+  current++;
+  if(current<questions.length) showQ();
+  else submit();
 }
 
 // 📊 Result
-function showResult(){
-    let score = 0;
-    let correct = 0;
-    let wrong = 0;
+function submit(){
+  clearInterval(timerInt);
 
-    questions.forEach((q,i)=>{
-        if(answers[i] == q.correct){
-            score += 4;
-            correct++;
-        } else if(answers[i]){
-            score -= 5;
-            wrong++;
-        }
-    });
+  let score=0, c=0, w=0;
+  questions.forEach((q,i)=>{
+    if(answers[i]==q.correct){score+=4;c++;}
+    else if(answers[i]){score-=1;w++;}
+  });
 
-    document.getElementById("result").innerHTML =
-        "<h2>Score: "+score+"</h2>"+
-        "<p>Correct: "+correct+"</p>"+
-        "<p>Wrong: "+wrong+"</p>";
+  document.getElementById("result").innerHTML=
+    `<h2>Score: ${score}</h2>
+     <p>Correct: ${c}</p>
+     <p>Wrong: ${w}</p>`;
 }
 
 </script></body>
