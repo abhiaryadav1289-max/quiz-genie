@@ -3,257 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Genie | Professional NEET Portal</title>
+    <title>Quiz Genie Pro | NCERT Focused Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text-main: #1e293b;
-            --text-dim: #64748b;
-            --border: #e2e8f0;
+            --primary: #4f46e5; --secondary: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --bg: #f3f4f6; --surface: #ffffff; --text: #111827; --border: #e5e7eb;
         }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-main); margin: 0; min-height: 100vh; overflow-x: hidden; }
-
-        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
-        #timer { font-family: monospace; background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; }
-
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
-
-        /* Dashboard Sections */
-        .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
-        .section-title::before { content: ''; width: 4px; height: 20px; background: var(--primary); border-radius: 10px; }
-
-        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
-        .test-card { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden; }
-        .test-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
-        .test-card h3 { margin: 0 0 0.5rem 0; font-size: 1.1rem; }
-        .test-card .meta { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; display: flex; gap: 15px; }
-
-        /* Add Test Form */
-        .add-test-box { background: var(--surface); padding: 2rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        input, textarea { width: 100%; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s; }
-        input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
-
-        .btn { padding: 0.8rem 1.5rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--primary); color: white; width: 100%; }
-        .btn-danger { background: #fff1f2; color: var(--danger); border: 1px solid #fecdd3; }
-
-        /* Quiz View */
-        .quiz-container { display: flex; gap: 2rem; margin-top: 1rem; }
-        .question-area { flex: 1; background: white; padding: 2.5rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-        .option { padding: 1.2rem; border: 1px solid var(--border); border-radius: 16px; margin-bottom: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
-        .option:hover { background: #f1f5f9; }
-        .option.selected { border-color: var(--primary); background: #eef2ff; color: var(--primary); font-weight: 600; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
         
-        /* Sidebar Palette */
-        .sidebar { width: 300px; background: white; padding: 1.5rem; border-radius: 24px; border: 1px solid var(--border); height: fit-content; position: sticky; top: 100px; }
-        .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .num-dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; cursor: pointer; font-size: 0.8rem; font-weight: 700; }
-        .num-dot.answered { background: var(--secondary); color: white; }
-        .num-dot.active { border: 2px solid var(--primary); color: var(--primary); }
+        /* Layouts */
+        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        
+        /* Dashboard & Cards */
+        .card { background: var(--surface); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .test-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.2rem; }
+        
+        /* Quiz Interface */
+        .quiz-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+        .option { padding: 1.2rem; border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .option:hover { border-color: var(--primary); background: #f9fafb; }
+        .option.selected { background: #eef2ff; border-color: var(--primary); color: var(--primary); }
+        .option.correct { background: #dcfce7; border-color: var(--secondary); color: #166534; }
+        .option.wrong { background: #fee2e2; border-color: var(--danger); color: #991b1b; }
 
-        /* Result Page (As per image) */
-        .result-header { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-        .score-card { background: white; padding: 2rem; border-radius: 24px; border: 1px solid var(--border); }
-        .rank-card { background: white; padding: 2rem; border-radius: 24px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
-        .big-text { font-size: 3rem; font-weight: 800; margin: 0.5rem 0; color: #1e1b4b; }
-        .stat-bar { margin: 1.5rem 0; }
-        .progress-line { height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; margin: 10px 0; }
-        .progress-fill { height: 100%; border-radius: 10px; }
+        /* Analysis Specifics */
+        .analysis-box { margin-top: 1.5rem; padding: 1.5rem; border-radius: 15px; border-left: 5px solid var(--primary); background: #f8fafc; }
+        .ncert-tag { display: inline-block; padding: 4px 10px; background: var(--warning); color: #fff; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-bottom: 10px; }
+        .solution-text { font-size: 0.95rem; line-height: 1.6; color: #374151; }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 10px; margin-top: 2rem; }
+        .btn { padding: 0.8rem 1.5rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; flex: 1; transition: 0.2s; }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-s { background: #e5e7eb; color: var(--text); }
+        .btn-outline { border: 1px solid var(--border); background: transparent; }
+
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f3f4f6; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.85rem; }
+        .dot.done { background: var(--secondary); color: white; }
+        .dot.active { box-shadow: 0 0 0 2px var(--primary); }
+
+        @media (max-width: 900px) { .quiz-grid { grid-template-columns: 1fr; } .sidebar { order: -1; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">NEET GENIE</div>
-    <div id="timer" style="display:none">03:00:00</div>
-    <button class="btn btn-danger" id="exitBtn" style="display:none" onclick="location.reload()">Exit Test</button>
+    <div class="logo">NEET GENIE <span style="font-weight:400; opacity:0.7">ANALYZER</span></div>
+    <div id="timer" style="font-weight:800; font-family:monospace; font-size:1.2rem">00:00</div>
 </header>
 
-<div class="container" id="view-dashboard">
-    <div class="section-title">ALL TESTS</div>
-    <div class="test-grid" id="all-tests">
-        </div>
-
-    <div class="section-title">ADD NEW TEST</div>
-    <div class="add-test-box">
-        <input type="text" id="t-name" placeholder="Test Name (e.g. Physics Full Mock)">
-        <textarea id="t-qs" rows="8" placeholder="Paste Questions (Q1. A) B) C) D)...)"></textarea>
-        <textarea id="t-as" rows="3" placeholder="Answer Key (1 A 2 D 3 B...)"></textarea>
-        <button class="btn btn-primary" onclick="addNewTest()">Save & Add Test</button>
+<div class="container" id="dashView">
+    <div class="card">
+        <h2 style="margin-top:0">Create New Test</h2>
+        <input type="text" id="ins-name" placeholder="Test Name (e.g., Biology Full Syllabus)">
+        <textarea id="ins-qs" rows="5" placeholder="Format: Q1. Text... A) B) C) D)"></textarea>
+        <textarea id="ins-data" rows="4" placeholder="Answer & Analysis Format: 
+1 A | NCERT Bio Pg 142 | Detailed solution text here...
+2 C | NCERT Chem Unit 4 | Step-by-step calculation..."></textarea>
+        <button class="btn btn-p" onclick="saveTest()" style="width:100%">Add Test to Library</button>
     </div>
+
+    <h3 style="margin: 2rem 0 1rem 0">Your Test Library</h3>
+    <div class="test-grid" id="testList"></div>
 </div>
 
-<div class="container" id="view-quiz" style="display:none">
-    <div class="quiz-container">
-        <div class="question-area" id="qDisplay"></div>
+<div class="container" id="quizView" style="display:none">
+    <div class="quiz-grid">
+        <div class="card">
+            <div id="qDisplay"></div>
+            <div class="btn-row">
+                <button class="btn btn-s" onclick="move(-1)">Back</button>
+                <button class="btn btn-s" onclick="move(1)">Next</button>
+                <button class="btn btn-p" id="subBtn" onclick="submitTest()">Submit Exam</button>
+            </div>
+        </div>
         <div class="sidebar">
-            <h4 style="margin-top:0">Question Palette</h4>
-            <div class="palette-grid" id="paletteGrid"></div>
-            <div style="margin-top:2rem">
-                <button class="btn btn-primary" onclick="finishTest()">Finish Exam</button>
+            <div class="card">
+                <h4 style="margin-top:0">Navigator</h4>
+                <div class="palette" id="gridNav"></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container" id="view-result" style="display:none">
+<div class="container" id="resultView" style="display:none">
     </div>
 
 <script>
-    let tests = JSON.parse(localStorage.getItem('my_tests')) || [];
-    let currentTest = null;
-    let answers = {};
-    let currentIndex = 0;
+    let library = JSON.parse(localStorage.getItem('genie_v4')) || [];
+    let state = { test: null, answers: {}, idx: 0, mode: 'exam', time: 0 };
     let clock;
 
-    function renderDashboard() {
-        const list = document.getElementById('all-tests');
-        list.innerHTML = tests.length ? '' : '<p style="color:var(--text-dim)">No tests added yet.</p>';
-        tests.forEach((t, i) => {
-            list.innerHTML += `
-                <div class="test-card">
-                    <h3>${t.name}</h3>
-                    <div class="meta">
-                        <span>${t.qs.length} Questions</span>
-                        <span>${t.qs.length} Mins</span>
-                    </div>
-                    <div style="display:flex; gap:10px">
-                        <button class="btn btn-primary" onclick="startTest(${i})">Open Test</button>
-                        <button class="btn btn-danger" onclick="deleteTest(${i})">Delete</button>
-                    </div>
+    function saveTest() {
+        const name = document.getElementById('ins-name').value || "Untitled";
+        const qRaw = document.getElementById('ins-qs').value;
+        const dRaw = document.getElementById('ins-data').value;
+
+        const qBlocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
+        const parsed = qBlocks.map((b, i) => {
+            const lines = b.trim().split('\n').filter(l => l.trim());
+            const analysisMatch = dRaw.match(new RegExp(`${i+1}\\s*([A-D])\\s*\\|\\s*([^|]*)\\|\\s*([^\\n]*)`));
+            return {
+                text: lines[0],
+                opts: lines.slice(1, 5),
+                key: analysisMatch ? analysisMatch[1].trim() : 'A',
+                ncert: analysisMatch ? analysisMatch[2].trim() : 'General',
+                sol: analysisMatch ? analysisMatch[3].trim() : 'No detailed solution provided.'
+            };
+        });
+
+        if(!parsed.length) return alert("Please enter valid data!");
+        library.push({ name, questions: parsed });
+        localStorage.setItem('genie_v4', JSON.stringify(library));
+        location.reload();
+    }
+
+    function start(idx, mode = 'exam') {
+        state.test = library[idx];
+        state.mode = mode; state.idx = 0; state.answers = mode === 'exam' ? {} : state.answers;
+        document.getElementById('dashView').style.display = 'none';
+        document.getElementById('quizView').style.display = 'block';
+        document.getElementById('subBtn').style.display = mode === 'exam' ? 'block' : 'none';
+        
+        if(mode === 'exam') {
+            state.time = state.test.questions.length * 60;
+            clock = setInterval(() => {
+                state.time--;
+                let m = Math.floor(state.time/60), s = state.time%60;
+                document.getElementById('timer').innerText = `${m}:${s<10?'0'+s:s}`;
+                if(state.time <= 0) submitTest();
+            }, 1000);
+        } else {
+            document.getElementById('timer').innerText = "Analysis Mode";
+        }
+        render();
+    }
+
+    function render() {
+        const q = state.test.questions[state.idx];
+        let html = `<h2 style="font-size:1.3rem">Q${state.idx+1}. ${q.text}</h2>`;
+        ["A", "B", "C", "D"].forEach((l, i) => {
+            let cls = 'option';
+            if(state.mode === 'exam') {
+                if(state.answers[state.idx] === l) cls += ' selected';
+            } else {
+                if(l === q.key) cls += ' correct';
+                if(state.answers[state.idx] === l && l !== q.key) cls += ' wrong';
+            }
+            html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || 'Option '+l}</div>`;
+        });
+
+        if(state.mode === 'analysis') {
+            html += `
+                <div class="analysis-box">
+                    <span class="ncert-tag">SOURCE: ${q.ncert}</span>
+                    <div class="solution-text"><b>Detailed Solution:</b><br>${q.sol}</div>
                 </div>
             `;
-        });
-    }
-
-    function addNewTest() {
-        const name = document.getElementById('t-name').value || "Untitled Mock";
-        const qRaw = document.getElementById('t-qs').value.trim();
-        const aRaw = document.getElementById('t-as').value.trim();
-
-        const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
-        const parsedQs = blocks.map(b => {
-            const lines = b.trim().split('\n').filter(l => l.trim());
-            return { text: lines[0], options: lines.slice(1, 5) };
-        });
-
-        const aMatches = aRaw.match(/\d+\s*[A-D]/g) || [];
-        const key = {};
-        aMatches.forEach(m => {
-            const p = m.split(/\s+/);
-            key[parseInt(p[0]) - 1] = p[p.length-1].toUpperCase();
-        });
-
-        if(!parsedQs.length) return alert("Please paste valid questions!");
-
-        tests.push({ name, qs: parsedQs.map((q, i) => ({...q, correct: key[i] || 'A'})) });
-        localStorage.setItem('my_tests', JSON.stringify(tests));
-        document.getElementById('t-name').value = '';
-        document.getElementById('t-qs').value = '';
-        document.getElementById('t-as').value = '';
-        renderDashboard();
-    }
-
-    function startTest(idx) {
-        currentTest = tests[idx];
-        answers = {}; currentIndex = 0;
-        document.getElementById('view-dashboard').style.display = 'none';
-        document.getElementById('view-quiz').style.display = 'block';
-        document.getElementById('timer').style.display = 'block';
-        document.getElementById('exitBtn').style.display = 'flex';
-        renderQuestion();
-        startTimer(currentTest.qs.length * 60);
-    }
-
-    function renderQuestion() {
-        const q = currentTest.qs[currentIndex];
-        let html = `<h3>Q${currentIndex+1}. ${q.text}</h3>`;
-        ["A", "B", "C", "D"].forEach((l, i) => {
-            const sel = answers[currentIndex] === l ? 'selected' : '';
-            html += `<div class="option ${sel}" onclick="pick('${l}')"><b>${l}.</b> ${q.options[i] || 'Option '+l}</div>`;
-        });
+        }
         document.getElementById('qDisplay').innerHTML = html;
-
-        let pGrid = '';
-        currentTest.qs.forEach((_, i) => {
-            let cls = 'num-dot';
-            if(answers[i]) cls += ' answered';
-            if(i === currentIndex) cls += ' active';
-            pGrid += `<div class="${cls}" onclick="currentIndex=${i}; renderQuestion();">${i+1}</div>`;
+        
+        let gHtml = '';
+        state.test.questions.forEach((_, i) => {
+            let cls = 'dot';
+            if(state.answers[i]) cls += ' done';
+            if(i === state.idx) cls += ' active';
+            gHtml += `<div class="${cls}" onclick="state.idx=${i}; render()">${i+1}</div>`;
         });
-        document.getElementById('paletteGrid').innerHTML = pGrid;
+        document.getElementById('gridNav').innerHTML = gHtml;
     }
 
-    function pick(l) { answers[currentIndex] = l; renderQuestion(); }
+    function pick(l) { if(state.mode === 'exam') { state.answers[state.idx] = l; render(); } }
+    function move(d) { state.idx = Math.max(0, Math.min(state.test.questions.length - 1, state.idx + d)); render(); }
 
-    function startTimer(sec) {
-        clock = setInterval(() => {
-            sec--;
-            let h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
-            document.getElementById('timer').innerText = `${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
-            if(sec <= 0) finishTest();
-        }, 1000);
-    }
-
-    function finishTest() {
+    function submitTest() {
         clearInterval(clock);
-        let score = 0, correct = 0, wrong = 0, skipped = 0;
-        currentTest.qs.forEach((q, i) => {
-            if(!answers[i]) skipped++;
-            else if(answers[i] === q.correct) { score += 4; correct++; }
-            else { score -= 1; wrong++; }
+        let c = 0, w = 0, sk = 0;
+        state.test.questions.forEach((q, i) => {
+            if(!state.answers[i]) sk++;
+            else if(state.answers[i] === q.key) c++;
+            else w++;
         });
 
-        const totalQ = currentTest.qs.length;
-        const totalMarks = totalQ * 4;
-        const accuracy = Math.round((correct / (correct + wrong)) * 100) || 0;
-
-        document.getElementById('view-quiz').style.display = 'none';
-        document.getElementById('view-result').style.display = 'block';
-        document.getElementById('timer').style.display = 'none';
-
-        document.getElementById('view-result').innerHTML = `
-            <div class="result-header">
-                <div class="score-card">
-                    <small style="color:var(--text-dim)">SCORE</small>
-                    <div class="big-text">${score}<span style="font-size:1.5rem; opacity:0.5">/${totalMarks}</span></div>
-                    <small>Accuracy: ${accuracy}%</small>
+        document.getElementById('quizView').style.display = 'none';
+        const res = document.getElementById('resultView');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="card" style="text-align:center">
+                <h2>Test Completed</h2>
+                <div style="font-size:4rem; font-weight:800; color:var(--primary)">${(c*4)-w}</div>
+                <p style="color:var(--text-dim)">Total Score</p>
+                <div style="display:flex; justify-content:space-around; margin:2rem 0">
+                    <div><b style="color:var(--secondary)">${c}</b><br><small>Correct</small></div>
+                    <div><b style="color:var(--danger)">${w}</b><br><small>Wrong</small></div>
+                    <div><b>${sk}</b><br><small>Skipped</small></div>
                 </div>
-                <div class="rank-card">
-                    <small style="color:var(--text-dim)">PREDICTED RANK</small>
-                    <div class="big-text" style="color:var(--primary)">#${Math.floor(Math.random()*50000) + 1000}</div>
-                    <button class="btn btn-primary" onclick="location.reload()">Back to Home</button>
-                </div>
-            </div>
-
-            <div class="score-card">
-                <div class="stat-bar">
-                    <div style="display:flex; justify-content:space-between"><span>Correct</span> <span>${correct}</span></div>
-                    <div class="progress-line"><div class="progress-fill" style="width:${(correct/totalQ)*100}%; background:var(--secondary)"></div></div>
-                </div>
-                <div class="stat-bar">
-                    <div style="display:flex; justify-content:space-between"><span>Incorrect</span> <span>${wrong}</span></div>
-                    <div class="progress-line"><div class="progress-fill" style="width:${(wrong/totalQ)*100}%; background:var(--danger)"></div></div>
-                </div>
-                <div class="stat-bar">
-                    <div style="display:flex; justify-content:space-between"><span>Skipped</span> <span>${skipped}</span></div>
-                    <div class="progress-line"><div class="progress-fill" style="width:${(skipped/totalQ)*100}%; background:var(--text-dim)"></div></div>
+                <div class="btn-row">
+                    <button class="btn btn-p" onclick="start(${library.indexOf(state.test)}, 'analysis')">View Detailed Analysis</button>
+                    <button class="btn btn-s" onclick="location.reload()">Back to Home</button>
                 </div>
             </div>
         `;
     }
 
-    function deleteTest(idx) { if(confirm("Delete this test?")) { tests.splice(idx, 1); localStorage.setItem('my_tests', JSON.stringify(tests)); renderDashboard(); } }
+    function deleteTest(idx) { if(confirm("Delete?")) { library.splice(idx, 1); localStorage.setItem('genie_v4', JSON.stringify(library)); renderLibrary(); } }
 
-    renderDashboard();
+    function renderLibrary() {
+        document.getElementById('testList').innerHTML = library.map((t, i) => `
+            <div class="card" style="margin-bottom:0">
+                <h3 style="margin-top:0">${t.name}</h3>
+                <p style="font-size:0.85rem; color:var(--text-dim)">${t.questions.length} Questions | Analysis Enabled</p>
+                <div style="display:flex; gap:10px">
+                    <button class="btn btn-p" onclick="start(${i})">Attempt</button>
+                    <button class="btn btn-outline" onclick="deleteTest(${i})">Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    renderLibrary();
 </script>
 </body>
 </html>
