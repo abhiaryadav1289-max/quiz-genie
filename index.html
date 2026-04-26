@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra | Final</title>
+    <title>NEET Genie Ultra | Abhishek Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; --txt: #1e293b; --bdr: #e5e7eb; }
@@ -12,19 +12,31 @@
         header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
         .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--bdr); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        
+        /* Options Style */
         .option { padding: 1rem; border: 1.5px solid var(--bdr); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
         .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
         .option.correct { background: #dcfce7 !important; border-color: var(--s) !important; color: #166534 !important; }
         .option.wrong { background: #fee2e2 !important; border-color: var(--d) !important; color: #991b1b !important; }
+        
+        /* Navigator Palette */
         .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--bdr); border-radius: 10px; cursor: pointer; font-weight: 700; color: var(--txt); }
+        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--bdr); border-radius: 10px; cursor: pointer; font-weight: 700; }
         .dot.answered { background: var(--s); color: white; border-color: var(--s); }
         .dot.active { border: 2px solid var(--p); color: var(--p); }
+        
+        /* Buttons */
         .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-p { background: var(--p); color: white; }
         .btn-s { background: var(--bg); color: var(--txt); border: 1px solid var(--bdr); }
+        
         textarea, input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--bdr); background: var(--sur); color: var(--txt); margin-bottom: 10px; box-sizing: border-box; }
-        .hist-tag { font-size: 0.75rem; background: var(--p); color: white; padding: 4px 10px; border-radius: 6px; margin: 4px; display: inline-block; }
+        .q-img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid var(--bdr); }
+        
+        /* Rank Table */
+        .rank-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--bg); border-radius: 12px; overflow: hidden; }
+        .rank-table th, .rank-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--bdr); }
+        .rank-1 { background: #fef3c7 !important; color: #92400e; font-weight: 800; }
         .ai-card { background: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 12px; margin-top: 15px; color: #0369a1; }
     </style>
 </head>
@@ -33,31 +45,31 @@
 <header>
     <div class="logo" onclick="location.reload()" style="cursor:pointer; font-weight: 800;">NEET GENIE <span style="opacity:0.7">ULTRA</span></div>
     <div style="display:flex; gap:15px; align-items:center;">
-        <div id="timer" style="display:none; font-family: monospace; font-size: 1.1rem;">00:00</div>
+        <div id="user-display" style="font-weight: 700; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px;">Hye User</div>
         <button class="btn-s" onclick="toggleTheme()" style="width: 35px; height: 35px; border-radius: 50%;">🌓</button>
     </div>
 </header>
 
 <div class="container" id="v-dash">
     <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; border: none;">
-        <h2>Universal Sync & AI</h2>
+        <h2 id="greet-big">Hye!</h2>
         <div style="display:flex; gap:10px; margin:15px 0; flex-wrap: wrap;">
-            <button class="btn btn-s" onclick="exportData()" style="color:#1e1b4b">📤 Export</button>
-            <button class="btn btn-s" onclick="document.getElementById('f-in').click()" style="color:#1e1b4b">📥 Import</button>
+            <button class="btn btn-s" onclick="exportData()" style="color:#1e1b4b">📤 Export Data</button>
+            <button class="btn btn-s" onclick="document.getElementById('f-in').click()" style="color:#1e1b4b">📥 Import Data</button>
             <input type="file" id="f-in" style="display:none" onchange="importData(event)">
         </div>
-        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key for AI Analysis" style="background:rgba(255,255,255,0.1); color:white; border:none;">
+        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key Here" style="background:rgba(255,255,255,0.1); color:white; border:none; padding:10px;">
     </div>
 
     <div class="card">
         <h3>Create Test</h3>
-        <input type="text" id="t-name" placeholder="Test Name">
-        <textarea id="t-qs" rows="5" placeholder="Paste Qns (Q1. or Q32...)... A) B) C) D)"></textarea>
-        <textarea id="t-ans" rows="2" placeholder="Keys: 1. A 2. B... (Matching sequence)"></textarea>
-        <button class="btn btn-p" style="width:100%" onclick="saveBulkTest()">Save to Library</button>
+        <input type="text" id="t-name" placeholder="Test Name (e.g., Full Mock Test 1)">
+        <textarea id="t-qs" rows="5" placeholder="Q1. Question... A) B) C) D) [IMG:url]"></textarea>
+        <textarea id="t-ans" rows="2" placeholder="Answers: 1. A 2. B 3. C..."></textarea>
+        <button class="btn btn-p" style="width:100%" onclick="saveBulkTest()">Add to Library</button>
     </div>
 
-    <h3>My Library & Results</h3>
+    <h3>Test Library & Previous Ranks</h3>
     <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;"></div>
 </div>
 
@@ -68,7 +80,7 @@
             <div style="display:flex; gap:10px; margin-top:20px">
                 <button class="btn btn-s" onclick="move(-1)">Back</button>
                 <button class="btn btn-s" onclick="move(1)">Next</button>
-                <button class="btn btn-p" id="finish-btn" style="flex:1; background:var(--d)" onclick="finish()">Finish</button>
+                <button class="btn btn-p" id="finish-btn" style="flex:1; background:var(--d)" onclick="finish()">Finish Test</button>
             </div>
             <button class="btn btn-p" id="home-btn" style="display:none; width:100%; margin-top:10px; background:#1e1b4b" onclick="location.reload()">Back to Home</button>
         </div>
@@ -82,8 +94,18 @@
 <div class="container" id="v-res" style="display:none"></div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('genie_ultra_final')) || [];
-    let state = { tIdx: null, t: null, ans: {}, idx: 0, mode: 'exam', timer: 0, timerInt: null };
+    let db = JSON.parse(localStorage.getItem('genie_ultra_pro_v1')) || [];
+    let userName = localStorage.getItem('genie_user_name') || "";
+
+    // Ask for name once
+    if(!userName) {
+        userName = prompt("Bhai, apna naam batao ranking ke liye:") || "Student";
+        localStorage.setItem('genie_user_name', userName);
+    }
+    document.getElementById('user-display').innerText = `Hye ${userName}`;
+    document.getElementById('greet-big').innerText = `Hye ${userName}!`;
+
+    let state = { tIdx: null, t: null, ans: {}, idx: 0, mode: 'exam' };
 
     function toggleTheme() {
         const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -91,7 +113,7 @@
     }
 
     function saveBulkTest() {
-        const name = document.getElementById('t-name').value || "New Test";
+        const name = document.getElementById('t-name').value || "Unnamed Test";
         const qRaw = document.getElementById('t-qs').value;
         const aRaw = document.getElementById('t-ans').value;
         const blocks = qRaw.split(/Q\d+[\.\:]/).filter(b => b.trim());
@@ -115,9 +137,8 @@
         document.getElementById('test-list').innerHTML = db.map((t, i) => `
             <div class="card">
                 <h3 style="margin:0">${t.name}</h3>
-                <p style="font-size:0.8rem; opacity:0.6">${t.qs.length} Qns</p>
-                <div style="margin:10px 0">${t.history.slice(-2).map(h => `<span class="hist-tag">${h.score} Pts (${h.date})</span>`).join('')}</div>
-                <div style="display:flex; gap:8px">
+                <p style="font-size:0.8rem; opacity:0.6">${t.qs.length} Questions | ${t.history.length} Attempts</p>
+                <div style="display:flex; gap:8px; margin-top:10px">
                     <button class="btn btn-p" style="flex:1" onclick="start(${i})">Start</button>
                     <button class="btn btn-s" onclick="deleteT(${i})">🗑</button>
                 </div>
@@ -138,6 +159,7 @@
         const q = state.t.qs[state.idx];
         let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
         if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.style.display='none'">`;
+        
         ["A", "B", "C", "D"].forEach((l, i) => {
             let cls = 'option';
             if(state.mode === 'exam' && state.ans[state.idx] === l) cls += ' selected';
@@ -147,27 +169,33 @@
             }
             html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
         });
+
         if(state.mode === 'analysis') {
-            html += `<div class="ai-card" id="ai-res">🪄 Generating AI Solution (NCERT)...</div>`;
-            getAiSolution(q.txt);
+            html += `<div class="ai-card" id="ai-res">🪄 Gemini AI is checking logic...</div>`;
+            getAiSolution(q.txt, q.key);
         }
         document.getElementById('q-area').innerHTML = html;
-        let p = '';
-        state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
-        document.getElementById('palette').innerHTML = p;
+        renderPalette();
     }
 
-    async function getAiSolution(qText) {
+    async function getAiSolution(qText, k) {
         const key = document.getElementById('gemini-key').value;
-        if(!key) return document.getElementById('ai-res').innerHTML = "Solution: The correct answer is option <b>" + state.t.qs[state.idx].key + "</b>. (Add API Key for NCERT Explanation)";
+        const box = document.getElementById('ai-res');
+        if(!key) { box.innerHTML = `<b>Correct Key: ${k}</b><br>Paste Gemini API Key to see NCERT explanation.`; return; }
         try {
             const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: "Act as NEET Expert. Explain this based on Class 11/12 NCERT: " + qText }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: `Explain this NEET Question based on NCERT 11/12 logic: ${qText}. Correct answer is ${k}.` }] }] })
             });
             const d = await r.json();
-            document.getElementById('ai-res').innerText = d.candidates[0].content.parts[0].text;
-        } catch(e) { document.getElementById('ai-res').innerText = "AI Offline. Key check karein."; }
+            box.innerText = d.candidates[0].content.parts[0].text;
+        } catch(e) { box.innerText = "AI Offline. Check Key."; }
+    }
+
+    function renderPalette() {
+        let p = '';
+        state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
+        document.getElementById('palette').innerHTML = p;
     }
 
     function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
@@ -176,20 +204,45 @@
     function finish() {
         let c=0, w=0, s=0;
         state.t.qs.forEach((q, i) => {
-            if(!state.ans[i]) s++; else if(state.ans[i] === q.key) c++; else w++;
+            if(!state.ans[i]) s++;
+            else if(state.ans[i] === q.key) c++;
+            else w++;
         });
         const score = (c*4) - w;
-        db[state.tIdx].history.push({ score, date: new Date().toLocaleDateString() });
-        localStorage.setItem('genie_ultra_final', JSON.stringify(db));
+        
+        // Save Attempt with User Name
+        db[state.tIdx].history.push({ name: userName, score, date: new Date().toLocaleDateString() });
+        localStorage.setItem('genie_ultra_pro_v1', JSON.stringify(db));
+
         document.getElementById('v-quiz').style.display = 'none';
         const res = document.getElementById('v-res');
         res.style.display = 'block';
+
+        // Calculate Rank
+        let sortedHistory = [...db[state.tIdx].history].sort((a,b) => b.score - a.score);
+        let myRank = sortedHistory.findIndex(h => h.score === score && h.name === userName) + 1;
+
         res.innerHTML = `
             <div class="card" style="text-align:center">
-                <h1 style="font-size:3rem; color:var(--p)">Score: ${score}</h1>
+                <h1 style="font-size:3rem; color:var(--p); margin:0">${score}</h1>
+                <h2 style="color:var(--s)">Your Rank: #${myRank}</h2>
                 <p>Correct: ${c} | Wrong: ${w} | Skipped: ${s}</p>
-                <button class="btn btn-p" style="width:100%" onclick="showAnalysis()">Review Analysis</button>
-                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Home</button>
+                
+                <h3 style="margin-top:25px">Leaderboard</h3>
+                <table class="rank-table">
+                    <tr><th>Rank</th><th>Name</th><th>Score</th><th>Date</th></tr>
+                    ${sortedHistory.map((h, idx) => `
+                        <tr class="${idx === 0 ? 'rank-1' : ''}">
+                            <td>#${idx+1}</td>
+                            <td>${h.name} ${h.name === userName ? '(You)' : ''}</td>
+                            <td>${h.score}</td>
+                            <td>${h.date}</td>
+                        </tr>
+                    `).join('')}
+                </table>
+
+                <button class="btn btn-p" style="width:100%; margin-top:20px" onclick="showAnalysis()">Analysis & AI Solution</button>
+                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Dashboard</button>
             </div>
         `;
     }
@@ -206,16 +259,16 @@
     function exportData() {
         const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = 'NEET_Genie_Backup.genie'; a.click();
+        a.download = 'NEET_Genie_Complete_Backup.genie'; a.click();
     }
     function importData(e) {
         const reader = new FileReader();
         reader.onload = (ev) => { db = JSON.parse(ev.target.result); saveAndReload(); };
         reader.readAsText(e.target.files[0]);
     }
-    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); saveAndReload(); } }
-    function saveAndReload() { localStorage.setItem('genie_ultra_final', JSON.stringify(db)); renderDash(); }
+    function deleteT(i) { if(confirm("Delete Test?")) { db.splice(i, 1); saveAndReload(); } }
+    function saveAndReload() { localStorage.setItem('genie_ultra_pro_v1', JSON.stringify(db)); renderDash(); }
     renderDash();
 </script>
 </body>
-</html>
+        </html>
