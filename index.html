@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie | Admin Protected Portal</title>
+    <title>NEET Genie Ultra | Diagrams & History</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
         header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
         
-        /* Admin Hidden Elements */
-        .admin-only { display: none; }
-        .is-admin .admin-only { display: block; }
-
         .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        .q-img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid #eee; }
         
-        /* Quiz & Options */
+        /* Diagram Styling */
+        .q-img { max-width: 100%; height: auto; border-radius: 12px; margin: 15px 0; border: 1px solid #eee; display: block; }
+
+        /* History List */
+        .hist-tag { font-size: 0.7rem; background: #eef2ff; color: var(--p); padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
+        
+        /* Quiz Grid */
+        .quiz-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
         .option { padding: 1rem; border: 1.5px solid #e5e7eb; border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; }
         .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
         .option.correct { background: #dcfce7; border-color: var(--s); color: #166534; }
@@ -32,104 +34,92 @@
         .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .btn-p { background: var(--p); color: white; width: 100%; }
         .btn-s { background: #f1f5f9; color: #1e293b; }
-        
-        .history-item { font-size: 0.75rem; background: #f8fafc; padding: 5px; border-radius: 6px; border: 1px solid #eee; margin-top: 5px; }
-        .sol-frame { width: 100%; height: 450px; border: 1px solid #ddd; border-radius: 12px; margin-top: 15px; }
 
-        footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.9rem; }
-        #admin-trigger { cursor: pointer; opacity: 0.5; }
+        /* In-App Solution Frame */
+        .sol-frame { width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 12px; margin-top: 15px; }
+
+        @media (max-width: 850px) { .quiz-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
-<body id="main-body">
+<body>
 
 <header>
-    <div class="logo" onclick="location.reload()" style="cursor:pointer">NEET GENIE <span id="mode-text" style="font-weight:400; opacity:0.6">STUDENT</span></div>
-    <div id="timer" style="display:none; font-weight:800;">00:00</div>
+    <div class="logo" onclick="location.reload()" style="cursor:pointer">NEET GENIE <span style="font-weight:400; opacity:0.6">ULTRA</span></div>
+    <div id="timer" style="display:none; font-weight:800;">00:00:00</div>
 </header>
 
 <div class="container" id="v-dash">
-    <div class="card admin-only" style="background: #1e1b4b; color: white;">
-        <h3 style="margin:0">Admin Panel: Control Center</h3>
-        <div style="display:flex; gap:10px; margin-top:15px;">
-            <button class="btn btn-s" onclick="exportData()">📤 Backup All (.genie)</button>
-            <button class="btn btn-s" onclick="document.getElementById('f-in').click()">📥 Restore Backup</button>
-            <input type="file" id="f-in" style="display:none" accept=".genie" onchange="importData(event)">
+    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white;">
+        <h2 style="margin:0">Universal Test Sync</h2>
+        <p style="opacity:0.8">Bada data hone par file share karein, chota data ho toh code.</p>
+        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap: wrap;">
+            <button class="btn btn-s" onclick="exportFile()">📤 Share File (.genie)</button>
+            <button class="btn btn-s" onclick="document.getElementById('f-in').click()">📥 Import File</button>
+            <input type="file" id="f-in" style="display:none" accept=".genie" onchange="importFile(event)">
         </div>
     </div>
 
-    <div class="card admin-only">
-        <h3 style="margin-top:0">Upload New Content</h3>
-        <input type="text" id="t-name" placeholder="Test Title">
-        <textarea id="t-qs" rows="4" placeholder="Q1. Text [IMG:url]... A) B) C) D)"></textarea>
+    <div class="card">
+        <h3 style="margin-top:0">Add New Test</h3>
+        <input type="text" id="t-name" placeholder="Test Name (e.g. Physics Mock 1)">
+        <textarea id="t-qs" rows="5" placeholder="Q1. Question Text [IMG:https://link-to-image.com]
+A) Option 1
+B) Option 2..."></textarea>
         <textarea id="t-ans" rows="2" placeholder="Keys: 1 A | 2 C..."></textarea>
-        <button class="btn btn-p" onclick="saveTest()">Publish Test</button>
+        <button class="btn btn-p" onclick="saveTest()">Save Test to Library</button>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center">
-        <h3>Available Mock Tests</h3>
-        <button class="btn btn-s" onclick="importDataViaLink()">Link Cloud Data</button>
-    </div>
-    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1rem;"></div>
+    <h3>My Tests & Attempts</h3>
+    <div id="test-list" class="test-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:1rem;"></div>
 </div>
 
 <div class="container" id="v-quiz" style="display:none">
-    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;" class="mobile-stack">
+    <div class="quiz-layout">
         <div class="card">
             <div id="q-area"></div>
-            <div style="display:flex; gap:10px; margin-top:20px">
+            <div style="display:flex; gap:10px; margin-top:2rem">
                 <button class="btn btn-s" style="flex:1" onclick="move(-1)">Back</button>
                 <button class="btn btn-s" style="flex:1" onclick="move(1)">Next</button>
-                <button class="btn btn-p" id="sub-btn" style="flex:2" onclick="finish()">Submit</button>
+                <button class="btn btn-p" id="sub-btn" style="flex:2" onclick="finish()">Submit Exam</button>
             </div>
         </div>
-        <div class="card">
-            <h4>Navigator</h4>
-            <div class="palette" id="palette"></div>
+        <div class="sidebar">
+            <div class="card">
+                <h4 style="margin:0 0 15px 0">Navigator</h4>
+                <div class="palette" id="palette"></div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="container" id="v-res" style="display:none"></div>
 
-<footer>
-    <p>© 2024 NEET Genie Portal</p>
-    <span id="admin-trigger" onclick="adminLogin()">Admin Login</span>
-</footer>
-
 <script>
-    let db = JSON.parse(localStorage.getItem('genie_pro_db')) || [];
-    let state = { t: null, ans: {}, idx: 0, mode: 'exam', isAdmin: false };
-
-    function adminLogin() {
-        const user = prompt("Username:");
-        const pass = prompt("Password:");
-        if(user === "Ydaabhi" && pass === "Ydaabhi&189251") {
-            state.isAdmin = true;
-            document.getElementById('main-body').classList.add('is-admin');
-            document.getElementById('mode-text').innerText = "ADMIN MODE";
-            alert("Welcome, Ydaabhi! Admin access granted.");
-        } else {
-            alert("Access Denied!");
-        }
-    }
+    let db = JSON.parse(localStorage.getItem('genie_ultra_v1')) || [];
+    let state = { t: null, ans: {}, idx: 0, mode: 'exam' };
 
     function saveTest() {
-        const name = document.getElementById('t-name').value;
+        const name = document.getElementById('t-name').value || "New Test";
         const qRaw = document.getElementById('t-qs').value;
         const aRaw = document.getElementById('t-ans').value;
+        
         const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
         const qs = blocks.map((b, i) => {
             const lines = b.trim().split('\n').filter(l => l.trim());
             const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
+            const text = lines[0].replace(/\[IMG:.*?\]/, "").trim();
+            const keyMatch = aRaw.match(new RegExp(`${i+1}\\s*([A-D])`));
             return {
-                txt: lines[0].replace(/\[IMG:.*?\]/, "").trim(),
+                txt: text,
                 img: imgMatch ? imgMatch[1] : null,
                 opts: lines.slice(1, 5),
-                key: (aRaw.match(new RegExp(`${i+1}\\s*([A-D])`)) || [])[1] || 'A'
+                key: keyMatch ? keyMatch[1] : 'A'
             };
         });
+
         db.push({ id: Date.now(), name, qs, history: [] });
-        saveAndRefresh();
+        saveDB();
+        location.reload();
     }
 
     function renderDash() {
@@ -138,19 +128,19 @@
             <div class="card" style="margin-bottom:0">
                 <h3 style="margin:0">${t.name}</h3>
                 <p style="font-size:0.8rem; color:gray">${t.qs.length} Questions</p>
-                <div style="margin:10px 0">
-                    ${t.history.slice(-2).map(h => `<div class="history-item">Score: ${h.s} | ${h.d}</div>`).join('')}
+                <div style="margin: 10px 0;">
+                    ${t.history.slice(-3).map(h => `<span class="hist-tag">S: ${h.score} (${h.date})</span>`).join('')}
                 </div>
                 <div style="display:flex; gap:10px">
-                    <button class="btn btn-p" onclick="start(${i})">Attempt</button>
-                    <button class="btn btn-s admin-only" onclick="deleteT(${i})">Del</button>
+                    <button class="btn btn-p" onclick="start(${i})">Reattempt</button>
+                    <button class="btn btn-s" onclick="deleteT(${i})">X</button>
                 </div>
             </div>
         `).join('');
     }
 
-    function start(idx) {
-        state.t = db[idx]; state.idx = 0; state.ans = {}; state.mode = 'exam';
+    function start(idx, mode = 'exam') {
+        state.t = db[idx]; state.mode = mode; state.idx = 0; state.ans = {};
         document.getElementById('v-dash').style.display = 'none';
         document.getElementById('v-quiz').style.display = 'block';
         renderQ();
@@ -159,7 +149,8 @@
     function renderQ() {
         const q = state.t.qs[state.idx];
         let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
-        if(q.img) html += `<img src="${q.img}" class="q-img">`;
+        if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.src='https://via.placeholder.com/400?text=Image+Not+Found'">`;
+        
         ["A", "B", "C", "D"].forEach((l, i) => {
             let cls = 'option';
             if(state.mode === 'exam') { if(state.ans[state.idx] === l) cls += ' selected'; }
@@ -169,12 +160,18 @@
             }
             html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
         });
+
         if(state.mode === 'analysis') {
-            html += `<iframe class="sol-frame" src="https://www.bing.com/search?q=Solution+for+${encodeURIComponent(q.txt)}"></iframe>`;
+            html += `<div class="card" style="background:#f0fdf4">
+                <b>Explanation/Analysis:</b><br>
+                <iframe class="sol-frame" src="https://www.bing.com/search?q=NCERT+solution+${encodeURIComponent(q.txt)}"></iframe>
+            </div>`;
         }
         document.getElementById('q-area').innerHTML = html;
         let p = '';
-        state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
+        state.t.qs.forEach((_, i) => {
+            p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`;
+        });
         document.getElementById('palette').innerHTML = p;
     }
 
@@ -182,43 +179,53 @@
     function move(d) { state.idx = Math.max(0, Math.min(state.t.qs.length - 1, state.idx + d)); renderQ(); }
 
     function finish() {
-        let c = 0, w = 0;
+        let c = 0, w = 0, sk = 0;
         state.t.qs.forEach((q, i) => {
-            if(state.ans[i] === q.key) c++;
-            else if(state.ans[i]) w++;
+            if(!state.ans[i]) sk++;
+            else if(state.ans[i] === q.key) c++;
+            else w++;
         });
         const score = (c * 4) - w;
-        state.t.history.push({ s: score, d: new Date().toLocaleDateString() });
-        saveAndRefresh(false);
-        
+        state.t.history.push({ score, date: new Date().toLocaleDateString(), correct: c, wrong: w });
+        saveDB();
+
         document.getElementById('v-quiz').style.display = 'none';
         const res = document.getElementById('v-res');
         res.style.display = 'block';
-        res.innerHTML = `<div class="card" style="text-align:center">
-            <h1>Score: ${score}</h1>
-            <button class="btn btn-p" onclick="state.mode='analysis'; state.idx=0; document.getElementById('v-res').style.display='none'; document.getElementById('v-quiz').style.display='block'; renderQ()">Review Solutions</button>
-            <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Home</button>
-        </div>`;
+        res.innerHTML = `
+            <div class="card" style="text-align:center">
+                <h1>Score: ${score}</h1>
+                <div style="display:flex; justify-content:space-around; margin:20px 0">
+                    <div><b>${c}</b><br>Correct</div>
+                    <div><b>${w}</b><br>Wrong</div>
+                    <div><b>${sk}</b><br>Skipped</div>
+                </div>
+                <button class="btn btn-p" onclick="state.mode='analysis'; state.idx=0; document.getElementById('v-res').style.display='none'; document.getElementById('v-quiz').style.display='block'; renderQ()">Analysis (Solution inside)</button>
+                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Library</button>
+            </div>
+        `;
     }
 
-    function exportData() {
-        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = 'NEET_Master_Data.genie'; a.click();
+    function exportFile() {
+        const blob = new Blob([JSON.stringify(db)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'Tests_Backup.genie';
+        a.click();
     }
 
-    function importData(e) {
+    function importFile(e) {
+        const file = e.target.files[0];
         const reader = new FileReader();
-        reader.onload = (ev) => { db = JSON.parse(ev.target.result); saveAndRefresh(); };
-        reader.readAsText(e.target.files[0]);
+        reader.onload = (event) => {
+            db = JSON.parse(event.target.result);
+            saveDB(); location.reload();
+        };
+        reader.readAsText(file);
     }
 
-    function deleteT(i) { if(confirm("Delete this test?")) { db.splice(i, 1); saveAndRefresh(); } }
-    function saveAndRefresh(refresh = true) { 
-        localStorage.setItem('genie_pro_db', JSON.stringify(db)); 
-        if(refresh) renderDash(); 
-    }
-
+    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); saveDB(); renderDash(); } }
+    function saveDB() { localStorage.setItem('genie_ultra_v1', JSON.stringify(db)); }
     renderDash();
 </script>
 </body>
