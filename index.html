@@ -3,57 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra - Pro Mode</title>
+    <title>NEET Genie Ultra - Pro Cloud</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --bg: #0b0f1a; --card: #161b22; --accent: #58a6ff; --text: #c9d1d9; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
-        .container { max-width: 800px; margin: auto; }
-        .card { background: var(--card); border: 1px solid #30363d; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { color: var(--accent); border-bottom: 1px solid #30363d; padding-bottom: 10px; }
-        textarea, input, select { width: 100%; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 12px; margin: 10px 0; box-sizing: border-box; }
-        .btn { background: #238636; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; }
-        .btn:hover { background: #2ea043; }
-        #timerDisplay { font-size: 3rem; text-align: center; color: #ff7b72; font-family: 'Courier New', monospace; margin: 20px 0; border: 2px solid #30363d; border-radius: 10px; padding: 10px; }
-        .question-text { font-size: 1.3rem; line-height: 1.6; color: #adbac7; background: #22272e; padding: 20px; border-radius: 8px; border-left: 5px solid var(--accent); }
-        .nav-btns { display: flex; gap: 10px; margin-top: 20px; }
+        :root { --bg: #0b0f1a; --card: #161b22; --accent: #58a6ff; --text: #c9d1d9; --success: #238636; --error: #da3633; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .container { max-width: 850px; margin: auto; }
+        .card { background: var(--card); border: 1px solid #30363d; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        h2 { color: var(--accent); margin-top: 0; }
+        textarea, input { width: 100%; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin: 8px 0; box-sizing: border-box; }
+        .btn { background: var(--success); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn:hover { filter: brightness(1.2); }
+        #timerDisplay { font-size: 3.5rem; text-align: center; color: #ff7b72; font-family: monospace; margin: 15px 0; background: #0d1117; border-radius: 10px; }
+        .q-display { font-size: 1.4rem; padding: 20px; background: #21262d; border-radius: 10px; border-left: 6px solid var(--accent); min-height: 80px; }
+        .score-board { font-size: 1.5rem; color: var(--accent); text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="setupArea" class="card">
-        <h2>🚀 NEET Genie: Test Setup</h2>
-        <input type="text" id="testTitle" placeholder="Batch Name (e.g. Organic Chem Pankaj Sir)">
+        <h2>🧬 Create Mock Test</h2>
+        <input type="text" id="testTitle" placeholder="Batch/Subject Name">
         
-        <p>Questions & Answers (Paste everything here):</p>
-        <textarea id="bulkInput" rows="8" placeholder="Question 1...&#10;Question 2..."></textarea>
+        <label>Enter Questions (One per line):</label>
+        <textarea id="questionsInput" rows="6" placeholder="Q1. Force unit?&#10;Q2. Speed of light?"></textarea>
         
-        <div style="display:flex; gap:15px; align-items: center;">
-            <label>Set Timer (Minutes):</label>
-            <input type="number" id="timeLimit" value="45" style="width: 100px;">
-        </div>
+        <label>Enter Answers (Same order - One per line):</label>
+        <textarea id="answersInput" rows="6" placeholder="Newton&#10;3x10^8"></textarea>
         
-        <button class="btn" onclick="initializeTest()">Start Practice Now 🏁</button>
+        <label>Set Timer (Minutes):</label>
+        <input type="number" id="timeLimit" value="45">
+        
+        <button class="btn" onclick="startProQuiz()">Start Quiz 🚀</button>
     </div>
 
     <div id="quizArea" class="card" style="display:none;">
         <div id="timerDisplay">00:00</div>
-        <div id="activeTestName" style="text-align:center; color:#8b949e; margin-bottom:10px;"></div>
-        <div id="questionDisplay" class="question-text"></div>
-        <input type="text" id="answerInput" placeholder="Write your answer / option here...">
+        <div id="qDisplay" class="q-display"></div>
+        <input type="text" id="userInput" placeholder="Your Answer here..." style="margin-top:20px;">
         
-        <div class="nav-btns">
-            <button class="btn" onclick="handleNext()" style="background:#1f6feb;">Next Question ➡️</button>
-            <button class="btn" onclick="finishTest()" style="background:#da3633;">Finish Test</button>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn" onclick="checkAndNext()" style="background: var(--accent);">Next Question ➡️</button>
+            <button class="btn" onclick="forceQuit()" style="background: var(--error);">End Early</button>
         </div>
+        <p id="progress" style="text-align:right; margin-top:10px; color:#8b949e;"></p>
+    </div>
+
+    <div id="resultArea" class="card" style="display:none;">
+        <h2>📊 Test Results</h2>
+        <div class="score-board" id="finalScore"></div>
+        <button class="btn" onclick="location.reload()" style="margin-top:20px;">Try Another Test</button>
     </div>
 </div>
 
 <script>
-    // FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
         authDomain: "neet-genie.firebaseapp.com",
@@ -66,78 +72,75 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let questions = [];
-    let currentIndex = 0;
-    let timerRef;
+    let qList = [], aList = [], uAnswers = [];
+    let currentIdx = 0, timerRef, score = 0;
 
-    async function initializeTest() {
+    async function startProQuiz() {
         const title = document.getElementById('testTitle').value;
-        const rawData = document.getElementById('bulkInput').value.trim();
+        const qRaw = document.getElementById('questionsInput').value.trim();
+        const aRaw = document.getElementById('answersInput').value.trim();
         const mins = document.getElementById('timeLimit').value;
 
-        if(!title || !rawData) {
-            alert("Bhai, pehle details toh dalo!");
-            return;
-        }
+        if(!title || !qRaw || !aRaw) return alert("Pura data bharo bhai!");
 
-        questions = rawData.split('\n').filter(line => line.trim() !== "");
-        currentIndex = 0;
+        qList = qRaw.split('\n').filter(l => l.trim() !== "");
+        aList = aRaw.split('\n').filter(l => l.trim() !== "");
+        
+        if(qList.length !== aList.length) return alert("Warning: Questions aur Answers ki ginti barabar nahi hai!");
 
-        // Cloud Pe Backup
-        await db.collection("tests_v2").add({
+        // Cloud Backup
+        await db.collection("pro_tests").add({
             testName: title,
-            totalQ: questions.length,
+            qCount: qList.length,
             timeSet: mins,
             timestamp: new Date()
         });
 
-        // UI Change
         document.getElementById('setupArea').style.display = "none";
         document.getElementById('quizArea').style.display = "block";
-        document.getElementById('activeTestName').innerText = "Topic: " + title;
-
-        startQuizTimer(mins * 60);
-        showNextQuestion();
+        
+        runTimer(mins * 60);
+        renderQuestion();
     }
 
-    function showNextQuestion() {
-        if(currentIndex < questions.length) {
-            document.getElementById('questionDisplay').innerText = `Q${currentIndex + 1}: ${questions[currentIndex]}`;
-            document.getElementById('answerInput').value = "";
+    function renderQuestion() {
+        if(currentIdx < qList.length) {
+            document.getElementById('qDisplay').innerText = `Q${currentIdx + 1}: ${qList[currentIdx]}`;
+            document.getElementById('userInput').value = "";
+            document.getElementById('progress').innerText = `Question ${currentIdx+1} of ${qList.length}`;
+            document.getElementById('userInput').focus();
         } else {
-            finishTest();
+            showFinalResults();
         }
     }
 
-    function handleNext() {
-        currentIndex++;
-        showNextQuestion();
+    function checkAndNext() {
+        let userAns = document.getElementById('userInput').value.trim().toLowerCase();
+        let correctAns = aList[currentIdx].trim().toLowerCase();
+
+        if(userAns === correctAns) score++;
+        
+        currentIdx++;
+        renderQuestion();
     }
 
-    function startQuizTimer(duration) {
-        let timer = duration, minutes, seconds;
-        timerRef = setInterval(function () {
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
-
-            document.getElementById('timerDisplay').textContent = minutes + ":" + seconds;
-
-            if (--timer < 0) {
-                clearInterval(timerRef);
-                alert("Time Over!");
-                finishTest();
-            }
+    function runTimer(sec) {
+        timerRef = setInterval(() => {
+            let m = Math.floor(sec / 60), s = sec % 60;
+            document.getElementById('timerDisplay').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+            if(sec <= 0) { clearInterval(timerRef); showFinalResults(); }
+            sec--;
         }, 1000);
     }
 
-    function finishTest() {
+    function showFinalResults() {
         clearInterval(timerRef);
-        alert("Test Complete! Aapka data cloud par sync ho gaya hai.");
-        location.reload();
+        document.getElementById('quizArea').style.display = "none";
+        document.getElementById('resultArea').style.display = "block";
+        document.getElementById('finalScore').innerHTML = `Aapne <b>${qList.length}</b> mein se <b>${score}</b> sahi kiye! <br> Accuracy: ${Math.round((score/qList.length)*100)}%`;
     }
+
+    function forceQuit() { if(confirm("Khatam karna hai?")) showFinalResults(); }
 </script>
 </body>
 </html>
