@@ -1,65 +1,93 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra - Pro Cloud</title>
+    <title>NEET Genie Ultra | Cloud Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --bg: #0b0f1a; --card: #161b22; --accent: #58a6ff; --text: #c9d1d9; --success: #238636; --error: #da3633; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .container { max-width: 850px; margin: auto; }
-        .card { background: var(--card); border: 1px solid #30363d; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-        h2 { color: var(--accent); margin-top: 0; }
-        textarea, input { width: 100%; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 8px; padding: 12px; margin: 8px 0; box-sizing: border-box; }
-        .btn { background: var(--success); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .btn:hover { filter: brightness(1.2); }
-        #timerDisplay { font-size: 3.5rem; text-align: center; color: #ff7b72; font-family: monospace; margin: 15px 0; background: #0d1117; border-radius: 10px; }
-        .q-display { font-size: 1.4rem; padding: 20px; background: #21262d; border-radius: 10px; border-left: 6px solid var(--accent); min-height: 80px; }
-        .score-board { font-size: 1.5rem; color: var(--accent); text-align: center; }
+        :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; --txt: #1e293b; --bdr: #e5e7eb; }
+        [data-theme='dark'] { --bg: #0f172a; --sur: #1e293b; --txt: #f1f5f9; --bdr: #334155; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: var(--txt); transition: 0.3s; }
+        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--bdr); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .option { padding: 1rem; border: 1.5px solid var(--bdr); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
+        .option.correct { background: #dcfce7 !important; border-color: var(--s) !important; color: #166534 !important; }
+        .option.wrong { background: #fee2e2 !important; border-color: var(--d) !important; color: #991b1b !important; }
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--bdr); border-radius: 10px; cursor: pointer; font-weight: 700; }
+        .dot.answered { background: var(--s); color: white; border-color: var(--s); }
+        .dot.active { border: 2px solid var(--p); color: var(--p); }
+        .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-p { background: var(--p); color: white; }
+        .btn-s { background: var(--bg); color: var(--txt); border: 1px solid var(--bdr); }
+        textarea, input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--bdr); background: var(--sur); color: var(--txt); margin-bottom: 10px; box-sizing: border-box; }
+        #timer-disp { font-size: 2rem; font-weight: 800; color: var(--d); text-align: center; margin-bottom: 10px; font-family: monospace; }
+        .rank-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--bg); border-radius: 12px; overflow: hidden; }
+        .rank-table th, .rank-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--bdr); }
+        .rank-1 { background: #fef3c7 !important; color: #92400e; font-weight: 800; }
+        .ai-card { background: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 12px; margin-top: 15px; color: #0369a1; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="setupArea" class="card">
-        <h2>🧬 Create Mock Test</h2>
-        <input type="text" id="testTitle" placeholder="Batch/Subject Name">
-        
-        <label>Enter Questions (One per line):</label>
-        <textarea id="questionsInput" rows="6" placeholder="Q1. Force unit?&#10;Q2. Speed of light?"></textarea>
-        
-        <label>Enter Answers (Same order - One per line):</label>
-        <textarea id="answersInput" rows="6" placeholder="Newton&#10;3x10^8"></textarea>
-        
-        <label>Set Timer (Minutes):</label>
-        <input type="number" id="timeLimit" value="45">
-        
-        <button class="btn" onclick="startProQuiz()">Start Quiz 🚀</button>
+<header>
+    <div class="logo" onclick="location.reload()" style="cursor:pointer; font-weight: 800;">NEET GENIE <span style="opacity:0.7">ULTRA</span></div>
+    <div style="display:flex; gap:15px; align-items:center;">
+        <div id="user-display" style="font-weight: 700; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px;">Hye User</div>
+        <button class="btn-s" onclick="toggleTheme()" style="width: 35px; height: 35px; border-radius: 50%;">🌓</button>
+    </div>
+</header>
+
+<div class="container" id="v-dash">
+    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; border: none;">
+        <h2 id="greet-big">Hye!</h2>
+        <p id="cloud-status">☁️ Connecting to Cloud Database...</p>
+        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key Here" style="background:rgba(255,255,255,0.1); color:white; border:none; padding:10px;">
     </div>
 
-    <div id="quizArea" class="card" style="display:none;">
-        <div id="timerDisplay">00:00</div>
-        <div id="qDisplay" class="q-display"></div>
-        <input type="text" id="userInput" placeholder="Your Answer here..." style="margin-top:20px;">
-        
-        <div style="display:flex; gap:10px; margin-top:10px;">
-            <button class="btn" onclick="checkAndNext()" style="background: var(--accent);">Next Question ➡️</button>
-            <button class="btn" onclick="forceQuit()" style="background: var(--error);">End Early</button>
+    <div class="card">
+        <h3>Create Test</h3>
+        <input type="text" id="t-name" placeholder="Test Name">
+        <textarea id="t-qs" rows="5" placeholder="Q1. Question... A) B) C) D) [IMG:url]"></textarea>
+        <textarea id="t-ans" rows="2" placeholder="Answers: 1. A 2. B 3. C..."></textarea>
+        <input type="number" id="t-mins" placeholder="Set Timer (Minutes) - e.g. 45" style="width:200px">
+        <button class="btn btn-p" style="width:100%" onclick="saveBulkTest()">Add to Cloud Library</button>
+    </div>
+
+    <h3>Global Test Library</h3>
+    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;"></div>
+</div>
+
+<div class="container" id="v-quiz" style="display:none">
+    <div id="timer-disp">00:00</div>
+    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
+        <div class="card">
+            <div id="q-area"></div>
+            <div style="display:flex; gap:10px; margin-top:20px">
+                <button class="btn btn-s" onclick="move(-1)">Back</button>
+                <button class="btn btn-s" onclick="move(1)">Next</button>
+                <button class="btn btn-p" id="finish-btn" style="flex:1; background:var(--d)" onclick="finish()">Finish Test</button>
+            </div>
+            <button class="btn btn-p" id="home-btn" style="display:none; width:100%; margin-top:10px; background:#1e1b4b" onclick="location.reload()">Back to Home</button>
         </div>
-        <p id="progress" style="text-align:right; margin-top:10px; color:#8b949e;"></p>
-    </div>
-
-    <div id="resultArea" class="card" style="display:none;">
-        <h2>📊 Test Results</h2>
-        <div class="score-board" id="finalScore"></div>
-        <button class="btn" onclick="location.reload()" style="margin-top:20px;">Try Another Test</button>
+        <div class="card">
+            <h4>Navigator</h4>
+            <div class="palette" id="palette"></div>
+        </div>
     </div>
 </div>
 
+<div class="container" id="v-res" style="display:none"></div>
+
 <script>
+    // --- FIREBASE SETUP ---
     const firebaseConfig = {
         apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
         authDomain: "neet-genie.firebaseapp.com",
@@ -68,79 +96,172 @@
         messagingSenderId: "91475548401",
         appId: "1:91475548401:web:f395534d6d806d52713150"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const dbCloud = firebase.firestore();
 
-    let qList = [], aList = [], uAnswers = [];
-    let currentIdx = 0, timerRef, score = 0;
+    let db = [];
+    let userName = localStorage.getItem('genie_user_name') || "";
+    if(!userName) {
+        userName = prompt("Bhai, apna naam batao ranking ke liye:") || "Student";
+        localStorage.setItem('genie_user_name', userName);
+    }
+    document.getElementById('user-display').innerText = `Hye ${userName}`;
+    document.getElementById('greet-big').innerText = `Hye ${userName}!`;
 
-    async function startProQuiz() {
-        const title = document.getElementById('testTitle').value;
-        const qRaw = document.getElementById('questionsInput').value.trim();
-        const aRaw = document.getElementById('answersInput').value.trim();
-        const mins = document.getElementById('timeLimit').value;
+    let state = { tIdx: null, t: null, ans: {}, idx: 0, mode: 'exam', timer: null };
 
-        if(!title || !qRaw || !aRaw) return alert("Pura data bharo bhai!");
+    function toggleTheme() {
+        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', theme);
+    }
 
-        qList = qRaw.split('\n').filter(l => l.trim() !== "");
-        aList = aRaw.split('\n').filter(l => l.trim() !== "");
-        
-        if(qList.length !== aList.length) return alert("Warning: Questions aur Answers ki ginti barabar nahi hai!");
+    // --- CLOUD DATA SYNC ---
+    async function fetchCloudTests() {
+        const snap = await dbCloud.collection("global_tests").orderBy("createdAt", "desc").get();
+        db = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        document.getElementById('cloud-status').innerText = "✅ Cloud Synced: Global Tests Loaded";
+        renderDash();
+    }
 
-        // Cloud Backup
-        await db.collection("pro_tests").add({
-            testName: title,
-            qCount: qList.length,
-            timeSet: mins,
-            timestamp: new Date()
+    async function saveBulkTest() {
+        const name = document.getElementById('t-name').value || "Unnamed Test";
+        const qRaw = document.getElementById('t-qs').value;
+        const aRaw = document.getElementById('t-ans').value;
+        const mins = document.getElementById('t-mins').value || 45;
+        const blocks = qRaw.split(/Q\d+[\.\:]/).filter(b => b.trim());
+        const keys = aRaw.match(/[A-D](?=\s|$|\.|\,|\))/gi);
+
+        const qs = blocks.map((b, i) => {
+            const lines = b.trim().split('\n').filter(l => l.trim());
+            const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
+            return {
+                txt: lines[0].replace(/\[IMG:.*?\]/, "").trim(),
+                img: imgMatch ? imgMatch[1] : null,
+                opts: lines.slice(1, 5).map(opt => opt.replace(/^[A-D][\)\.\s]\s*/i, "").trim()),
+                key: (keys && keys[i]) ? keys[i].toUpperCase() : 'A'
+            };
         });
 
-        document.getElementById('setupArea').style.display = "none";
-        document.getElementById('quizArea').style.display = "block";
-        
-        runTimer(mins * 60);
-        renderQuestion();
+        const newTest = { name, qs, mins: parseInt(mins), createdAt: new Date().toISOString(), history: [] };
+        await dbCloud.collection("global_tests").add(newTest);
+        alert("Test added to Cloud!");
+        fetchCloudTests();
     }
 
-    function renderQuestion() {
-        if(currentIdx < qList.length) {
-            document.getElementById('qDisplay').innerText = `Q${currentIdx + 1}: ${qList[currentIdx]}`;
-            document.getElementById('userInput').value = "";
-            document.getElementById('progress').innerText = `Question ${currentIdx+1} of ${qList.length}`;
-            document.getElementById('userInput').focus();
-        } else {
-            showFinalResults();
-        }
+    function renderDash() {
+        document.getElementById('test-list').innerHTML = db.map((t, i) => `
+            <div class="card">
+                <h3 style="margin:0">${t.name}</h3>
+                <p style="font-size:0.8rem; opacity:0.6">${t.qs.length} Qs | Time: ${t.mins}m</p>
+                <button class="btn btn-p" style="width:100%; margin-top:10px" onclick="start(${i})">Start Attempt</button>
+            </div>
+        `).join('');
     }
 
-    function checkAndNext() {
-        let userAns = document.getElementById('userInput').value.trim().toLowerCase();
-        let correctAns = aList[currentIdx].trim().toLowerCase();
-
-        if(userAns === correctAns) score++;
-        
-        currentIdx++;
-        renderQuestion();
+    function start(idx) {
+        state.tIdx = idx; state.t = db[idx]; state.idx = 0; state.ans = {}; state.mode = 'exam';
+        document.getElementById('v-dash').style.display = 'none';
+        document.getElementById('v-quiz').style.display = 'block';
+        startTimer(state.t.mins * 60);
+        renderQ();
     }
 
-    function runTimer(sec) {
-        timerRef = setInterval(() => {
+    function startTimer(sec) {
+        if(state.timer) clearInterval(state.timer);
+        state.timer = setInterval(() => {
             let m = Math.floor(sec / 60), s = sec % 60;
-            document.getElementById('timerDisplay').innerText = `${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-            if(sec <= 0) { clearInterval(timerRef); showFinalResults(); }
+            document.getElementById('timer-disp').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+            if(sec <= 0) { clearInterval(state.timer); finish(); }
             sec--;
         }, 1000);
     }
 
-    function showFinalResults() {
-        clearInterval(timerRef);
-        document.getElementById('quizArea').style.display = "none";
-        document.getElementById('resultArea').style.display = "block";
-        document.getElementById('finalScore').innerHTML = `Aapne <b>${qList.length}</b> mein se <b>${score}</b> sahi kiye! <br> Accuracy: ${Math.round((score/qList.length)*100)}%`;
+    function renderQ() {
+        const q = state.t.qs[state.idx];
+        let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
+        if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.style.display='none'">`;
+        ["A", "B", "C", "D"].forEach((l, i) => {
+            let cls = 'option';
+            if(state.mode === 'exam' && state.ans[state.idx] === l) cls += ' selected';
+            if(state.mode === 'analysis') {
+                if(l === q.key) cls += ' correct';
+                else if(state.ans[state.idx] === l) cls += ' wrong';
+            }
+            html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
+        });
+        if(state.mode === 'analysis') {
+            html += `<div class="ai-card" id="ai-res">🪄 Gemini AI Logic...</div>`;
+            getAiSolution(q.txt, q.key);
+        }
+        document.getElementById('q-area').innerHTML = html;
+        renderPalette();
     }
 
-    function forceQuit() { if(confirm("Khatam karna hai?")) showFinalResults(); }
+    async function getAiSolution(qText, k) {
+        const key = document.getElementById('gemini-key').value;
+        if(!key) { document.getElementById('ai-res').innerText = `Correct Answer: ${k}. (Paste Gemini Key for NCERT logic)`; return; }
+        try {
+            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `Briefly explain this NEET question based on NCERT: ${qText}. Answer is ${k}.` }] }] })
+            });
+            const d = await r.json();
+            document.getElementById('ai-res').innerText = d.candidates[0].content.parts[0].text;
+        } catch(e) { document.getElementById('ai-res').innerText = "AI Error."; }
+    }
+
+    function renderPalette() {
+        let p = '';
+        state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
+        document.getElementById('palette').innerHTML = p;
+    }
+
+    function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
+    function move(d) { let n = state.idx + d; if(n >= 0 && n < state.t.qs.length) { state.idx = n; renderQ(); } }
+
+    async function finish() {
+        clearInterval(state.timer);
+        let c=0, w=0;
+        state.t.qs.forEach((q, i) => { if(state.ans[i] === q.key) c++; else if(state.ans[i]) w++; });
+        const score = (c*4) - w;
+        
+        // --- SAVE TO CLOUD LEADERBOARD ---
+        const attempt = { name: userName, score, date: new Date().toLocaleDateString() };
+        const testRef = dbCloud.collection("global_tests").doc(state.t.id);
+        await testRef.update({ history: firebase.firestore.FieldValue.arrayUnion(attempt) });
+
+        const updatedTest = (await testRef.get()).data();
+        let sortedHistory = [...updatedTest.history].sort((a,b) => b.score - a.score);
+        let myRank = sortedHistory.findIndex(h => h.score === score && h.name === userName) + 1;
+
+        document.getElementById('v-quiz').style.display = 'none';
+        const res = document.getElementById('v-res');
+        res.style.display = 'block';
+        res.innerHTML = `
+            <div class="card" style="text-align:center">
+                <h1 style="font-size:3rem; color:var(--p)">${score}</h1>
+                <h2 style="color:var(--s)">Global Rank: #${myRank}</h2>
+                <table class="rank-table">
+                    <tr><th>Rank</th><th>Name</th><th>Score</th></tr>
+                    ${sortedHistory.slice(0, 10).map((h, idx) => `<tr class="${h.name === userName ? 'rank-1' : ''}"><td>#${idx+1}</td><td>${h.name}</td><td>${h.score}</td></tr>`).join('')}
+                </table>
+                <button class="btn btn-p" style="width:100%; margin-top:20px" onclick="showAnalysis()">AI Analysis</button>
+                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Dashboard</button>
+            </div>
+        `;
+    }
+
+    function showAnalysis() {
+        state.mode = 'analysis'; state.idx = 0;
+        document.getElementById('v-res').style.display = 'none';
+        document.getElementById('v-quiz').style.display = 'block';
+        document.getElementById('home-btn').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        document.getElementById('timer-disp').style.display = 'none';
+        renderQ();
+    }
+
+    fetchCloudTests();
 </script>
 </body>
 </html>
