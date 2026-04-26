@@ -1,274 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra | Abhishek Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>NEET Genie Ultra - Cloud Edition</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
-        :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; --txt: #1e293b; --bdr: #e5e7eb; }
-        [data-theme='dark'] { --bg: #0f172a; --sur: #1e293b; --txt: #f1f5f9; --bdr: #334155; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: var(--txt); transition: 0.3s; }
-        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--bdr); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #3b82f6;
+            --text: #f8fafc;
+            --success: #10b981;
+        }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; }
+        .card { background: var(--card); border: 1px solid #334155; padding: 25px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        h1, h2, h3 { margin-top: 0; color: var(--accent); }
         
-        /* Options Style */
-        .option { padding: 1rem; border: 1.5px solid var(--bdr); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
-        .option.correct { background: #dcfce7 !important; border-color: var(--s) !important; color: #166534 !important; }
-        .option.wrong { background: #fee2e2 !important; border-color: var(--d) !important; color: #991b1b !important; }
+        textarea { width: 100%; background: #0f172a; color: var(--success); border: 1px solid #334155; border-radius: 10px; padding: 15px; font-family: 'Courier New', monospace; font-size: 14px; resize: vertical; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; box-sizing: border-box; }
         
-        /* Navigator Palette */
-        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--bdr); border-radius: 10px; cursor: pointer; font-weight: 700; }
-        .dot.answered { background: var(--s); color: white; border-color: var(--s); }
-        .dot.active { border: 2px solid var(--p); color: var(--p); }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
         
-        /* Buttons */
-        .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-p { background: var(--p); color: white; }
-        .btn-s { background: var(--bg); color: var(--txt); border: 1px solid var(--bdr); }
+        #timerDisplay { font-size: 2rem; font-weight: bold; color: #f43f5e; text-align: center; margin: 15px 0; font-family: monospace; }
+        .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; background: #334155; margin-bottom: 10px; }
         
-        textarea, input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--bdr); background: var(--sur); color: var(--txt); margin-bottom: 10px; box-sizing: border-box; }
-        .q-img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid var(--bdr); }
-        
-        /* Rank Table */
-        .rank-table { width: 100%; border-collapse: collapse; margin-top: 15px; background: var(--bg); border-radius: 12px; overflow: hidden; }
-        .rank-table th, .rank-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--bdr); }
-        .rank-1 { background: #fef3c7 !important; color: #92400e; font-weight: 800; }
-        .ai-card { background: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 12px; margin-top: 15px; color: #0369a1; }
+        .test-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #334155; }
+        .test-item:last-child { border: 0; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo" onclick="location.reload()" style="cursor:pointer; font-weight: 800;">NEET GENIE <span style="opacity:0.7">ULTRA</span></div>
-    <div style="display:flex; gap:15px; align-items:center;">
-        <div id="user-display" style="font-weight: 700; background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px;">Hye User</div>
-        <button class="btn-s" onclick="toggleTheme()" style="width: 35px; height: 35px; border-radius: 50%;">🌓</button>
+<div class="container">
+    <div class="card">
+        <div class="status-badge" id="cloudStatus">Connecting to Cloud...</div>
+        <h1>🧬 NEET Genie Ultra</h1>
+        <p style="color: #94a3b8;">Syllabus Completion & Practice Tracker (Cloud Powered)</p>
     </div>
-</header>
 
-<div class="container" id="v-dash">
-    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; border: none;">
-        <h2 id="greet-big">Hye!</h2>
-        <div style="display:flex; gap:10px; margin:15px 0; flex-wrap: wrap;">
-            <button class="btn btn-s" onclick="exportData()" style="color:#1e1b4b">📤 Export Data</button>
-            <button class="btn btn-s" onclick="document.getElementById('f-in').click()" style="color:#1e1b4b">📥 Import Data</button>
-            <input type="file" id="f-in" style="display:none" onchange="importData(event)">
-        </div>
-        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key Here" style="background:rgba(255,255,255,0.1); color:white; border:none; padding:10px;">
+    <div class="card" id="timerCard" style="display: none;">
+        <h3 id="activeTestTitle">Test Running</h3>
+        <div id="timerDisplay">00:00</div>
+        <button class="btn" style="background: #f43f5e;" onclick="stopTimer()">Finish & Submit</button>
     </div>
 
     <div class="card">
-        <h3>Create Test</h3>
-        <input type="text" id="t-name" placeholder="Test Name (e.g., Full Mock Test 1)">
-        <textarea id="t-qs" rows="5" placeholder="Q1. Question... A) B) C) D) [IMG:url]"></textarea>
-        <textarea id="t-ans" rows="2" placeholder="Answers: 1. A 2. B 3. C..."></textarea>
-        <button class="btn btn-p" style="width:100%" onclick="saveBulkTest()">Add to Library</button>
+        <h3>📤 Add New Mock Test / Batch Data</h3>
+        <input type="text" id="testTitle" placeholder="Test Name (e.g., Pankaj Sir Organic L1)">
+        <textarea id="bulkData" rows="6" placeholder="Paste data here... (Tip: One line per question)"></textarea>
+        <p style="font-size: 12px; color: #64748b; margin-top: 5px;">Timer automatically set: 1 Question = 1 Minute</p>
+        <button class="btn" onclick="saveToCloud()">Save & Start Practice</button>
     </div>
 
-    <h3>Test Library & Previous Ranks</h3>
-    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;"></div>
-</div>
-
-<div class="container" id="v-quiz" style="display:none">
-    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
-        <div class="card">
-            <div id="q-area"></div>
-            <div style="display:flex; gap:10px; margin-top:20px">
-                <button class="btn btn-s" onclick="move(-1)">Back</button>
-                <button class="btn btn-s" onclick="move(1)">Next</button>
-                <button class="btn btn-p" id="finish-btn" style="flex:1; background:var(--d)" onclick="finish()">Finish Test</button>
-            </div>
-            <button class="btn btn-p" id="home-btn" style="display:none; width:100%; margin-top:10px; background:#1e1b4b" onclick="location.reload()">Back to Home</button>
-        </div>
-        <div class="card">
-            <h4>Navigator</h4>
-            <div class="palette" id="palette"></div>
-        </div>
+    <div class="card">
+        <h3>📚 Your Study Vault (Cloud)</h3>
+        <div id="testLibrary">Loading your tests...</div>
     </div>
 </div>
-
-<div class="container" id="v-res" style="display:none"></div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('genie_ultra_pro_v1')) || [];
-    let userName = localStorage.getItem('genie_user_name') || "";
+    // --- FIREBASE CONFIG (TUMHARI CHABI) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
+        authDomain: "neet-genie.firebaseapp.com",
+        projectId: "neet-genie",
+        storageBucket: "neet-genie.firebasestorage.app",
+        messagingSenderId: "91475548401",
+        appId: "1:91475548401:web:f395534d6d806d52713150"
+    };
 
-    // Ask for name once
-    if(!userName) {
-        userName = prompt("Bhai, apna naam batao ranking ke liye:") || "Student";
-        localStorage.setItem('genie_user_name', userName);
-    }
-    document.getElementById('user-display').innerText = `Hye ${userName}`;
-    document.getElementById('greet-big').innerText = `Hye ${userName}!`;
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    
+    document.getElementById('cloudStatus').innerText = "● Cloud Connected (Spark Plan)";
+    document.getElementById('cloudStatus').style.color = "#10b981";
 
-    let state = { tIdx: null, t: null, ans: {}, idx: 0, mode: 'exam' };
+    let timerInterval;
 
-    function toggleTheme() {
-        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', theme);
-    }
+    // --- CLOUD FUNCTIONS ---
 
-    function saveBulkTest() {
-        const name = document.getElementById('t-name').value || "Unnamed Test";
-        const qRaw = document.getElementById('t-qs').value;
-        const aRaw = document.getElementById('t-ans').value;
-        const blocks = qRaw.split(/Q\d+[\.\:]/).filter(b => b.trim());
-        const keys = aRaw.match(/[A-D](?=\s|$|\.|\,|\))/gi);
-
-        const qs = blocks.map((b, i) => {
-            const lines = b.trim().split('\n').filter(l => l.trim());
-            const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
-            return {
-                txt: lines[0].replace(/\[IMG:.*?\]/, "").trim(),
-                img: imgMatch ? imgMatch[1] : null,
-                opts: lines.slice(1, 5).map(opt => opt.replace(/^[A-D][\)\.\s]\s*/i, "").trim()),
-                key: (keys && keys[i]) ? keys[i].toUpperCase() : 'A'
-            };
-        });
-        db.push({ id: Date.now(), name, qs, history: [] });
-        saveAndReload();
-    }
-
-    function renderDash() {
-        document.getElementById('test-list').innerHTML = db.map((t, i) => `
-            <div class="card">
-                <h3 style="margin:0">${t.name}</h3>
-                <p style="font-size:0.8rem; opacity:0.6">${t.qs.length} Questions | ${t.history.length} Attempts</p>
-                <div style="display:flex; gap:8px; margin-top:10px">
-                    <button class="btn btn-p" style="flex:1" onclick="start(${i})">Start</button>
-                    <button class="btn btn-s" onclick="deleteT(${i})">🗑</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function start(idx) {
-        state.tIdx = idx; state.t = db[idx]; state.idx = 0; state.ans = {}; state.mode = 'exam';
-        document.getElementById('v-dash').style.display = 'none';
-        document.getElementById('v-quiz').style.display = 'block';
-        document.getElementById('home-btn').style.display = 'none';
-        document.getElementById('finish-btn').style.display = 'block';
-        renderQ();
-    }
-
-    function renderQ() {
-        const q = state.t.qs[state.idx];
-        let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
-        if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.style.display='none'">`;
+    async function saveToCloud() {
+        const title = document.getElementById('testTitle').value;
+        const data = document.getElementById('bulkData').value.trim();
         
-        ["A", "B", "C", "D"].forEach((l, i) => {
-            let cls = 'option';
-            if(state.mode === 'exam' && state.ans[state.idx] === l) cls += ' selected';
-            if(state.mode === 'analysis') {
-                if(l === q.key) cls += ' correct';
-                else if(state.ans[state.idx] === l) cls += ' wrong';
-            }
-            html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
-        });
+        if (!title || !data) { alert("Title aur Data dono bharo bhai!"); return; }
 
-        if(state.mode === 'analysis') {
-            html += `<div class="ai-card" id="ai-res">🪄 Gemini AI is checking logic...</div>`;
-            getAiSolution(q.txt, q.key);
-        }
-        document.getElementById('q-area').innerHTML = html;
-        renderPalette();
-    }
+        const questions = data.split('\n').filter(q => q.length > 0);
+        const qCount = questions.length;
 
-    async function getAiSolution(qText, k) {
-        const key = document.getElementById('gemini-key').value;
-        const box = document.getElementById('ai-res');
-        if(!key) { box.innerHTML = `<b>Correct Key: ${k}</b><br>Paste Gemini API Key to see NCERT explanation.`; return; }
         try {
-            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `Explain this NEET Question based on NCERT 11/12 logic: ${qText}. Correct answer is ${k}.` }] }] })
+            await db.collection("tests").add({
+                title: title,
+                questions: questions,
+                qCount: qCount,
+                createdAt: new Date().toISOString()
             });
-            const d = await r.json();
-            box.innerText = d.candidates[0].content.parts[0].text;
-        } catch(e) { box.innerText = "AI Offline. Check Key."; }
+            
+            alert(`Mubarak ho! ${qCount} questions save ho gaye.`);
+            document.getElementById('testTitle').value = "";
+            document.getElementById('bulkData').value = "";
+            loadLibrary();
+            startTest(title, qCount);
+        } catch (e) { alert("Error: " + e.message); }
     }
 
-    function renderPalette() {
-        let p = '';
-        state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
-        document.getElementById('palette').innerHTML = p;
-    }
-
-    function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
-    function move(d) { let n = state.idx + d; if(n >= 0 && n < state.t.qs.length) { state.idx = n; renderQ(); } }
-
-    function finish() {
-        let c=0, w=0, s=0;
-        state.t.qs.forEach((q, i) => {
-            if(!state.ans[i]) s++;
-            else if(state.ans[i] === q.key) c++;
-            else w++;
-        });
-        const score = (c*4) - w;
+    async function loadLibrary() {
+        const lib = document.getElementById('testLibrary');
+        const snapshot = await db.collection("tests").orderBy("createdAt", "desc").get();
         
-        // Save Attempt with User Name
-        db[state.tIdx].history.push({ name: userName, score, date: new Date().toLocaleDateString() });
-        localStorage.setItem('genie_ultra_pro_v1', JSON.stringify(db));
+        lib.innerHTML = "";
+        if (snapshot.empty) { lib.innerHTML = "No tests found. Add one!"; return; }
 
-        document.getElementById('v-quiz').style.display = 'none';
-        const res = document.getElementById('v-res');
-        res.style.display = 'block';
-
-        // Calculate Rank
-        let sortedHistory = [...db[state.tIdx].history].sort((a,b) => b.score - a.score);
-        let myRank = sortedHistory.findIndex(h => h.score === score && h.name === userName) + 1;
-
-        res.innerHTML = `
-            <div class="card" style="text-align:center">
-                <h1 style="font-size:3rem; color:var(--p); margin:0">${score}</h1>
-                <h2 style="color:var(--s)">Your Rank: #${myRank}</h2>
-                <p>Correct: ${c} | Wrong: ${w} | Skipped: ${s}</p>
-                
-                <h3 style="margin-top:25px">Leaderboard</h3>
-                <table class="rank-table">
-                    <tr><th>Rank</th><th>Name</th><th>Score</th><th>Date</th></tr>
-                    ${sortedHistory.map((h, idx) => `
-                        <tr class="${idx === 0 ? 'rank-1' : ''}">
-                            <td>#${idx+1}</td>
-                            <td>${h.name} ${h.name === userName ? '(You)' : ''}</td>
-                            <td>${h.score}</td>
-                            <td>${h.date}</td>
-                        </tr>
-                    `).join('')}
-                </table>
-
-                <button class="btn btn-p" style="width:100%; margin-top:20px" onclick="showAnalysis()">Analysis & AI Solution</button>
-                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Dashboard</button>
-            </div>
-        `;
+        snapshot.forEach(doc => {
+            const t = doc.data();
+            const div = document.createElement('div');
+            div.className = "test-item";
+            div.innerHTML = `
+                <div>
+                    <strong>${t.title}</strong><br>
+                    <small style="color:#64748b">${t.qCount} Qns | 1 min/q</small>
+                </div>
+                <button onclick="startTest('${t.title}', ${t.qCount})" style="padding: 5px 15px; border-radius: 5px; cursor:pointer; background:#1e293b; color:white; border:1px solid #334155;">Start</button>
+            `;
+            lib.appendChild(div);
+        });
     }
 
-    function showAnalysis() {
-        state.mode = 'analysis'; state.idx = 0;
-        document.getElementById('v-res').style.display = 'none';
-        document.getElementById('v-quiz').style.display = 'block';
-        document.getElementById('home-btn').style.display = 'block';
-        document.getElementById('finish-btn').style.display = 'none';
-        renderQ();
+    // --- REVERSE TIMER LOGIC ---
+
+    function startTest(title, qCount) {
+        document.getElementById('timerCard').style.display = "block";
+        document.getElementById('activeTestTitle').innerText = "Practicing: " + title;
+        window.scrollTo(0,0);
+
+        let totalSeconds = qCount * 60; // 45 Qns = 45 Mins
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            let mins = Math.floor(totalSeconds / 60);
+            let secs = totalSeconds % 60;
+
+            document.getElementById('timerDisplay').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            if (totalSeconds <= 0) {
+                clearInterval(timerInterval);
+                alert("Time's Up! Check your answers.");
+            } else {
+                totalSeconds--;
+            }
+        }, 1000);
     }
 
-    function exportData() {
-        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = 'NEET_Genie_Complete_Backup.genie'; a.click();
+    function stopTimer() {
+        clearInterval(timerInterval);
+        document.getElementById('timerCard').style.display = "none";
+        alert("Test Submitted! Results saved to cloud (Check Firestore Data tab).");
     }
-    function importData(e) {
-        const reader = new FileReader();
-        reader.onload = (ev) => { db = JSON.parse(ev.target.result); saveAndReload(); };
-        reader.readAsText(e.target.files[0]);
-    }
-    function deleteT(i) { if(confirm("Delete Test?")) { db.splice(i, 1); saveAndReload(); } }
-    function saveAndReload() { localStorage.setItem('genie_ultra_pro_v1', JSON.stringify(db)); renderDash(); }
-    renderDash();
+
+    // Load everything on start
+    loadLibrary();
+
 </script>
 </body>
-        </html>
+</html>
