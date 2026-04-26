@@ -1,110 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEET Genie Pro | Abhishek</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-    --ink: #0d0d1a; --ink2: #1a1a2e; --sur: #ffffff; --sur2: #f5f5fc; --bdr: #e5e5f0;
-    --P: #4f46e5; --G: #10b981; --R: #ef4444; --txt: #374151; --muted: #9ca3af;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Genie | Abhishek (Ydaabhi)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f8fafc; --sur: #ffffff; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
+        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; min-height: 70vh; }
+        
+        .admin-only { display: none; }
+        .is-admin .admin-only { display: block; }
 
-/* Dark Mode Variables */
-[data-theme='dark'] {
-    --ink: #ffffff; --ink2: #0f172a; --sur: #1e293b; --sur2: #0f172a; --bdr: #334155;
-    --txt: #f1f5f9; --muted: #94a3b8;
-}
+        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
+        .q-img { max-width: 100%; border-radius: 12px; margin: 15px 0; border: 1px solid #eee; display: block; }
+        
+        /* Options */
+        .option { padding: 1rem; border: 1.5px solid #e5e7eb; border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; font-weight: 500; }
+        .option:hover { background: #f9fafb; border-color: var(--p); }
+        .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
+        .option.correct { background: #dcfce7; border-color: var(--s); color: #166534; }
+        .option.wrong { background: #fee2e2; border-color: var(--d); color: #991b1b; }
 
-* { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
-body { font-family: 'DM Sans', sans-serif; background: var(--sur2); color: var(--txt); }
+        /* Palette */
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 0.8rem; }
+        .dot.answered { background: var(--s); color: white; }
+        .dot.active { border: 2px solid var(--p); color: var(--p); }
 
-header { background: var(--ink2); height: 65px; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; position: sticky; top: 0; z-index: 999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); color: white; }
-.logo { font-family: 'Syne', sans-serif; font-size: 1.4rem; cursor: pointer; }
-.logo span { color: #818cf8; }
+        .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-p { background: var(--p); color: white; width: 100%; }
+        .btn-s { background: #f1f5f9; color: #1e293b; }
+        
+        /* About Section Design */
+        .about-card { background: linear-gradient(135deg, #1e1b4b, #2e2a75); color: white; padding: 2rem; border-radius: 24px; text-align: center; margin-top: 3rem; }
+        .social-links { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        .social-btn { padding: 8px 15px; background: rgba(255,255,255,0.1); border-radius: 10px; color: white; text-decoration: none; font-size: 0.8rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .sol-frame { width: 100%; height: 450px; border: 1px solid #ddd; border-radius: 12px; margin-top: 15px; }
+        textarea, input { width: 100%; padding: 0.8rem; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 10px; font-family: inherit; }
 
-.pg { display: none; max-width: 1000px; margin: 20px auto; padding: 0 15px; min-height: 80vh; }
-.pg.on { display: block; }
-
-.card { background: var(--sur); border: 1px solid var(--bdr); border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-.hero { background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; padding: 40px; border-radius: 24px; margin-bottom: 25px; }
-
-/* Admin Controls */
-.admin-wrap { display: none; background: var(--ink2); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--P); }
-input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--bdr); margin-bottom: 10px; background: var(--sur); color: var(--txt); }
-
-/* Buttons */
-.btn { padding: 12px 20px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-family: inherit; }
-.bp { background: var(--P); color: white; }
-.bs { background: var(--sur2); color: var(--txt); border: 1px solid var(--bdr); }
-.br { background: var(--R); color: white; }
-
-/* Quiz Elements */
-.qimg { max-width: 100%; border-radius: 15px; margin: 15px 0; border: 1px solid var(--bdr); }
-.opt { padding: 14px; border: 1.5px solid var(--bdr); border-radius: 14px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: center; gap: 12px; }
-.opt.sel { border-color: var(--P); background: rgba(79, 70, 229, 0.1); }
-.palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.dot { height: 40px; border-radius: 10px; background: var(--sur); border: 1.5px solid var(--bdr); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 700; }
-.dot.ans { background: var(--G); color: white; border-color: var(--G); }
-.dot.cur { border-color: var(--P); border-width: 2.5px; }
-
-#timer { font-family: 'Syne', sans-serif; font-weight: 800; padding: 6px 15px; border-radius: 99px; background: rgba(255,255,255,0.1); }
-.timer-low { color: var(--R); animation: blink 1s infinite; }
-@keyframes blink { 50% { opacity: 0.5; } }
-
-footer { text-align: center; padding: 30px; opacity: 0.6; font-size: 0.8rem; }
-</style>
+        footer { text-align: center; padding: 1.5rem; color: #64748b; font-size: 0.8rem; }
+        #admin-trigger { cursor: pointer; opacity: 0.4; }
+    </style>
 </head>
-<body id="b">
+<body id="main-body">
 
 <header>
-    <div class="logo" onclick="location.reload()">NEET <span>Genie</span> Pro</div>
-    <div style="display:flex; gap:15px; align-items:center;">
-        <div id="timer" style="display:none">00:00</div>
-        <button class="btn bs" onclick="toggleTheme()" style="padding:8px; border-radius:50%">🌓</button>
-        <span id="admin-btn" onclick="adminAuth()" style="cursor:pointer; opacity:0.5">⚙️</span>
-    </div>
+    <div class="logo" onclick="location.reload()" style="cursor:pointer; font-weight: 800;">NEET GENIE <span id="mode-text" style="font-weight:400; opacity:0.6">STUDENT</span></div>
+    <div id="timer" style="display:none; font-family:monospace; font-size:1.2rem; background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:8px">00:00</div>
 </header>
 
-<div class="pg on" id="pg-dash">
-    <div class="hero">
-        <h1 style="font-family:'Syne',sans-serif; font-size:2.5rem">Hello, Abhishek</h1>
-        <p>Your journey to AIIMS starts here. Practice with precision.</p>
-    </div>
-
-    <div class="admin-wrap" id="admin-panel">
-        <h3>🚀 Add New Test</h3>
-        <input type="text" id="test-name" placeholder="Test Name (e.g. Physics: Optics)">
-        <div class="card" style="background:rgba(255,255,255,0.05); border:none;">
-            <p>Question #<span id="q-count">1</span></p>
-            <textarea id="q-txt" placeholder="Question text..."></textarea>
-            <input type="text" id="q-img" placeholder="Image URL (Optional)">
-            <input type="text" id="q-a" placeholder="Option A">
-            <input type="text" id="q-b" placeholder="Option B">
-            <input type="text" id="q-c" placeholder="Option C">
-            <input type="text" id="q-d" placeholder="Option D">
-            <select id="q-key"><option value="A">Answer: A</option><option value="B">Answer: B</option><option value="C">Answer: C</option><option value="D">Answer: D</option></select>
-            <button class="btn bp" onclick="addQToTemp()">Add Question</button>
+<div class="container" id="v-dash">
+    <div class="card admin-only" style="background: #1e1b4b; color: white;">
+        <h3 style="margin:0">Admin Control</h3>
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            <button class="btn btn-s" onclick="exportData()">Backup File</button>
+            <button class="btn btn-s" onclick="document.getElementById('f-in').click()">Import File</button>
+            <input type="file" id="f-in" style="display:none" onchange="importData(event)">
         </div>
-        <button class="btn bg" onclick="finalPublish()" style="width:100%; background:var(--G); color:white">Final Publish Test</button>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-        <h2>Available Tests</h2>
-        <label><input type="checkbox" id="shuffle-opt"> Shuffle Questions</label>
+    <div class="card admin-only">
+        <h3>Create Test</h3>
+        <input type="text" id="t-name" placeholder="Test Name">
+        <textarea id="t-qs" rows="4" placeholder="Q1. Text [IMG:url]... A) B) C) D)"></textarea>
+        <textarea id="t-ans" rows="2" placeholder="Keys: 1 A | 2 C..."></textarea>
+        <button class="btn btn-p" onclick="saveTest()">Publish</button>
     </div>
-    <div id="test-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:20px;"></div>
+
+    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:1rem;"></div>
+    
+    <div class="about-card" id="about-dev">
+        <h2 style="margin:0">Abhishek (Ydaabhi)</h2>
+        <p style="opacity:0.8; font-style:italic; margin:10px 0;">"Success is not just about clearing an exam; it's about the discipline you build while trying."</p>
+        <div class="social-links">
+            <a href="https://t.me/Ydaabhi07" target="_blank" class="social-btn">Telegram: @Ydaabhi07</a>
+            <a href="https://instagram.com/ydaabhi07" target="_blank" class="social-btn">Insta: @ydaabhi07</a>
+        </div>
+    </div>
 </div>
 
-<div class="pg" id="pg-quiz">
-    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;" id="q-stack">
-        <div>
-            <div class="card" id="q-card"></div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn bs" onclick="move(-1)">Back</button>
-                <button class="btn bs" onclick="move(1)">Next</button>
-                <button class="btn br" style="flex:1" onclick="confirmFinish()">End Test</button>
+<div class="container" id="v-quiz" style="display:none">
+    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;" id="quiz-stack">
+        <div class="card">
+            <div id="q-area"></div>
+            <div style="display:flex; gap:10px; margin-top:2rem">
+                <button class="btn btn-s" style="flex:1" onclick="move(-1)">Back</button>
+                <button class="btn btn-s" style="flex:1" onclick="move(1)">Next</button>
+                <button class="btn btn-p" id="sub-btn" style="flex:2" onclick="finish()">Submit</button>
             </div>
         </div>
         <div class="card">
@@ -114,154 +100,136 @@ footer { text-align: center; padding: 30px; opacity: 0.6; font-size: 0.8rem; }
     </div>
 </div>
 
-<div class="pg" id="pg-res" style="text-align:center"></div>
+<div class="container" id="v-res" style="display:none"></div>
 
 <footer>
-    © 2026 अभिषेक (Ydaabhi) | Designed for NEET Aspirants
+    <p>© 2026 अभिषेक | <span id="admin-trigger" onclick="adminLogin()">Admin Login</span></p>
 </footer>
 
 <script>
-let db = JSON.parse(localStorage.getItem('genie_v3')) || [];
-let tempQs = [];
-let state = { t:null, ans:{}, idx:0, mode:'exam', time:0, timerInt:null };
+    let db = JSON.parse(localStorage.getItem('genie_ultra_final')) || [];
+    let state = { t: null, ans: {}, idx: 0, mode: 'exam' };
 
-// Theme Toggle
-function toggleTheme() {
-    const b = document.body;
-    const theme = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    b.setAttribute('data-theme', theme);
-}
-
-// Admin Logic
-function adminAuth() {
-    if(prompt("Admin Key?") === "Ydaabhi&189251") {
-        document.getElementById('admin-panel').style.display = 'block';
-    }
-}
-
-function addQToTemp() {
-    const q = {
-        txt: document.getElementById('q-txt').value,
-        img: document.getElementById('q-img').value,
-        opts: [document.getElementById('q-a').value, document.getElementById('q-b').value, document.getElementById('q-c').value, document.getElementById('q-d').value],
-        key: document.getElementById('q-key').value
-    };
-    tempQs.push(q);
-    document.getElementById('q-count').innerText = tempQs.length + 1;
-    ['q-txt','q-img','q-a','q-b','q-c','q-d'].forEach(id => document.getElementById(id).value = '');
-    alert("Question Added!");
-}
-
-function finalPublish() {
-    const name = document.getElementById('test-name').value;
-    if(!name || tempQs.length === 0) return alert("Add Name and Questions!");
-    db.push({ id: Date.now(), name, qs: tempQs, history: [] });
-    localStorage.setItem('genie_v3', JSON.stringify(db));
-    location.reload();
-}
-
-// Quiz Engine
-function renderDash() {
-    document.getElementById('test-list').innerHTML = db.map((t, i) => `
-        <div class="card" style="cursor:pointer" onclick="start(${i})">
-            <h3 style="margin-bottom:5px">${t.name}</h3>
-            <p style="font-size:0.8rem; color:var(--muted)">${t.qs.length} Questions • +4/-1 Marking</p>
-        </div>
-    `).join('');
-}
-
-function start(idx) {
-    let test = JSON.parse(JSON.stringify(db[idx]));
-    if(document.getElementById('shuffle-opt').checked) test.qs.sort(() => Math.random() - 0.5);
-    state.t = test; state.idx = 0; state.ans = {}; state.mode = 'exam';
-    state.time = test.qs.length * 60; // 1 min per qn
-    
-    document.getElementById('pg-dash').classList.remove('on');
-    document.getElementById('pg-quiz').classList.add('on');
-    document.getElementById('timer').style.display = 'block';
-    
-    startTimer();
-    renderQ();
-}
-
-function startTimer() {
-    clearInterval(state.timerInt);
-    state.timerInt = setInterval(() => {
-        state.time--;
-        let m = Math.floor(state.time / 60);
-        let s = state.time % 60;
-        const tBox = document.getElementById('timer');
-        tBox.innerText = `${m}:${s<10?'0':''}${s}`;
-        
-        if(state.time < 120) tBox.classList.add('timer-low');
-        if(state.time <= 0) { clearInterval(state.timerInt); finish(); }
-    }, 1000);
-}
-
-function renderQ() {
-    const q = state.t.qs[state.idx];
-    let html = `<div style="font-size:0.8rem; color:var(--P); font-weight:800; margin-bottom:10px">QUESTION ${state.idx+1}</div>`;
-    html += `<h2 style="margin-bottom:15px">${q.txt}</h2>`;
-    if(q.img) html += `<img src="${q.img}" class="qimg" onerror="this.style.display='none'">`;
-    
-    ["A","B","C","D"].forEach((l, i) => {
-        let cls = 'opt';
-        if(state.mode === 'exam' && state.ans[state.idx] === l) cls += ' sel';
-        if(state.mode === 'analysis') {
-            if(l === q.key) cls += ' correct' + '" style="background:#dcfce7; border-color:var(--G)';
-            else if(state.ans[state.idx] === l) cls += ' wrong' + '" style="background:#fee2e2; border-color:var(--R)';
+    function adminLogin() {
+        const pass = prompt("Enter Admin Password:");
+        if(pass === "Ydaabhi&189251") {
+            document.getElementById('main-body').classList.add('is-admin');
+            document.getElementById('mode-text').innerText = "ADMIN MODE";
         }
-        html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i]}</div>`;
-    });
-
-    if(state.mode === 'analysis') {
-        html += `<div style="margin-top:20px; padding:15px; background:var(--sur2); border-radius:12px;"><b>AI Hint:</b> Search NCERT Biology/Physics for more details.</div>`;
     }
-    
-    document.getElementById('q-card').innerHTML = html;
-    renderPalette();
-}
 
-function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
-function move(d) { state.idx = Math.max(0, Math.min(state.t.qs.length-1, state.idx+d)); renderQ(); }
+    function saveTest() {
+        const name = document.getElementById('t-name').value;
+        const qRaw = document.getElementById('t-qs').value;
+        const aRaw = document.getElementById('t-ans').value;
+        const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
+        const qs = blocks.map((b, i) => {
+            const lines = b.trim().split('\n').filter(l => l.trim());
+            const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
+            return {
+                txt: lines[0].replace(/\[IMG:.*?\]/, "").trim(),
+                img: imgMatch ? imgMatch[1] : null,
+                opts: lines.slice(1, 5),
+                key: (aRaw.match(new RegExp(`${i+1}\\s*([A-D])`)) || [])[1] || 'A'
+            };
+        });
+        db.push({ id: Date.now(), name, qs, history: [] });
+        saveAndReload();
+    }
 
-function renderPalette() {
-    let h = '';
-    state.t.qs.forEach((_, i) => h += `<div class="dot ${state.ans[i]?'ans':''} ${state.idx===i?'cur':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
-    document.getElementById('palette').innerHTML = h;
-}
-
-function confirmFinish() { if(confirm("Submit Test?")) finish(); }
-
-function finish() {
-    clearInterval(state.timerInt);
-    let c=0, w=0;
-    state.t.qs.forEach((q, i) => {
-        if(state.ans[i] === q.key) c++;
-        else if(state.ans[i]) w++;
-    });
-    let score = (c*4) - w;
-    
-    document.getElementById('pg-quiz').classList.remove('on');
-    document.getElementById('pg-res').classList.add('on');
-    document.getElementById('timer').style.display = 'none';
-    
-    document.getElementById('pg-res').innerHTML = `
-        <div class="hero">
-            <h1 style="font-size:4rem">${score}</h1>
-            <p>Accuracy: ${Math.round((c/state.t.qs.length)*100)}%</p>
-        </div>
-        <div class="card">
-            <h3>Correct: <span style="color:var(--G)">${c}</span> | Wrong: <span style="color:var(--R)">${w}</span></h3>
-            <div style="margin-top:20px">
-                <button class="btn bp" onclick="state.mode='analysis'; state.idx=0; document.getElementById('pg-res').classList.remove('on'); document.getElementById('pg-quiz').classList.add('on'); renderQ()">Review Solutions</button>
-                <button class="btn bs" onclick="location.reload()">Back to Dashboard</button>
+    function renderDash() {
+        const list = document.getElementById('test-list');
+        list.innerHTML = db.map((t, i) => `
+            <div class="card" style="margin-bottom:0">
+                <h3 style="margin:0">${t.name}</h3>
+                <p style="font-size:0.8rem; color:gray">${t.qs.length} Questions</p>
+                <div style="margin:10px 0">
+                    ${t.history.slice(-1).map(h => `<div style="font-size:0.7rem; color:var(--s); font-weight:700">Last Score: ${h.s} (${h.d})</div>`).join('')}
+                </div>
+                <div style="display:flex; gap:10px">
+                    <button class="btn btn-p" onclick="start(${i})">Attempt</button>
+                    <button class="btn btn-s admin-only" onclick="deleteT(${i})">Del</button>
+                </div>
             </div>
-        </div>
-    `;
-}
+        `).join('');
+    }
 
-renderDash();
+    function start(idx) {
+        state.t = db[idx]; state.idx = 0; state.ans = {}; state.mode = 'exam';
+        document.getElementById('v-dash').style.display = 'none';
+        document.getElementById('v-quiz').style.display = 'block';
+        document.getElementById('timer').style.display = 'block';
+        renderQ();
+    }
+
+    function renderQ() {
+        const q = state.t.qs[state.idx];
+        let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
+        if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.style.display='none'">`;
+        ["A", "B", "C", "D"].forEach((l, i) => {
+            let cls = 'option';
+            if(state.mode === 'exam') { if(state.ans[state.idx] === l) cls += ' selected'; }
+            else {
+                if(l === q.key) cls += ' correct';
+                if(state.ans[state.idx] === l && l !== q.key) cls += ' wrong';
+            }
+            html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
+        });
+        if(state.mode === 'analysis') {
+            html += `<iframe class="sol-frame" src="https://www.bing.com/search?q=NCERT+solution+${encodeURIComponent(q.txt)}"></iframe>`;
+        }
+        document.getElementById('q-area').innerHTML = html;
+        let p = '';
+        state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
+        document.getElementById('palette').innerHTML = p;
+    }
+
+    function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
+    function move(d) { state.idx = Math.max(0, Math.min(state.t.qs.length - 1, state.idx + d)); renderQ(); }
+
+    function finish() {
+        let c = 0, w = 0;
+        state.t.qs.forEach((q, i) => {
+            if(state.ans[i] === q.key) c++;
+            else if(state.ans[i]) w++;
+        });
+        const score = (c * 4) - w;
+        state.t.history.push({ s: score, d: new Date().toLocaleDateString() });
+        localStorage.setItem('genie_ultra_final', JSON.stringify(db)); // Immediate Save
+        
+        document.getElementById('v-quiz').style.display = 'none';
+        document.getElementById('timer').style.display = 'none';
+        const res = document.getElementById('view-result'); 
+        const resView = document.getElementById('v-res');
+        resView.style.display = 'block';
+        resView.innerHTML = `
+            <div class="card" style="text-align:center">
+                <h1 style="font-size:3rem; color:var(--p); margin:0">${score}</h1>
+                <p>Correct: ${c} | Wrong: ${w}</p>
+                <button class="btn btn-p" onclick="state.mode='analysis'; state.idx=0; document.getElementById('v-res').style.display='none'; document.getElementById('v-quiz').style.display='block'; renderQ()">Review Solutions</button>
+                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Home</button>
+            </div>
+            <div class="about-card">
+                <h2 style="margin:0">Abhishek (Ydaabhi)</h2>
+                <p>Umeed hai ye test aapki preparation mein kaam aayega!</p>
+                <a href="https://t.me/Ydaabhi07" target="_blank" class="social-btn">Join Telegram</a>
+            </div>`;
+    }
+
+    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); saveAndReload(); } }
+    function exportData() {
+        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = 'Abhishek_Master_Data.genie'; a.click();
+    }
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { db = JSON.parse(ev.target.result); saveAndReload(); };
+        reader.readAsText(e.target.files[0]);
+    }
+    function saveAndReload() { localStorage.setItem('genie_ultra_final', JSON.stringify(db)); renderDash(); }
+
+    renderDash();
 </script>
 </body>
 </html>
