@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra | Fixed</title>
+    <title>NEET Genie Ultra | Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; --txt: #1e293b; --bdr: #e5e7eb; }
@@ -18,14 +18,14 @@
         .option.wrong { background: #fee2e2 !important; border-color: var(--d) !important; color: #991b1b !important; }
         .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
         .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--bdr); border-radius: 10px; cursor: pointer; font-weight: 700; color: var(--txt); }
-        .dot.answered { background: var(--s); color: white; }
+        .dot.answered { background: var(--s); color: white; border-color: var(--s); }
         .dot.active { border: 2px solid var(--p); color: var(--p); }
         .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-p { background: var(--p); color: white; }
         .btn-s { background: var(--bg); color: var(--txt); border: 1px solid var(--bdr); }
         textarea, input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--bdr); background: var(--sur); color: var(--txt); margin-bottom: 10px; box-sizing: border-box; }
-        .q-img { max-width: 100%; border-radius: 12px; margin: 15px 0; }
-        .ai-box { background: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 12px; margin-top: 15px; color: #0369a1; font-size: 0.9rem; }
+        .hist-tag { font-size: 0.75rem; background: var(--p); color: white; padding: 4px 10px; border-radius: 6px; margin: 4px; display: inline-block; }
+        .ai-card { background: #f0f9ff; border: 1px solid #bae6fd; padding: 15px; border-radius: 12px; margin-top: 15px; color: #0369a1; }
     </style>
 </head>
 <body>
@@ -40,18 +40,25 @@
 
 <div class="container" id="v-dash">
     <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; border: none;">
-        <h2>Test Library</h2>
-        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key for AI Analysis (Optional)" style="margin-top:10px; background:rgba(255,255,255,0.1); color:white; border:none;">
+        <h2>Universal Sync & AI</h2>
+        <div style="display:flex; gap:10px; margin:15px 0; flex-wrap: wrap;">
+            <button class="btn btn-s" onclick="exportData()" style="color:#1e1b4b">📤 Export</button>
+            <button class="btn btn-s" onclick="document.getElementById('f-in').click()" style="color:#1e1b4b">📥 Import</button>
+            <input type="file" id="f-in" style="display:none" onchange="importData(event)">
+        </div>
+        <input type="password" id="gemini-key" placeholder="Paste Gemini API Key for AI Analysis" style="background:rgba(255,255,255,0.1); color:white; border:none;">
     </div>
 
     <div class="card">
         <h3>Create Test</h3>
         <input type="text" id="t-name" placeholder="Test Name">
-        <textarea id="t-qs" rows="5" placeholder="Paste Qns (Q1. or Q32. doesn't matter)"></textarea>
-        <textarea id="t-ans" rows="2" placeholder="Paste Keys (1. A 2. B 3. C...)"></textarea>
-        <button class="btn btn-p" style="width:100%" onclick="saveTest()">Save Test</button>
+        <textarea id="t-qs" rows="5" placeholder="Paste Qns (Q1. or Q32...)... A) B) C) D)"></textarea>
+        <textarea id="t-ans" rows="2" placeholder="Keys: 1. A 2. B... (Matching sequence)"></textarea>
+        <button class="btn btn-p" style="width:100%" onclick="saveBulkTest()">Save to Library</button>
     </div>
-    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:1.5rem;"></div>
+
+    <h3>My Library & Results</h3>
+    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;"></div>
 </div>
 
 <div class="container" id="v-quiz" style="display:none">
@@ -61,8 +68,9 @@
             <div style="display:flex; gap:10px; margin-top:20px">
                 <button class="btn btn-s" onclick="move(-1)">Back</button>
                 <button class="btn btn-s" onclick="move(1)">Next</button>
-                <button class="btn btn-p" style="flex:1; background:var(--d)" onclick="finish()">Finish</button>
+                <button class="btn btn-p" id="finish-btn" style="flex:1; background:var(--d)" onclick="finish()">Finish</button>
             </div>
+            <button class="btn btn-p" id="home-btn" style="display:none; width:100%; margin-top:10px; background:#1e1b4b" onclick="location.reload()">Back to Home</button>
         </div>
         <div class="card">
             <h4>Navigator</h4>
@@ -74,7 +82,7 @@
 <div class="container" id="v-res" style="display:none"></div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('genie_ultra_v3')) || [];
+    let db = JSON.parse(localStorage.getItem('genie_ultra_final')) || [];
     let state = { tIdx: null, t: null, ans: {}, idx: 0, mode: 'exam', timer: 0, timerInt: null };
 
     function toggleTheme() {
@@ -82,13 +90,12 @@
         document.body.setAttribute('data-theme', theme);
     }
 
-    function saveTest() {
-        const name = document.getElementById('t-name').value || "Unnamed Test";
+    function saveBulkTest() {
+        const name = document.getElementById('t-name').value || "New Test";
         const qRaw = document.getElementById('t-qs').value;
         const aRaw = document.getElementById('t-ans').value;
-        
         const blocks = qRaw.split(/Q\d+[\.\:]/).filter(b => b.trim());
-        const keys = aRaw.match(/[A-D](?=\s|$|\.|\,)/gi); // Just extracts all A, B, C, D in order
+        const keys = aRaw.match(/[A-D](?=\s|$|\.|\,|\))/gi);
 
         const qs = blocks.map((b, i) => {
             const lines = b.trim().split('\n').filter(l => l.trim());
@@ -97,22 +104,23 @@
                 txt: lines[0].replace(/\[IMG:.*?\]/, "").trim(),
                 img: imgMatch ? imgMatch[1] : null,
                 opts: lines.slice(1, 5).map(opt => opt.replace(/^[A-D][\)\.\s]\s*/i, "").trim()),
-                key: (keys && keys[i]) ? keys[i].toUpperCase() : 'A' // Matches by sequence, not by Q number
+                key: (keys && keys[i]) ? keys[i].toUpperCase() : 'A'
             };
         });
-
         db.push({ id: Date.now(), name, qs, history: [] });
-        localStorage.setItem('genie_ultra_v3', JSON.stringify(db));
-        location.reload();
+        saveAndReload();
     }
 
     function renderDash() {
         document.getElementById('test-list').innerHTML = db.map((t, i) => `
             <div class="card">
-                <h3>${t.name}</h3>
-                <p style="font-size:0.8rem; opacity:0.6">${t.qs.length} Questions</p>
-                <button class="btn btn-p" style="margin-top:10px" onclick="start(${i})">Start Practice</button>
-                <button class="btn btn-s" onclick="deleteT(${i})">🗑</button>
+                <h3 style="margin:0">${t.name}</h3>
+                <p style="font-size:0.8rem; opacity:0.6">${t.qs.length} Qns</p>
+                <div style="margin:10px 0">${t.history.slice(-2).map(h => `<span class="hist-tag">${h.score} Pts (${h.date})</span>`).join('')}</div>
+                <div style="display:flex; gap:8px">
+                    <button class="btn btn-p" style="flex:1" onclick="start(${i})">Start</button>
+                    <button class="btn btn-s" onclick="deleteT(${i})">🗑</button>
+                </div>
             </div>
         `).join('');
     }
@@ -121,6 +129,8 @@
         state.tIdx = idx; state.t = db[idx]; state.idx = 0; state.ans = {}; state.mode = 'exam';
         document.getElementById('v-dash').style.display = 'none';
         document.getElementById('v-quiz').style.display = 'block';
+        document.getElementById('home-btn').style.display = 'none';
+        document.getElementById('finish-btn').style.display = 'block';
         renderQ();
     }
 
@@ -128,54 +138,83 @@
         const q = state.t.qs[state.idx];
         let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
         if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.style.display='none'">`;
-        
         ["A", "B", "C", "D"].forEach((l, i) => {
             let cls = 'option';
-            if(state.mode === 'exam') { if(state.ans[state.idx] === l) cls += ' selected'; }
-            else {
+            if(state.mode === 'exam' && state.ans[state.idx] === l) cls += ' selected';
+            if(state.mode === 'analysis') {
                 if(l === q.key) cls += ' correct';
                 else if(state.ans[state.idx] === l) cls += ' wrong';
             }
             html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
         });
-
         if(state.mode === 'analysis') {
-            html += `<div class="ai-box"><b>Solution:</b> The correct answer is option <b>${q.key}</b>. </div>`;
-            html += `<iframe style="width:100%; height:300px; border:none; margin-top:10px; border-radius:12px" src="https://www.bing.com/search?q=NCERT+solution+${encodeURIComponent(q.txt)}"></iframe>`;
+            html += `<div class="ai-card" id="ai-res">🪄 Generating AI Solution (NCERT)...</div>`;
+            getAiSolution(q.txt);
         }
         document.getElementById('q-area').innerHTML = html;
-        renderPalette();
-    }
-
-    function renderPalette() {
         let p = '';
         state.t.qs.forEach((_, i) => p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
         document.getElementById('palette').innerHTML = p;
     }
 
-    function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
-    function move(d) { 
-        let newIdx = state.idx + d;
-        if(newIdx >= 0 && newIdx < state.t.qs.length) {
-            state.idx = newIdx;
-            renderQ();
-        }
+    async function getAiSolution(qText) {
+        const key = document.getElementById('gemini-key').value;
+        if(!key) return document.getElementById('ai-res').innerHTML = "Solution: The correct answer is option <b>" + state.t.qs[state.idx].key + "</b>. (Add API Key for NCERT Explanation)";
+        try {
+            const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: "Act as NEET Expert. Explain this based on Class 11/12 NCERT: " + qText }] }] })
+            });
+            const d = await r.json();
+            document.getElementById('ai-res').innerText = d.candidates[0].content.parts[0].text;
+        } catch(e) { document.getElementById('ai-res').innerText = "AI Offline. Key check karein."; }
     }
 
+    function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
+    function move(d) { let n = state.idx + d; if(n >= 0 && n < state.t.qs.length) { state.idx = n; renderQ(); } }
+
     function finish() {
+        let c=0, w=0, s=0;
+        state.t.qs.forEach((q, i) => {
+            if(!state.ans[i]) s++; else if(state.ans[i] === q.key) c++; else w++;
+        });
+        const score = (c*4) - w;
+        db[state.tIdx].history.push({ score, date: new Date().toLocaleDateString() });
+        localStorage.setItem('genie_ultra_final', JSON.stringify(db));
         document.getElementById('v-quiz').style.display = 'none';
         const res = document.getElementById('v-res');
         res.style.display = 'block';
         res.innerHTML = `
             <div class="card" style="text-align:center">
-                <h1>Test Result</h1>
-                <button class="btn btn-p" onclick="state.mode='analysis'; state.idx=0; document.getElementById('v-res').style.display='none'; document.getElementById('v-quiz').style.display='block'; renderQ()">Review Answers</button>
-                <button class="btn btn-s" onclick="location.reload()" style="width:100%; margin-top:10px">Back to Home</button>
+                <h1 style="font-size:3rem; color:var(--p)">Score: ${score}</h1>
+                <p>Correct: ${c} | Wrong: ${w} | Skipped: ${s}</p>
+                <button class="btn btn-p" style="width:100%" onclick="showAnalysis()">Review Analysis</button>
+                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Home</button>
             </div>
         `;
     }
 
-    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); localStorage.setItem('genie_ultra_v3', JSON.stringify(db)); renderDash(); } }
+    function showAnalysis() {
+        state.mode = 'analysis'; state.idx = 0;
+        document.getElementById('v-res').style.display = 'none';
+        document.getElementById('v-quiz').style.display = 'block';
+        document.getElementById('home-btn').style.display = 'block';
+        document.getElementById('finish-btn').style.display = 'none';
+        renderQ();
+    }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = 'NEET_Genie_Backup.genie'; a.click();
+    }
+    function importData(e) {
+        const reader = new FileReader();
+        reader.onload = (ev) => { db = JSON.parse(ev.target.result); saveAndReload(); };
+        reader.readAsText(e.target.files[0]);
+    }
+    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); saveAndReload(); } }
+    function saveAndReload() { localStorage.setItem('genie_ultra_final', JSON.stringify(db)); renderDash(); }
     renderDash();
 </script>
 </body>
