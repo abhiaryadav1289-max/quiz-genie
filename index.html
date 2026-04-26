@@ -1,232 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra | Diagrams & History</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e293b; }
-        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-        
-        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid #e5e7eb; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        
-        /* Diagram Styling */
-        .q-img { max-width: 100%; height: auto; border-radius: 12px; margin: 15px 0; border: 1px solid #eee; display: block; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET Genie Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --ink: #0d0d1a; --ink2: #1a1a2e; --sur: #ffffff; --sur2: #f5f5fc; --bdr: #e5e5f0;
+    --P: #4f46e5; --G: #10b981; --R: #ef4444; --txt: #374151; --muted: #9ca3af;
+}
 
-        /* History List */
-        .hist-tag { font-size: 0.7rem; background: #eef2ff; color: var(--p); padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
-        
-        /* Quiz Grid */
-        .quiz-layout { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
-        .option { padding: 1rem; border: 1.5px solid #e5e7eb; border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; }
-        .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
-        .option.correct { background: #dcfce7; border-color: var(--s); color: #166534; }
-        .option.wrong { background: #fee2e2; border-color: var(--d); color: #991b1b; }
+[data-theme='dark'] {
+    --ink: #ffffff; --ink2: #0f172a; --sur: #1e293b; --sur2: #0f172a; --bdr: #334155;
+    --txt: #f1f5f9; --muted: #94a3b8;
+}
 
-        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border-radius: 10px; cursor: pointer; font-weight: 700; }
-        .dot.answered { background: var(--s); color: white; }
-        .dot.active { border: 2px solid var(--p); }
+* { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.2s; }
+body { font-family: 'DM Sans', sans-serif; background: var(--sur2); color: var(--txt); }
 
-        .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-p { background: var(--p); color: white; width: 100%; }
-        .btn-s { background: #f1f5f9; color: #1e293b; }
+header { background: var(--ink2); height: 62px; display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; position: sticky; top: 0; z-index: 999; box-shadow: 0 4px 15px rgba(0,0,0,0.2); color: white; }
+.logo { font-family: 'Syne', sans-serif; font-size: 1.3rem; cursor: pointer; }
+.logo span { color: #818cf8; }
 
-        /* In-App Solution Frame */
-        .sol-frame { width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 12px; margin-top: 15px; }
+.pg { display: none; max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+.pg.on { display: block; }
 
-        @media (max-width: 850px) { .quiz-layout { grid-template-columns: 1fr; } }
-    </style>
+.card { background: var(--sur); border: 1px solid var(--bdr); border-radius: 18px; padding: 20px; margin-bottom: 20px; }
+.hero { background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; padding: 35px; border-radius: 22px; margin-bottom: 25px; }
+
+.admin-wrap { display: none; background: var(--ink2); color: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--P); }
+input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1.5px solid var(--bdr); margin-bottom: 10px; background: var(--sur); color: var(--txt); font-family: inherit; }
+
+.btn { padding: 10px 18px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.bp { background: var(--P); color: white; }
+.bs { background: var(--sur2); color: var(--txt); border: 1px solid var(--bdr); }
+.br { background: var(--R); color: white; }
+
+.qimg { max-width: 100%; border-radius: 12px; margin: 10px 0; border: 1px solid var(--bdr); }
+.opt { padding: 12px; border: 1.5px solid var(--bdr); border-radius: 12px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+.opt.sel { border-color: var(--P); background: rgba(79, 70, 229, 0.1); color: var(--P); }
+.opt.correct { background: #dcfce7 !important; border-color: var(--G) !important; color: #166534 !important; }
+.opt.wrong { background: #fee2e2 !important; border-color: var(--R) !important; color: #991b1b !important; }
+
+.palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.dot { height: 38px; border-radius: 8px; background: var(--sur); border: 1.5px solid var(--bdr); display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 700; font-size: 0.85rem; }
+.dot.ans { background: var(--G); color: white; border-color: var(--G); }
+.dot.cur { border-color: var(--P); border-width: 2px; color: var(--P); }
+
+#timer { font-family: 'Syne', sans-serif; font-weight: 800; background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 99px; }
+.timer-low { color: #ff8080; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.4; } }
+
+footer { text-align: center; padding: 40px; opacity: 0.5; font-size: 0.75rem; }
+</style>
 </head>
 <body>
 
 <header>
-    <div class="logo" onclick="location.reload()" style="cursor:pointer">NEET GENIE <span style="font-weight:400; opacity:0.6">ULTRA</span></div>
-    <div id="timer" style="display:none; font-weight:800;">00:00:00</div>
+    <div class="logo" onclick="location.reload()">NEET <span>Genie</span> Pro</div>
+    <div style="display:flex; gap:12px; align-items:center;">
+        <div id="timer" style="display:none">00:00</div>
+        <button class="btn bs" onclick="toggleTheme()" style="padding:6px; border-radius:50%; width:35px; height:35px; justify-content:center;">🌓</button>
+        <span onclick="adminAuth()" style="cursor:pointer; opacity:0.2;">⚙️</span>
+    </div>
 </header>
 
-<div class="container" id="v-dash">
-    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white;">
-        <h2 style="margin:0">Universal Test Sync</h2>
-        <p style="opacity:0.8">Bada data hone par file share karein, chota data ho toh code.</p>
-        <div style="display:flex; gap:10px; margin-top:15px; flex-wrap: wrap;">
-            <button class="btn btn-s" onclick="exportFile()">📤 Share File (.genie)</button>
-            <button class="btn btn-s" onclick="document.getElementById('f-in').click()">📥 Import File</button>
-            <input type="file" id="f-in" style="display:none" accept=".genie" onchange="importFile(event)">
+<div class="pg on" id="pg-dash">
+    <div class="hero">
+        <h1 style="font-family:'Syne',sans-serif; font-size:2.2rem; margin-bottom:8px;">Smart Prep Portal</h1>
+        <p>Analyze, Practice, and Succeed. All your tests in one place.</p>
+    </div>
+
+    <div class="admin-wrap" id="admin-panel">
+        <h3 style="margin-bottom:15px">⚙️ Create New Test</h3>
+        <input type="text" id="t-name" placeholder="Test Name">
+        <textarea id="t-qs" rows="6" placeholder="Paste Questions here... Format:&#10;Q1. Question text [IMG:url]&#10;A) Opt 1&#10;B) Opt 2&#10;C) Opt 3&#10;D) Opt 4"></textarea>
+        <textarea id="t-ans" rows="2" placeholder="Paste Keys here... Format: 1 A | 2 C | 3 B"></textarea>
+        <div style="display:flex; gap:10px;">
+            <button class="btn bp" style="flex:1" onclick="saveBulkTest()">Publish Test</button>
+            <button class="btn bs" onclick="exportData()">Backup</button>
+            <button class="btn bs" onclick="document.getElementById('f-in').click()">Import</button>
+            <input type="file" id="f-in" style="display:none" onchange="importData(event)">
         </div>
     </div>
 
-    <div class="card">
-        <h3 style="margin-top:0">Add New Test</h3>
-        <input type="text" id="t-name" placeholder="Test Name (e.g. Physics Mock 1)">
-        <textarea id="t-qs" rows="5" placeholder="Q1. Question Text [IMG:https://link-to-image.com]
-A) Option 1
-B) Option 2..."></textarea>
-        <textarea id="t-ans" rows="2" placeholder="Keys: 1 A | 2 C..."></textarea>
-        <button class="btn btn-p" onclick="saveTest()">Save Test to Library</button>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+        <h2 style="font-family:'Syne',sans-serif; font-size:1.2rem">Mock Tests</h2>
+        <label style="font-size:0.8rem; opacity:0.7"><input type="checkbox" id="shuffle-opt"> Shuffle Questions</label>
     </div>
-
-    <h3>My Tests & Attempts</h3>
-    <div id="test-list" class="test-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:1rem;"></div>
+    <div id="test-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:15px;"></div>
 </div>
 
-<div class="container" id="v-quiz" style="display:none">
-    <div class="quiz-layout">
+<div class="pg" id="pg-quiz">
+    <div style="display:grid; grid-template-columns: 1fr 280px; gap:20px;" id="q-layout">
+        <div>
+            <div class="card" id="q-card"></div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn bs" onclick="move(-1)">Back</button>
+                <button class="btn bs" onclick="move(1)">Next</button>
+                <button class="btn br" style="flex:1; justify-content:center" onclick="confirmFinish()">Submit</button>
+            </div>
+        </div>
         <div class="card">
-            <div id="q-area"></div>
-            <div style="display:flex; gap:10px; margin-top:2rem">
-                <button class="btn btn-s" style="flex:1" onclick="move(-1)">Back</button>
-                <button class="btn btn-s" style="flex:1" onclick="move(1)">Next</button>
-                <button class="btn btn-p" id="sub-btn" style="flex:2" onclick="finish()">Submit Exam</button>
-            </div>
-        </div>
-        <div class="sidebar">
-            <div class="card">
-                <h4 style="margin:0 0 15px 0">Navigator</h4>
-                <div class="palette" id="palette"></div>
-            </div>
+            <h4 style="margin-bottom:12px">Navigator</h4>
+            <div class="palette" id="palette"></div>
         </div>
     </div>
 </div>
 
-<div class="container" id="v-res" style="display:none"></div>
+<div class="pg" id="pg-res"></div>
+
+<footer>
+    © 2026 NEET Genie Pro | Secure Local Storage Mode
+</footer>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('genie_ultra_v1')) || [];
-    let state = { t: null, ans: {}, idx: 0, mode: 'exam' };
+let db = JSON.parse(localStorage.getItem('genie_pro_v4')) || [];
+let state = { t:null, ans: {}, idx:0, mode:'exam', time:0, timerInt:null };
 
-    function saveTest() {
-        const name = document.getElementById('t-name').value || "New Test";
-        const qRaw = document.getElementById('t-qs').value;
-        const aRaw = document.getElementById('t-ans').value;
-        
-        const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
-        const qs = blocks.map((b, i) => {
-            const lines = b.trim().split('\n').filter(l => l.trim());
-            const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
-            const text = lines[0].replace(/\[IMG:.*?\]/, "").trim();
-            const keyMatch = aRaw.match(new RegExp(`${i+1}\\s*([A-D])`));
-            return {
-                txt: text,
-                img: imgMatch ? imgMatch[1] : null,
-                opts: lines.slice(1, 5),
-                key: keyMatch ? keyMatch[1] : 'A'
-            };
-        });
+function toggleTheme() {
+    const b = document.body;
+    const theme = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    b.setAttribute('data-theme', theme);
+}
 
-        db.push({ id: Date.now(), name, qs, history: [] });
-        saveDB();
-        location.reload();
+function adminAuth() {
+    if(prompt("Password?") === "Ydaabhi&189251") {
+        document.getElementById('admin-panel').style.display = 'block';
     }
+}
 
-    function renderDash() {
-        const list = document.getElementById('test-list');
-        list.innerHTML = db.map((t, i) => `
-            <div class="card" style="margin-bottom:0">
-                <h3 style="margin:0">${t.name}</h3>
-                <p style="font-size:0.8rem; color:gray">${t.qs.length} Questions</p>
-                <div style="margin: 10px 0;">
-                    ${t.history.slice(-3).map(h => `<span class="hist-tag">S: ${h.score} (${h.date})</span>`).join('')}
-                </div>
-                <div style="display:flex; gap:10px">
-                    <button class="btn btn-p" onclick="start(${i})">Reattempt</button>
-                    <button class="btn btn-s" onclick="deleteT(${i})">X</button>
-                </div>
-            </div>
-        `).join('');
-    }
+function saveBulkTest() {
+    const name = document.getElementById('t-name').value;
+    const qRaw = document.getElementById('t-qs').value;
+    const aRaw = document.getElementById('t-ans').value;
+    
+    if(!name || !qRaw || !aRaw) return alert("Please fill all fields!");
 
-    function start(idx, mode = 'exam') {
-        state.t = db[idx]; state.mode = mode; state.idx = 0; state.ans = {};
-        document.getElementById('v-dash').style.display = 'none';
-        document.getElementById('v-quiz').style.display = 'block';
-        renderQ();
-    }
-
-    function renderQ() {
-        const q = state.t.qs[state.idx];
-        let html = `<h2>Q${state.idx+1}. ${q.txt}</h2>`;
-        if(q.img) html += `<img src="${q.img}" class="q-img" onerror="this.src='https://via.placeholder.com/400?text=Image+Not+Found'">`;
-        
-        ["A", "B", "C", "D"].forEach((l, i) => {
-            let cls = 'option';
-            if(state.mode === 'exam') { if(state.ans[state.idx] === l) cls += ' selected'; }
-            else {
-                if(l === q.key) cls += ' correct';
-                if(state.ans[state.idx] === l && l !== q.key) cls += ' wrong';
-            }
-            html += `<div class="${cls}" onclick="pick('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
-        });
-
-        if(state.mode === 'analysis') {
-            html += `<div class="card" style="background:#f0fdf4">
-                <b>Explanation/Analysis:</b><br>
-                <iframe class="sol-frame" src="https://www.bing.com/search?q=NCERT+solution+${encodeURIComponent(q.txt)}"></iframe>
-            </div>`;
-        }
-        document.getElementById('q-area').innerHTML = html;
-        let p = '';
-        state.t.qs.forEach((_, i) => {
-            p += `<div class="dot ${state.ans[i]?'answered':''} ${i===state.idx?'active':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`;
-        });
-        document.getElementById('palette').innerHTML = p;
-    }
-
-    function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
-    function move(d) { state.idx = Math.max(0, Math.min(state.t.qs.length - 1, state.idx + d)); renderQ(); }
-
-    function finish() {
-        let c = 0, w = 0, sk = 0;
-        state.t.qs.forEach((q, i) => {
-            if(!state.ans[i]) sk++;
-            else if(state.ans[i] === q.key) c++;
-            else w++;
-        });
-        const score = (c * 4) - w;
-        state.t.history.push({ score, date: new Date().toLocaleDateString(), correct: c, wrong: w });
-        saveDB();
-
-        document.getElementById('v-quiz').style.display = 'none';
-        const res = document.getElementById('v-res');
-        res.style.display = 'block';
-        res.innerHTML = `
-            <div class="card" style="text-align:center">
-                <h1>Score: ${score}</h1>
-                <div style="display:flex; justify-content:space-around; margin:20px 0">
-                    <div><b>${c}</b><br>Correct</div>
-                    <div><b>${w}</b><br>Wrong</div>
-                    <div><b>${sk}</b><br>Skipped</div>
-                </div>
-                <button class="btn btn-p" onclick="state.mode='analysis'; state.idx=0; document.getElementById('v-res').style.display='none'; document.getElementById('v-quiz').style.display='block'; renderQ()">Analysis (Solution inside)</button>
-                <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="location.reload()">Back to Library</button>
-            </div>
-        `;
-    }
-
-    function exportFile() {
-        const blob = new Blob([JSON.stringify(db)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'Tests_Backup.genie';
-        a.click();
-    }
-
-    function importFile(e) {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            db = JSON.parse(event.target.result);
-            saveDB(); location.reload();
+    const blocks = qRaw.split(/Q\d+\./).filter(b => b.trim());
+    const qs = blocks.map((b, i) => {
+        const lines = b.trim().split('\n').filter(l => l.trim());
+        const imgMatch = lines[0].match(/\[IMG:(.*?)\]/);
+        return {
+            txt: lines[0].replace(/\[IMG:.*?\]/, "").trim(),
+            img: imgMatch ? imgMatch[1] : null,
+            opts: lines.slice(1, 5).map(opt => opt.replace(/^[A-D][\)\.]\s*/, "")),
+            key: (aRaw.match(new RegExp(`${i+1}\\s*([A-D])`)) || [])[1] || 'A'
         };
-        reader.readAsText(file);
-    }
+    });
 
-    function deleteT(i) { if(confirm("Delete?")) { db.splice(i, 1); saveDB(); renderDash(); } }
-    function saveDB() { localStorage.setItem('genie_ultra_v1', JSON.stringify(db)); }
-    renderDash();
+    db.push({ id: Date.now(), name, qs, history: [] });
+    localStorage.setItem('genie_pro_v4', JSON.stringify(db));
+    location.reload();
+}
+
+function renderDash() {
+    document.getElementById('test-list').innerHTML = db.map((t, i) => `
+        <div class="card">
+            <h3 style="font-size:1rem">${t.name}</h3>
+            <p style="font-size:0.75rem; color:var(--muted); margin:4px 0">${t.qs.length} Qns</p>
+            ${t.history.length ? `<div style="font-size:0.7rem; color:var(--G); font-weight:700">Last: ${t.history[t.history.length-1].s}</div>` : ''}
+            <div style="display:flex; gap:8px; margin-top:10px">
+                <button class="btn bp" style="flex:1; padding:8px" onclick="start(${i})">Start</button>
+                <button class="btn br" style="padding:8px" onclick="deleteTest(${i})">🗑</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function start(idx) {
+    let test = JSON.parse(JSON.stringify(db[idx]));
+    if(document.getElementById('shuffle-opt').checked) test.qs.sort(() => Math.random() - 0.5);
+    state.t = test; state.idx = 0; state.ans = {}; state.mode = 'exam';
+    state.time = test.qs.length * 60;
+    
+    document.getElementById('pg-dash').classList.remove('on');
+    document.getElementById('pg-quiz').classList.add('on');
+    document.getElementById('timer').style.display = 'block';
+    
+    startTimer();
+    renderQ();
+}
+
+function startTimer() {
+    clearInterval(state.timerInt);
+    state.timerInt = setInterval(() => {
+        state.time--;
+        let m = Math.floor(state.time / 60);
+        let s = state.time % 60;
+        const tBox = document.getElementById('timer');
+        tBox.innerText = `${m}:${s<10?'0':''}${s}`;
+        if(state.time < 60) tBox.className = 'timer-low';
+        if(state.time <= 0) { clearInterval(state.timerInt); finish(); }
+    }, 1000);
+}
+
+function renderQ() {
+    const q = state.t.qs[state.idx];
+    let html = `<div style="font-size:0.7rem; color:var(--P); font-weight:800; margin-bottom:5px">Q${state.idx+1}/${state.t.qs.length}</div>`;
+    html += `<h2 style="margin-bottom:12px; font-size:1.15rem">${q.txt}</h2>`;
+    if(q.img) html += `<img src="${q.img}" class="qimg">`;
+    
+    ["A","B","C","D"].forEach((l, i) => {
+        let cls = 'opt';
+        if(state.mode === 'exam' && state.ans[state.idx] === l) cls += ' sel';
+        if(state.mode === 'analysis') {
+            if(l === q.key) cls += ' correct';
+            else if(state.ans[state.idx] === l) cls += ' wrong';
+        }
+        html += `<div class="${cls}" onclick="pick('${l}')"><b style="width:20px">${l}</b> ${q.opts[i] || ''}</div>`;
+    });
+
+    if(state.mode === 'analysis') {
+        html += `<div style="margin-top:15px; font-size:0.85rem; opacity:0.8; border-top:1px solid var(--bdr); padding-top:10px">
+            <b>Reference:</b> Search NCERT for this question.
+        </div>`;
+    }
+    document.getElementById('q-card').innerHTML = html;
+    renderPalette();
+}
+
+function pick(l) { if(state.mode === 'exam') { state.ans[state.idx] = l; renderQ(); } }
+function move(d) { state.idx = Math.max(0, Math.min(state.t.qs.length-1, state.idx + d)); renderQ(); }
+
+function renderPalette() {
+    let h = '';
+    state.t.qs.forEach((_, i) => h += `<div class="dot ${state.ans[i]?'ans':''} ${state.idx===i?'cur':''}" onclick="state.idx=${i}; renderQ()">${i+1}</div>`);
+    document.getElementById('palette').innerHTML = h;
+}
+
+function confirmFinish() { if(confirm("Submit test?")) finish(); }
+
+function finish() {
+    clearInterval(state.timerInt);
+    let c=0, w=0;
+    state.t.qs.forEach((q, i) => {
+        if(state.ans[i] === q.key) c++;
+        else if(state.ans[i]) w++;
+    });
+    let score = (c*4) - w;
+    db.find(t => t.id === state.t.id).history.push({s: score, d: new Date().toLocaleDateString()});
+    localStorage.setItem('genie_pro_v4', JSON.stringify(db));
+
+    document.getElementById('pg-quiz').classList.remove('on');
+    const res = document.getElementById('pg-res');
+    res.classList.add('on');
+    document.getElementById('timer').style.display = 'none';
+
+    res.innerHTML = `
+        <div class="hero" style="text-align:center">
+            <h1 style="font-size:3.5rem">${score}</h1>
+            <p>Accuracy: ${Math.round((c/state.t.qs.length)*100) || 0}%</p>
+        </div>
+        <div class="card" style="text-align:center">
+            <h3>Correct: <span style="color:var(--G)">${c}</span> | Wrong: <span style="color:var(--R)">${w}</span></h3>
+            <div style="margin-top:15px; display:flex; gap:10px; justify-content:center">
+                <button class="btn bp" onclick="state.mode='analysis'; state.idx=0; document.getElementById('pg-res').classList.remove('on'); document.getElementById('pg-quiz').classList.add('on'); renderQ()">Review</button>
+                <button class="btn bs" onclick="location.reload()">Dashboard</button>
+            </div>
+        </div>
+    `;
+}
+
+function deleteTest(i) { if(confirm("Delete?")) { db.splice(i, 1); localStorage.setItem('genie_pro_v4', JSON.stringify(db)); renderDash(); } }
+function exportData() {
+    const blob = new Blob([JSON.stringify(db)], {type: 'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'NEET_Genie_Backup.genie'; a.click();
+}
+function importData(e) {
+    const reader = new FileReader();
+    reader.onload = (ev) => { db = JSON.parse(ev.target.result); localStorage.setItem('genie_pro_v4', JSON.stringify(db)); renderDash(); };
+    reader.readAsText(e.target.files[0]);
+}
+
+renderDash();
 </script>
 </body>
 </html>
