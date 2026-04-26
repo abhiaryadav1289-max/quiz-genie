@@ -3,68 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra - Cloud Edition</title>
-    
+    <title>NEET Genie Ultra - Pro Mode</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --accent: #3b82f6;
-            --text: #f8fafc;
-            --success: #10b981;
-        }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; }
-        .card { background: var(--card); border: 1px solid #334155; padding: 25px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-        h1, h2, h3 { margin-top: 0; color: var(--accent); }
-        
-        textarea { width: 100%; background: #0f172a; color: var(--success); border: 1px solid #334155; border-radius: 10px; padding: 15px; font-family: 'Courier New', monospace; font-size: 14px; resize: vertical; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 8px; box-sizing: border-box; }
-        
-        .btn { background: var(--accent); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; width: 100%; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        
-        #timerDisplay { font-size: 2rem; font-weight: bold; color: #f43f5e; text-align: center; margin: 15px 0; font-family: monospace; }
-        .status-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; background: #334155; margin-bottom: 10px; }
-        
-        .test-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #334155; }
-        .test-item:last-child { border: 0; }
+        :root { --bg: #0b0f1a; --card: #161b22; --accent: #58a6ff; --text: #c9d1d9; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
+        .container { max-width: 800px; margin: auto; }
+        .card { background: var(--card); border: 1px solid #30363d; padding: 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        h2 { color: var(--accent); border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+        textarea, input, select { width: 100%; background: #0d1117; color: #fff; border: 1px solid #30363d; border-radius: 6px; padding: 12px; margin: 10px 0; box-sizing: border-box; }
+        .btn { background: #238636; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; }
+        .btn:hover { background: #2ea043; }
+        #timerDisplay { font-size: 3rem; text-align: center; color: #ff7b72; font-family: 'Courier New', monospace; margin: 20px 0; border: 2px solid #30363d; border-radius: 10px; padding: 10px; }
+        .question-text { font-size: 1.3rem; line-height: 1.6; color: #adbac7; background: #22272e; padding: 20px; border-radius: 8px; border-left: 5px solid var(--accent); }
+        .nav-btns { display: flex; gap: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="card">
-        <div class="status-badge" id="cloudStatus">Connecting to Cloud...</div>
-        <h1>🧬 NEET Genie Ultra</h1>
-        <p style="color: #94a3b8;">Syllabus Completion & Practice Tracker (Cloud Powered)</p>
+    <div id="setupArea" class="card">
+        <h2>🚀 NEET Genie: Test Setup</h2>
+        <input type="text" id="testTitle" placeholder="Batch Name (e.g. Organic Chem Pankaj Sir)">
+        
+        <p>Questions & Answers (Paste everything here):</p>
+        <textarea id="bulkInput" rows="8" placeholder="Question 1...&#10;Question 2..."></textarea>
+        
+        <div style="display:flex; gap:15px; align-items: center;">
+            <label>Set Timer (Minutes):</label>
+            <input type="number" id="timeLimit" value="45" style="width: 100px;">
+        </div>
+        
+        <button class="btn" onclick="initializeTest()">Start Practice Now 🏁</button>
     </div>
 
-    <div class="card" id="timerCard" style="display: none;">
-        <h3 id="activeTestTitle">Test Running</h3>
+    <div id="quizArea" class="card" style="display:none;">
         <div id="timerDisplay">00:00</div>
-        <button class="btn" style="background: #f43f5e;" onclick="stopTimer()">Finish & Submit</button>
-    </div>
-
-    <div class="card">
-        <h3>📤 Add New Mock Test / Batch Data</h3>
-        <input type="text" id="testTitle" placeholder="Test Name (e.g., Pankaj Sir Organic L1)">
-        <textarea id="bulkData" rows="6" placeholder="Paste data here... (Tip: One line per question)"></textarea>
-        <p style="font-size: 12px; color: #64748b; margin-top: 5px;">Timer automatically set: 1 Question = 1 Minute</p>
-        <button class="btn" onclick="saveToCloud()">Save & Start Practice</button>
-    </div>
-
-    <div class="card">
-        <h3>📚 Your Study Vault (Cloud)</h3>
-        <div id="testLibrary">Loading your tests...</div>
+        <div id="activeTestName" style="text-align:center; color:#8b949e; margin-bottom:10px;"></div>
+        <div id="questionDisplay" class="question-text"></div>
+        <input type="text" id="answerInput" placeholder="Write your answer / option here...">
+        
+        <div class="nav-btns">
+            <button class="btn" onclick="handleNext()" style="background:#1f6feb;">Next Question ➡️</button>
+            <button class="btn" onclick="finishTest()" style="background:#da3633;">Finish Test</button>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIG (TUMHARI CHABI) ---
+    // FIREBASE CONFIG
     const firebaseConfig = {
         apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
         authDomain: "neet-genie.firebaseapp.com",
@@ -76,97 +65,79 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    
-    document.getElementById('cloudStatus').innerText = "● Cloud Connected (Spark Plan)";
-    document.getElementById('cloudStatus').style.color = "#10b981";
 
-    let timerInterval;
+    let questions = [];
+    let currentIndex = 0;
+    let timerRef;
 
-    // --- CLOUD FUNCTIONS ---
-
-    async function saveToCloud() {
+    async function initializeTest() {
         const title = document.getElementById('testTitle').value;
-        const data = document.getElementById('bulkData').value.trim();
-        
-        if (!title || !data) { alert("Title aur Data dono bharo bhai!"); return; }
+        const rawData = document.getElementById('bulkInput').value.trim();
+        const mins = document.getElementById('timeLimit').value;
 
-        const questions = data.split('\n').filter(q => q.length > 0);
-        const qCount = questions.length;
+        if(!title || !rawData) {
+            alert("Bhai, pehle details toh dalo!");
+            return;
+        }
 
-        try {
-            await db.collection("tests").add({
-                title: title,
-                questions: questions,
-                qCount: qCount,
-                createdAt: new Date().toISOString()
-            });
-            
-            alert(`Mubarak ho! ${qCount} questions save ho gaye.`);
-            document.getElementById('testTitle').value = "";
-            document.getElementById('bulkData').value = "";
-            loadLibrary();
-            startTest(title, qCount);
-        } catch (e) { alert("Error: " + e.message); }
-    }
+        questions = rawData.split('\n').filter(line => line.trim() !== "");
+        currentIndex = 0;
 
-    async function loadLibrary() {
-        const lib = document.getElementById('testLibrary');
-        const snapshot = await db.collection("tests").orderBy("createdAt", "desc").get();
-        
-        lib.innerHTML = "";
-        if (snapshot.empty) { lib.innerHTML = "No tests found. Add one!"; return; }
-
-        snapshot.forEach(doc => {
-            const t = doc.data();
-            const div = document.createElement('div');
-            div.className = "test-item";
-            div.innerHTML = `
-                <div>
-                    <strong>${t.title}</strong><br>
-                    <small style="color:#64748b">${t.qCount} Qns | 1 min/q</small>
-                </div>
-                <button onclick="startTest('${t.title}', ${t.qCount})" style="padding: 5px 15px; border-radius: 5px; cursor:pointer; background:#1e293b; color:white; border:1px solid #334155;">Start</button>
-            `;
-            lib.appendChild(div);
+        // Cloud Pe Backup
+        await db.collection("tests_v2").add({
+            testName: title,
+            totalQ: questions.length,
+            timeSet: mins,
+            timestamp: new Date()
         });
+
+        // UI Change
+        document.getElementById('setupArea').style.display = "none";
+        document.getElementById('quizArea').style.display = "block";
+        document.getElementById('activeTestName').innerText = "Topic: " + title;
+
+        startQuizTimer(mins * 60);
+        showNextQuestion();
     }
 
-    // --- REVERSE TIMER LOGIC ---
+    function showNextQuestion() {
+        if(currentIndex < questions.length) {
+            document.getElementById('questionDisplay').innerText = `Q${currentIndex + 1}: ${questions[currentIndex]}`;
+            document.getElementById('answerInput').value = "";
+        } else {
+            finishTest();
+        }
+    }
 
-    function startTest(title, qCount) {
-        document.getElementById('timerCard').style.display = "block";
-        document.getElementById('activeTestTitle').innerText = "Practicing: " + title;
-        window.scrollTo(0,0);
+    function handleNext() {
+        currentIndex++;
+        showNextQuestion();
+    }
 
-        let totalSeconds = qCount * 60; // 45 Qns = 45 Mins
+    function startQuizTimer(duration) {
+        let timer = duration, minutes, seconds;
+        timerRef = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
 
-        if (timerInterval) clearInterval(timerInterval);
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
 
-        timerInterval = setInterval(() => {
-            let mins = Math.floor(totalSeconds / 60);
-            let secs = totalSeconds % 60;
+            document.getElementById('timerDisplay').textContent = minutes + ":" + seconds;
 
-            document.getElementById('timerDisplay').innerText = 
-                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-
-            if (totalSeconds <= 0) {
-                clearInterval(timerInterval);
-                alert("Time's Up! Check your answers.");
-            } else {
-                totalSeconds--;
+            if (--timer < 0) {
+                clearInterval(timerRef);
+                alert("Time Over!");
+                finishTest();
             }
         }, 1000);
     }
 
-    function stopTimer() {
-        clearInterval(timerInterval);
-        document.getElementById('timerCard').style.display = "none";
-        alert("Test Submitted! Results saved to cloud (Check Firestore Data tab).");
+    function finishTest() {
+        clearInterval(timerRef);
+        alert("Test Complete! Aapka data cloud par sync ho gaya hai.");
+        location.reload();
     }
-
-    // Load everything on start
-    loadLibrary();
-
 </script>
 </body>
 </html>
