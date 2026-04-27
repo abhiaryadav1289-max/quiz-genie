@@ -1,274 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie Ultra | Cloud Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<div id="admin-controls" class="card hidden">
+    <h3>🛠️ Admin: Smart Bulk Upload</h3>
+    <input type="text" id="t-name" placeholder="Test Name (e.g., Full Bio Mock)">
+    <input type="number" id="t-mins" placeholder="Duration (Minutes)">
     
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-
-    <style>
-        :root { --p: #4f46e5; --s: #10b981; --d: #ef4444; --bg: #f3f4f6; --sur: #ffffff; --txt: #1e293b; --bdr: #e5e7eb; }
-        [data-theme='dark'] { --bg: #0f172a; --sur: #1e293b; --txt: #f1f5f9; --bdr: #334155; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: var(--txt); transition: 0.3s; }
-        header { background: #1e1b4b; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-        .card { background: var(--sur); padding: 1.5rem; border-radius: 20px; border: 1px solid var(--bdr); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        .hidden { display: none !important; }
-        .btn { padding: 0.8rem 1.2rem; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-p { background: var(--p); color: white; }
-        .btn-s { background: var(--bg); color: var(--txt); border: 1px solid var(--bdr); }
-        .btn-d { background: var(--d); color: white; }
-        textarea, input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--bdr); background: var(--sur); color: var(--txt); margin-bottom: 10px; box-sizing: border-box; }
-        
-        /* Auth Styles */
-        .auth-box { max-width: 400px; margin: 100px auto; text-align: center; }
-        .tab-btn { padding: 10px; cursor: pointer; font-weight: bold; border-bottom: 2px solid transparent; }
-        .tab-btn.active { border-color: var(--p); color: var(--p); }
-
-        /* Quiz Specifics */
-        .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; }
-        .dot { height: 40px; display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--bdr); border-radius: 10px; cursor: pointer; font-weight: 700; }
-        .dot.answered { background: var(--s); color: white; }
-        .dot.marked { background: #8b5cf6; color: white; }
-        .dot.active { border: 2px solid var(--p); }
-        .option { padding: 1rem; border: 1.5px solid var(--bdr); border-radius: 12px; margin-bottom: 0.8rem; cursor: pointer; transition: 0.2s; }
-        .option.selected { background: #eef2ff; border-color: var(--p); color: var(--p); }
-    </style>
-</head>
-<body>
-
-<header>
-    <div class="logo">NEET GENIE <span style="opacity:0.7">ULTRA</span></div>
-    <div style="display:flex; gap:15px; align-items:center;">
-        <div id="user-display" class="hidden" style="font-weight: 700;">Hye User</div>
-        <button id="logout-btn" class="btn-s hidden" onclick="handleLogout()">Logout</button>
-        <button class="btn-s" onclick="toggleTheme()" style="width: 35px; height: 35px; border-radius: 50%;">🌓</button>
-    </div>
-</header>
-
-<div id="v-auth" class="container">
-    <div class="card auth-box">
-        <div style="display:flex; justify-content: space-around; margin-bottom: 20px;">
-            <span id="tab-login" class="tab-btn active" onclick="switchAuth('login')">Login</span>
-            <span id="tab-signup" class="tab-btn" onclick="switchAuth('signup')">New Account</span>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+        <div>
+            <label style="font-size: 0.8rem; font-weight: bold;">Paste Questions Block:</label>
+            <textarea id="t-qs-block" rows="10" placeholder="Q1. What is cell? A) x B) y C) z D) w..."></textarea>
         </div>
-        <div id="auth-form">
-            <input type="text" id="auth-name" class="hidden" placeholder="Full Name">
-            <input type="email" id="auth-email" placeholder="Email Address">
-            <input type="password" id="auth-pass" placeholder="Password">
-            <button class="btn btn-p" style="width:100%" onclick="processAuth()" id="auth-action-btn">Login</button>
-            <p id="auth-error" style="color:var(--d); font-size: 0.8rem; margin-top: 10px;"></p>
+        <div>
+            <label style="font-size: 0.8rem; font-weight: bold;">Paste Answer Key Block:</label>
+            <textarea id="t-ans-block" rows="10" placeholder="1. A, 2. B, 3. C..."></textarea>
         </div>
     </div>
-</div>
-
-<div id="v-dash" class="container hidden">
-    <div class="card" style="background: linear-gradient(135deg, #1e1b4b, #4338ca); color: white; border: none;">
-        <h2 id="greet-big">Hye Doc!</h2>
-        <p>Prepare to crack NEET with cloud-synced mock tests.</p>
-    </div>
-
-    <div id="admin-controls" class="card hidden">
-        <h3>🛠️ Admin: Create New Test</h3>
-        <input type="text" id="t-name" placeholder="Test Name">
-        <textarea id="t-qs" rows="5" placeholder="Q1. Question...|Opt A|Opt B|Opt C|Opt D|CorrectKey(A/B/C/D)"></textarea>
-        <input type="number" id="t-mins" placeholder="Duration (Minutes)">
-        <button class="btn btn-p" style="width:100%" onclick="saveBulkTest()">Upload to Cloud</button>
-    </div>
-
-    <h3>Live Tests</h3>
-    <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;"></div>
-</div>
-
-<div id="v-quiz" class="container hidden">
-    <div id="timer-disp" style="font-size: 2rem; font-weight: 800; color: var(--d); text-align: center;">00:00</div>
-    <div style="display:grid; grid-template-columns: 1fr 300px; gap:20px;">
-        <div class="card">
-            <div id="q-area"></div>
-            <div style="display:flex; gap:10px; margin-top:20px">
-                <button class="btn btn-s" onclick="move(-1)">Previous</button>
-                <button class="btn btn-s" style="background:#8b5cf6; color:white;" onclick="markReview()">Review</button>
-                <button class="btn btn-p" onclick="move(1)">Next & Save</button>
-            </div>
-            <button class="btn btn-d" style="width:100%; margin-top:10px;" onclick="finish()">Submit Test</button>
-        </div>
-        <div class="card">
-            <h4>Question Palette</h4>
-            <div class="palette" id="palette"></div>
-        </div>
-    </div>
+    
+    <button class="btn btn-p" style="width:100%" onclick="processSmartUpload()">🚀 Smart Detect & Upload</button>
 </div>
 
 <script>
-    // FIREBASE INITIALIZATION (Keep your existing config)
-    const firebaseConfig = {
-        apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
-        authDomain: "neet-genie.firebaseapp.com",
-        projectId: "neet-genie",
-        storageBucket: "neet-genie.firebasestorage.app",
-        messagingSenderId: "91475548401",
-        appId: "1:91475548401:web:f395534d6d806d52713150"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+    // --- SMART UPLOAD LOGIC ---
+    async function processSmartUpload() {
+        const name = document.getElementById('t-name').value;
+        const mins = document.getElementById('t-mins').value;
+        const qBlock = document.getElementById('t-qs-block').value;
+        const aBlock = document.getElementById('t-ans-block').value;
 
-    let currentAuthMode = 'login';
-    let currentUserData = null;
-    let state = { t: null, ans: {}, marked: [], idx: 0, timer: null };
-
-    // --- AUTH LOGIC ---
-    function switchAuth(mode) {
-        currentAuthMode = mode;
-        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-        document.getElementById('tab-signup').classList.toggle('active', mode === 'signup');
-        document.getElementById('auth-name').classList.toggle('hidden', mode === 'login');
-        document.getElementById('auth-action-btn').innerText = mode === 'login' ? 'Login' : 'Create Account';
-    }
-
-    async function processAuth() {
-        const email = document.getElementById('auth-email').value;
-        const pass = document.getElementById('auth-pass').value;
-        const name = document.getElementById('auth-name').value;
-        const err = document.getElementById('auth-error');
+        if(!name || !qBlock || !aBlock) {
+            alert("Bhai, sari details fill karo!");
+            return;
+        }
 
         try {
-            if(currentAuthMode === 'signup') {
-                const res = await auth.createUserWithEmailAndPassword(email, pass);
-                await db.collection("usernames").doc(res.user.uid).set({
-                    username: name,
-                    email: email,
-                    role: "student" // Default role
-                });
-            } else {
-                await auth.signInWithEmailAndPassword(email, pass);
-            }
-        } catch(e) { err.innerText = e.message; }
+            // 1. Extract Questions: Splits by Q followed by number (Q1, Q2, 1., 2.)
+            const qRegex = /(?:Q?\d+[\.\)\s]+)(.*?)(?=(?:Q?\d+[\.\)\s]+)|$)/gs;
+            const questionsFound = [...qBlock.matchAll(qRegex)];
+
+            // 2. Extract Answers: Finds patterns like 1. A or 1-A or (1) A
+            const ansRegex = /(?:\d+[\.\)\-\s]+)([A-D])/gi;
+            const answersFound = [...aBlock.matchAll(ansRegex)].map(m => m[1].toUpperCase());
+
+            const finalQuestions = questionsFound.map((match, i) => {
+                const fullText = match[1].trim();
+                // Logic to separate Question Text from Options (A, B, C, D)
+                const parts = fullText.split(/[A-D][\)\.\s]+/);
+                const questionText = parts[0].trim();
+                const options = parts.slice(1, 5).map(opt => opt.trim());
+
+                return {
+                    txt: questionText,
+                    opts: options.length === 4 ? options : ["Opt A", "Opt B", "Opt C", "Opt D"],
+                    key: answersFound[i] || "A" // Matches by index
+                };
+            });
+
+            if(finalQuestions.length === 0) throw new Error("No questions detected.");
+
+            // 3. Upload to Firestore
+            await db.collection("global_tests").add({
+                name,
+                mins: parseInt(mins),
+                qs: finalQuestions,
+                createdAt: new Date(),
+                totalQs: finalQuestions.length
+            });
+
+            alert(`Success! ${finalQuestions.length} questions detected and uploaded.`);
+            location.reload();
+
+        } catch (e) {
+            console.error(e);
+            alert("Error: Pattern match nahi hua. Please check the format.");
+        }
     }
 
+    // --- UPDATED AUTH STATE ---
     auth.onAuthStateChanged(async (user) => {
         if(user) {
             const doc = await db.collection("usernames").doc(user.uid).get();
             currentUserData = doc.data();
+            
+            // UI Switch
             document.getElementById('v-auth').classList.add('hidden');
             document.getElementById('v-dash').classList.remove('hidden');
             document.getElementById('user-display').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
             document.getElementById('user-display').innerText = `Hye ${currentUserData.username}`;
             
-            // Check Admin Role
+            // ADMIN PANEL ONLY SHOWS IF ROLE IS ADMIN
             if(currentUserData.role === 'admin') {
                 document.getElementById('admin-controls').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-controls').classList.add('hidden');
             }
             fetchTests();
         } else {
             document.getElementById('v-auth').classList.remove('hidden');
             document.getElementById('v-dash').classList.add('hidden');
-            document.getElementById('user-display').classList.add('hidden');
+            document.getElementById('admin-controls').classList.add('hidden'); // Force hide on logout
         }
     });
-
-    function handleLogout() { auth.signOut(); location.reload(); }
-
-    // --- TEST LOGIC ---
-    async function fetchTests() {
-        const snap = await db.collection("global_tests").get();
-        const tests = snap.docs.map(d => ({id: d.id, ...d.data()}));
-        document.getElementById('test-list').innerHTML = tests.map((t, i) => `
-            <div class="card">
-                <h4>${t.name}</h4>
-                <p>${t.qs.length} Qs | ${t.mins} Mins</p>
-                <button class="btn btn-p" style="width:100%" onclick="startTest('${t.id}')">Take Test</button>
-            </div>
-        `).join('');
-    }
-
-    async function startTest(id) {
-        const doc = await db.collection("global_tests").doc(id).get();
-        state.t = doc.data();
-        state.idx = 0; state.ans = {}; state.marked = [];
-        document.getElementById('v-dash').classList.add('hidden');
-        document.getElementById('v-quiz').classList.remove('hidden');
-        renderQuestion();
-        startTimer(state.t.mins * 60);
-    }
-
-    function renderQuestion() {
-        const q = state.t.qs[state.idx];
-        let html = `<h3>Q${state.idx+1}. ${q.txt}</h3>`;
-        ["A", "B", "C", "D"].forEach((l, i) => {
-            const isSelected = state.ans[state.idx] === l;
-            html += `<div class="option ${isSelected?'selected':''}" onclick="selectOpt('${l}')"><b>${l}.</b> ${q.opts[i] || ''}</div>`;
-        });
-        document.getElementById('q-area').innerHTML = html;
-        renderPalette();
-    }
-
-    function selectOpt(l) { state.ans[state.idx] = l; renderQuestion(); }
-    
-    function markReview() { 
-        if(!state.marked.includes(state.idx)) state.marked.push(state.idx);
-        renderPalette();
-    }
-
-    function renderPalette() {
-        let p = '';
-        state.t.qs.forEach((_, i) => {
-            let cls = 'dot';
-            if(state.ans[i]) cls += ' answered';
-            if(state.marked.includes(i)) cls += ' marked';
-            if(i === state.idx) cls += ' active';
-            p += `<div class="${cls}" onclick="state.idx=${i}; renderQuestion()">${i+1}</div>`;
-        });
-        document.getElementById('palette').innerHTML = p;
-    }
-
-    function move(d) {
-        let n = state.idx + d;
-        if(n >= 0 && n < state.t.qs.length) { state.idx = n; renderQuestion(); }
-    }
-
-    function startTimer(sec) {
-        clearInterval(state.timer);
-        state.timer = setInterval(() => {
-            let m = Math.floor(sec/60), s = sec%60;
-            document.getElementById('timer-disp').innerText = `${m}:${s<10?'0'+s:s}`;
-            if(sec-- <= 0) finish();
-        }, 1000);
-    }
-
-    // --- ADMIN UPLOAD ---
-    async function saveBulkTest() {
-        const name = document.getElementById('t-name').value;
-        const mins = document.getElementById('t-mins').value;
-        const raw = document.getElementById('t-qs').value.split('\n');
-        
-        const questions = raw.map(line => {
-            const parts = line.split('|');
-            return { txt: parts[0], opts: [parts[1], parts[2], parts[3], parts[4]], key: parts[5].trim() };
-        });
-
-        await db.collection("global_tests").add({
-            name, mins: parseInt(mins), qs: questions, createdAt: new Date()
-        });
-        alert("Test Uploaded!");
-        fetchTests();
-    }
-
-    async function finish() {
-        clearInterval(state.timer);
-        alert("Test Submitted! (Ranking logic connects here)");
-        location.reload();
-    }
-
-    function toggleTheme() {
-        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', theme);
-    }
 </script>
-</body>
-</html>
