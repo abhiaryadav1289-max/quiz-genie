@@ -1,74 +1,255 @@
-async function processSmartUpload() {
-    const name = document.getElementById('t-name').value;
-    const mins = document.getElementById('t-mins').value;
-    const qBlock = document.getElementById('t-qs-block').value;
-    const aBlock = document.getElementById('t-ans-block').value;
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NEET Test Platform</title><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script><style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
+body{background:#0f172a;color:#fff;}
+.hidden{display:none;}
 
-    if(!name || !qBlock || !aBlock) {
-        alert("Bhai, Details fill karo!");
-        return;
-    }
-
-    try {
-        // 1. Questions ko split karega (Look for Q followed by number or just Number at start of line)
-        // Regex looks for "Q42." or "42." at the start of a line
-        const qRegex = /(?:^|\n)(?:Q?\d+[\.\)\s]+)(.*?)(?=(?:\nQ?\d+[\.\)\s]+)|$)/gs;
-        const questionsFound = [...qBlock.matchAll(qRegex)];
-
-        // 2. Answers extract karega (37. C or 42 A)
-        const ansRegex = /(\d+)[\.\s\-]+([A-D])/gi;
-        const answersMap = {};
-        let ansMatch;
-        while ((ansMatch = ansRegex.exec(aBlock)) !== null) {
-            answersMap[ansMatch[1]] = ansMatch[2].toUpperCase();
-        }
-
-        const finalQuestions = questionsFound.map((match) => {
-            const fullText = match[1].trim();
-            
-            // Question text aur Options ko alag karega
-            // Hum "A)" ya "A." pattern dhoond rahe hain
-            const lines = fullText.split('\n').map(l => l.trim()).filter(l => l !== "");
-            const questionText = lines[0]; // Pehli line hamesha question hogi
-            
-            // Options extract karne ka logic (A, B, C, D lines dhoondna)
-            const options = [];
-            lines.forEach(line => {
-                if(line.match(/^[A-D][\)\.\s]/i)) {
-                    options.push(line.replace(/^[A-D][\)\.\s]\s*/i, "").trim());
-                }
-            });
-
-            // Match question number to its answer
-            // Hum original match se number nikal rahe hain
-            const qNumMatch = match[0].match(/(\d+)/);
-            const qNum = qNumMatch ? qNumMatch[1] : null;
-
-            return {
-                txt: questionText,
-                opts: options.length >= 4 ? options.slice(0,4) : ["Option A", "Option B", "Option C", "Option D"],
-                key: answersMap[qNum] || "A" 
-            };
-        });
-
-        if(finalQuestions.length === 0) {
-            alert("No questions detected! Format check karo.");
-            return;
-        }
-
-        // 3. Firestore Upload
-        await db.collection("global_tests").add({
-            name,
-            mins: parseInt(mins),
-            qs: finalQuestions,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        alert(`Balle Balle! ${finalQuestions.length} Questions upload ho gaye.`);
-        location.reload();
-
-    } catch (e) {
-        console.error(e);
-        alert("Error: Logic fail ho gaya. Console check karo.");
-    }
+/* Splash Screen */
+#splash{
+position:fixed;inset:0;
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+z-index:9999;
 }
+#splash h1{
+font-size:24px;
+animation:fadeIn 2s ease-in-out;
+}
+@keyframes fadeIn{
+0%{opacity:0;transform:scale(0.8)}
+100%{opacity:1;transform:scale(1)}
+}
+
+header{
+padding:15px;
+text-align:center;
+background:#111827;
+}
+
+.container{padding:20px;}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+}
+
+.card{
+background:#1f2937;
+padding:15px;
+border-radius:10px;
+}
+
+button{
+padding:10px 15px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#3b82f6;
+color:#fff;
+margin-top:10px;
+}
+
+.admin-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:red;
+border-radius:50%;
+width:60px;
+height:60px;
+}
+
+input,textarea{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:6px;
+border:none;
+}
+
+.question{
+background:#111827;
+padding:15px;
+margin-bottom:10px;
+border-radius:10px;
+}
+
+.nav-btns button{margin:5px;}
+
+</style></head>
+<body><!-- SPLASH --><div id="splash">
+<h1>Made by Abhishek Sanetiya</h1>
+</div><!-- HOME --><div id="home" class="hidden">
+<header><h2>NEET Test Portal</h2></header>
+<div class="container">
+<div id="testList" class="grid"></div>
+</div>
+</div><!-- ADMIN LOGIN --><div id="adminLogin" class="hidden container">
+<h2>Admin Login</h2>
+<input id="user" placeholder="Username" />
+<input id="pass" type="password" placeholder="Password" />
+<button onclick="loginAdmin()">Login</button>
+</div><!-- ADMIN PANEL --><div id="adminPanel" class="hidden container">
+<h2>Create Test</h2>
+<input id="testName" placeholder="Test Name" />
+<input id="testTime" placeholder="Time (minutes)" />
+<textarea id="questions" placeholder="Paste Questions (AI format)"></textarea>
+<textarea id="answers" placeholder="Paste Answers"></textarea>
+<button onclick="generateTest()">Generate Test</button>
+</div><!-- TEST SCREEN --><div id="testScreen" class="hidden container">
+<h2 id="tName"></h2>
+<h3 id="timer"></h3>
+<div id="qBox"></div>
+<div class="nav-btns">
+<button onclick="prevQ()">Previous</button>
+<button onclick="nextQ()">Next</button>
+<button onclick="submitTest()">Submit</button>
+</div>
+</div><script>
+// FIREBASE CONFIG (PASTE YOUR KEYS HERE)
+const firebaseConfig = {
+apiKey: "YOUR_KEY",
+authDomain: "YOUR_DOMAIN",
+projectId: "YOUR_ID",
+storageBucket: "YOUR_BUCKET",
+messagingSenderId: "YOUR_ID",
+appId: "YOUR_APP_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let tests = [];
+let currentTest = null;
+let qIndex = 0;
+let score = 0;
+let timeLeft = 0;
+let timer;
+
+// SPLASH
+setTimeout(()=>{
+ document.getElementById("splash").style.display="none";
+ document.getElementById("home").classList.remove("hidden");
+ loadTests();
+},3000);
+
+// LOAD TESTS
+async function loadTests(){
+ const snap = await db.collection("tests").get();
+ tests = [];
+ snap.forEach(doc=>tests.push({id:doc.id,...doc.data()}));
+ renderTests();
+}
+
+function renderTests(){
+ let html="";
+ tests.forEach(t=>{
+ html+=`<div class='card'>
+ <h3>${t.name}</h3>
+ <p>${t.time} min</p>
+ <button onclick="startTest('${t.id}')">Start Test</button>
+ </div>`;
+ });
+ document.getElementById("testList").innerHTML=html;
+}
+
+// ADMIN LOGIN
+function openAdmin(){
+ document.getElementById("adminLogin").classList.remove("hidden");
+}
+
+function loginAdmin(){
+ let u=document.getElementById("user").value;
+ let p=document.getElementById("pass").value;
+ if(u=="admin" && p=="admin123"){
+ document.getElementById("adminLogin").classList.add("hidden");
+ document.getElementById("adminPanel").classList.remove("hidden");
+ } else alert("Wrong credentials");
+}
+
+// GENERATE TEST
+async function generateTest(){
+ let name=document.getElementById("testName").value;
+ let time=document.getElementById("testTime").value;
+ let q=document.getElementById("questions").value.split("\n");
+ let a=document.getElementById("answers").value.split("\n");
+
+ let questions=[];
+ for(let i=0;i<q.length;i++){
+ questions.push({
+ q:q[i],
+ a:a[i]||""
+ });
+ }
+
+ await db.collection("tests").add({
+ name,time,questions
+ });
+
+ alert("Test Created");
+ loadTests();
+}
+
+// START TEST
+function startTest(id){
+ currentTest=tests.find(t=>t.id==id);
+ qIndex=0;
+ score=0;
+ timeLeft=currentTest.time*60;
+
+ document.getElementById("home").classList.add("hidden");
+ document.getElementById("testScreen").classList.remove("hidden");
+ document.getElementById("tName").innerText=currentTest.name;
+
+ startTimer();
+ renderQ();
+}
+
+function startTimer(){
+ timer=setInterval(()=>{
+ timeLeft--;
+ document.getElementById("timer").innerText=timeLeft+" sec";
+ if(timeLeft<=0){submitTest();}
+ },1000);
+}
+
+function renderQ(){
+ let q=currentTest.questions[qIndex];
+ document.getElementById("qBox").innerHTML=
+ `<div class='question'>
+ <h3>Q${qIndex+1}. ${q.q}</h3>
+ <input placeholder='Your Answer' id='ans'>
+ </div>`;
+}
+
+function nextQ(){qIndex++;renderQ();}
+function prevQ(){qIndex--;renderQ();}
+
+function submitTest(){
+ clearInterval(timer);
+ let inputs=document.querySelectorAll("#ans");
+ currentTest.questions.forEach((q,i)=>{
+ if(q.a.trim().toLowerCase()==(inputs[0]?.value||"").trim().toLowerCase()){
+ score++;
+ }
+ });
+ alert("Score: "+score);
+ location.reload();
+}
+
+// ADMIN BUTTON
+let btn=document.createElement("button");
+btn.innerText="A";
+btn.className="admin-btn";
+btn.onclick=openAdmin;
+document.body.appendChild(btn);
+
+</script></body>
+</html>
