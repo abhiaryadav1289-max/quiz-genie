@@ -3,130 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie 🩺 | Exam Portal</title>
+    <title>NEET Genie 🩺</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <style>
-        :root { --p: #2563eb; --bg: #f8fafc; --border: #e2e8f0; }
+        :root { --p: #2563eb; --s: #10b981; --d: #ef4444; --bg: #f8fafc; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; }
-
-        /* Auth Card Styling (Ref: Login UI) */
-        #auth-screen { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { width: 380px; padding: 40px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border); }
-        .tab-box { display: flex; gap: 20px; justify-content: center; margin-bottom: 25px; border-bottom: 1px solid #eee; }
-        .tab { padding: 8px 12px; cursor: pointer; font-weight: 600; color: #64748b; border-bottom: 2px solid transparent; }
-        .tab.active { color: var(--p); border-color: var(--p); }
-
-        /* Sidebar Styling (Ref: Image 2619f312) */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 30px 20px; }
-        .nav-label { font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; margin: 25px 0 10px 10px; font-weight: 700; }
-        .nav-item { padding: 12px 15px; border-radius: 10px; cursor: pointer; color: #475569; display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .hidden { display: none !important; }
+        
+        /* Sidebar */
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e2e8f0; padding: 30px 20px; display: flex; flex-direction: column; }
+        .nav-item { padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 5px; font-weight: 500; color: #64748b; }
         .nav-item.active { background: #eff6ff; color: var(--p); }
 
+        /* Main Content */
         .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; background: var(--p); color: white; }
-        .hidden { display: none !important; }
+        .card { background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        
+        /* Admin Form */
+        textarea { width: 100%; height: 100px; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; }
+        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: #fff; transition: 0.3s; }
+        .btn-p { background: var(--p); }
+        .btn-d { background: var(--d); }
+
+        /* Auth Overlay */
+        #auth-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { width: 350px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div id="auth-overlay">
         <div class="auth-card">
-            <h1 style="color:var(--p); margin-bottom:20px;">Genie 🩺</h1>
-            <div class="tab-box">
-                <div id="tab-login" class="tab active" onclick="setMode('login')">Login</div>
-                <div id="tab-signup" class="tab" onclick="setMode('signup')">New User</div>
-                <div id="tab-admin" class="tab" onclick="setMode('admin')">Admin</div>
-            </div>
-            <p id="err-msg" style="color:red; font-size:0.8rem; margin-bottom:10px;"></p>
-            <input type="text" id="in-name" class="input hidden" placeholder="Your Name">
-            <input type="text" id="in-user" class="input" placeholder="Username">
-            <input type="password" id="in-pass" class="input" placeholder="Password">
-            <input type="password" id="in-conf" class="input hidden" placeholder="Confirm Password">
-            <button class="btn" onclick="submitAuth()">Continue</button>
+            <h1 style="color:var(--p)">Genie 🩺</h1>
+            <div id="auth-msg" style="color:red; margin-bottom:10px;"></div>
+            <input type="text" id="log-user" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px;">
+            <input type="password" id="log-pass" placeholder="Password" style="width:100%; padding:12px; margin-bottom:10px;">
+            <button class="btn btn-p" style="width:100%;" onclick="handleLogin()">Login</button>
+            <p style="font-size:0.8rem; margin-top:15px; cursor:pointer;" onclick="alert('Contact Admin for Account')">New User? Register via Admin</p>
         </div>
     </div>
 
     <div class="sidebar">
-        <h2 style="color:var(--p); margin-left:10px;">Genie 🩺</h2>
-        <div class="nav-label">Student Portal</div>
-        <div class="nav-item active">🏠 Dashboard</div>
-        <div class="nav-item">📊 My Results</div>
-        <div id="admin-menu" class="hidden">
-            <div class="nav-label">Admin Panel</div>
-            <div class="nav-item">⚙️ Manage Tests</div>
+        <h2>Genie 🩺</h2>
+        <div id="menu-student">
+            <div class="nav-item active" onclick="showPage('student-dash')">🏠 Dashboard</div>
+            <div class="nav-item" onclick="showPage('results')">📊 My Results</div>
         </div>
-        <button class="btn" style="margin-top:auto; background:#fee2e2; color:red;" onclick="auth.signOut()">Logout</button>
+        <div id="menu-admin" class="hidden">
+            <hr>
+            <div class="nav-item" onclick="showPage('admin-upload')">📤 Upload Test</div>
+            <div class="nav-item" onclick="showPage('admin-manage')">⚙️ Manage Tests</div>
+        </div>
+        <button class="btn btn-d" style="margin-top:auto;" onclick="auth.signOut()">Logout</button>
     </div>
 
     <div class="main">
-        <h1 id="welcome-text">Welcome back!</h1>
-        <div id="test-container" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:20px; margin-top:30px;">
+        <div id="student-dash" class="page">
+            <h1>Available Tests 📝</h1>
+            <div id="test-list">Loading tests...</div>
+        </div>
+
+        <div id="admin-upload" class="page hidden">
+            <h1>Upload New Test 📤</h1>
+            <div class="card">
+                <input type="text" id="test-name" placeholder="Test Name (e.g. Biology Full Mock)" style="width:100%; padding:10px; margin-bottom:10px;">
+                <div style="display:flex; gap:10px; margin-bottom:15px;">
+                    <input type="number" id="test-hr" placeholder="Hrs" style="width:60px; padding:10px;">
+                    <input type="number" id="test-min" placeholder="Min" style="width:60px; padding:10px;">
+                </div>
+                <label>Questions (Bulk Paste Format: Q|A|B|C|D|CorrectAnswer)</label>
+                <textarea id="test-data" placeholder="What is cell?|Mitochondria|Nucleus|Ribosome|Golgi|A"></textarea>
+                <button class="btn btn-p" onclick="saveTest()">Save & Publish Test</button>
             </div>
+        </div>
+
+        <div id="admin-manage" class="page hidden">
+            <h1>Manage Existing Tests ⚙️</h1>
+            <div id="manage-list"></div>
+        </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
-            authDomain: "neet-genie.firebaseapp.com",
-            projectId: "neet-genie",
-            storageBucket: "neet-genie.firebasestorage.app",
-            messagingSenderId: "91475548401",
-            appId: "1:91475548401:web:f395534d6d806d52713150"
-        };
+        // FIREBASE CONFIG (Use yours)
+        const firebaseConfig = { apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...", messagingSenderId: "...", appId: "..." };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        let authMode = 'login';
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-
-        function setMode(m) {
-            authMode = m;
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-'+m).classList.add('active');
-            document.getElementById('in-name').classList.toggle('hidden', m !== 'signup');
-            document.getElementById('in-conf').classList.toggle('hidden', m !== 'signup');
-        }
-
-        async function submitAuth() {
-            const user = document.getElementById('in-user').value.trim().toLowerCase();
-            const pass = document.getElementById('in-pass').value;
-            const name = document.getElementById('in-name').value;
-            const conf = document.getElementById('in-conf').value;
-            const err = document.getElementById('err-msg');
-
-            if(!user || !pass) { err.innerText = "Fill all fields!"; return; }
-
+        // 🟢 AUTH LOGIC
+        async function handleLogin() {
+            const user = document.getElementById('log-user').value.toLowerCase();
+            const pass = document.getElementById('log-pass').value;
             try {
-                const email = user + "@genie.com";
-                if(authMode === 'signup') {
-                    if(pass !== conf) { err.innerText = "Password mismatch!"; return; }
-                    const check = await db.collection("usernames").doc(user).get();
-                    if(check.exists) { err.innerText = "Username taken!"; return; }
-                    const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    await db.collection("users").doc(res.user.uid).set({ name, username: user, role: 'student' });
-                    await db.collection("usernames").doc(user).set({ uid: res.user.uid });
-                } else {
-                    await auth.signInWithEmailAndPassword(email, pass);
-                }
-            } catch (e) { err.innerText = e.message; }
+                await auth.signInWithEmailAndPassword(user + "@genie.com", pass);
+            } catch (e) { document.getElementById('auth-msg').innerText = "Invalid Credentials"; }
         }
 
         auth.onAuthStateChanged(async (u) => {
-            const screen = document.getElementById('auth-screen');
             if(u) {
-                const doc = await db.collection("users").doc(u.uid).get();
+                const doc = await db.collection("usernames").doc(u.uid).get();
                 const data = doc.data();
-                screen.classList.add('hidden');
-                document.getElementById('welcome-text').innerText = "Hello, " + (data ? data.name : "Doctor") + "!";
-                if(data && data.role === 'admin') document.getElementById('admin-menu').classList.remove('hidden');
+                document.getElementById('auth-overlay').classList.add('hidden');
+                if(data && data.role === 'admin') {
+                    document.getElementById('menu-admin').classList.remove('hidden');
+                }
+                loadTests();
             } else {
-                screen.classList.remove('hidden');
+                document.getElementById('auth-overlay').classList.remove('hidden');
             }
         });
+
+        // 🔵 ADMIN: SAVE TEST
+        async function saveTest() {
+            const name = document.getElementById('test-name').value;
+            const hr = document.getElementById('test-hr').value;
+            const min = document.getElementById('test-min').value;
+            const rawData = document.getElementById('test-data').value;
+
+            if(!name || !rawData) return alert("Fields missing!");
+
+            const questions = rawData.split('\n').map(line => {
+                const [q, a, b, c, d, ans] = line.split('|');
+                return { q, options: [a,b,c,d], correct: ans };
+            });
+
+            await db.collection("global_tests").add({
+                name, time: (parseInt(hr)*60) + parseInt(min),
+                questions, createdAt: new Date()
+            });
+            alert("Test Saved Successfully!");
+            location.reload();
+        }
+
+        // 🟡 LOAD TESTS (Student & Admin)
+        async function loadTests() {
+            const snap = await db.collection("global_tests").get();
+            let html = '', manageHtml = '';
+            snap.forEach(doc => {
+                const t = doc.data();
+                html += `<div class="card" style="display:flex; justify-content:space-between;">
+                    <span><b>${t.name}</b> (${t.time} mins)</span>
+                    <button class="btn btn-p" onclick="startQuiz('${doc.id}')">Start Test</button>
+                </div>`;
+                manageHtml += `<div class="card" style="display:flex; justify-content:space-between; border-left: 5px solid red;">
+                    <span>${t.name}</span>
+                    <button class="btn btn-d" onclick="deleteTest('${doc.id}')">Delete</button>
+                </div>`;
+            });
+            document.getElementById('test-list').innerHTML = html;
+            document.getElementById('manage-list').innerHTML = manageHtml;
+        }
+
+        async function deleteTest(id) {
+            if(confirm("Delete this test?")) {
+                await db.collection("global_tests").doc(id).delete();
+                loadTests();
+            }
+        }
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
