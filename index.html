@@ -7,107 +7,77 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        :root { 
-            --p: #2563eb; --s: #10b981; --d: #ef4444; --bg: #f8fafc; --w: #ffffff; --border: rgba(226, 232, 240, 0.8);
-        }
-        
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); margin: 0; color: #1e293b; display: flex; min-height: 100vh; overflow-x: hidden; }
-        
-        /* AUTH PAGE STYLE */
-        #auth-page { position: fixed; inset: 0; background: linear-gradient(135deg, #2563eb, #7c3aed); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: white; padding: 40px; border-radius: 24px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); text-align: center; }
-        .auth-card h2 { margin-bottom: 30px; color: var(--p); font-size: 2rem; }
-        .auth-input { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #e2e8f0; border-radius: 12px; outline: none; box-sizing: border-box; font-size: 1rem; }
-        
+        :root { --p: #2563eb; --bg: #f1f5f9; --w: #ffffff; --border: #e2e8f0; --d: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; min-height: 100vh; }
+
+        /* AUTH SCREEN */
+        #auth-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+        .auth-card { width: 100%; max-width: 380px; padding: 40px; text-align: center; border-radius: 24px; background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+        .tab-btn { padding: 10px 20px; cursor: pointer; font-weight: 600; border-bottom: 2px solid transparent; display: inline-block; margin-bottom: 20px; }
+        .tab-btn.active { color: var(--p); border-color: var(--p); }
+        .auth-input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid var(--border); border-radius: 12px; outline: none; box-sizing: border-box; }
+
         /* APP LAYOUT */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid var(--border); padding: 30px 20px; position: fixed; height: 100vh; z-index: 100; box-sizing: border-box; display: none; }
-        .main-content { margin-left: 260px; flex: 1; padding: 30px; display: none; box-sizing: border-box; }
+        .sidebar { width: 280px; background: #fff; border-right: 1px solid var(--border); padding: 40px 24px; position: fixed; height: 100vh; display: none; }
+        .main-content { margin-left: 280px; flex: 1; padding: 40px; display: none; }
         
-        /* VIEW CONTROLS */
-        .view { display: none; animation: fadeIn 0.4s; }
-        .card { background: var(--w); padding: 25px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        /* TIMER BOX */
+        #timer-display { font-size: 1.8rem; font-weight: 800; color: var(--d); background: #fee2e2; padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; border: 2px solid #fecaca; }
 
-        /* SIDEBAR NAV */
-        .sidebar h1 { color: var(--p); font-size: 1.8rem; margin-bottom: 50px; font-weight: 800; text-align: center; }
-        .side-nav-group h3 { color: #94a3b8; text-transform: uppercase; font-size: 0.75rem; margin-bottom: 10px; padding-left: 15px; }
-        .side-nav-item { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #475569; font-weight: 500; border-radius: 10px; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
-        .side-nav-item:hover, .side-nav-item.active { background-color: rgba(37, 99, 235, 0.08); color: var(--p); }
-        .side-nav-item span { margin-right: 12px; font-size: 1.2rem; }
-
-        /* BUTTONS */
-        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; }
-        .btn-p { background: var(--p); color: white; margin-top: 10px; }
-        .btn-logout { background: #fee2e2; color: #b91c1c; margin-top: 20px; }
+        .btn { padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-p { background: var(--p); color: white; }
+        .hidden { display: none !important; }
         
-        /* QUIZ & RESULTS UI (Same as v15.0) */
-        .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(45px, 1fr)); gap: 10px; }
-        .dot { height: 45px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; }
-        .dot.ans { background: var(--s); color: white; border-color: var(--s); }
-        .opt-btn { display: block; width: 100%; text-align: left; padding: 16px; margin: 12px 0; border: 1px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; }
-        .opt-btn.selected { background: var(--p); color: white; }
-        .chart-container { width: 250px; height: 250px; margin: 0 auto; position: relative; }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* QUIZ STYLES */
+        .opt-btn { display: block; width: 100%; text-align: left; padding: 15px; margin: 10px 0; border: 1px solid var(--border); border-radius: 10px; background: white; cursor: pointer; }
+        .opt-btn:hover { background: #f8fafc; }
+        .opt-btn.selected { background: var(--p); color: white; border-color: var(--p); }
     </style>
 </head>
 <body>
 
-    <div id="auth-page">
+    <div id="auth-overlay">
         <div class="auth-card">
-            <h2>NEET Genie 🩺</h2>
-            <div id="auth-error" style="color:red; margin-bottom:10px; font-size:0.9rem;"></div>
-            <input type="text" id="auth-name" class="auth-input" placeholder="Full Name (for New Users)">
-            <input type="email" id="auth-email" class="auth-input" placeholder="Email address">
-            <input type="password" id="auth-pass" class="auth-input" placeholder="Password">
-            <button class="btn btn-p" onclick="handleAuth('login')">Login</button>
-            <button class="btn" style="background:#f1f5f9; margin-top:10px;" onclick="handleAuth('signup')">Create Account</button>
+            <h1>Genie 🩺</h1>
+            <div style="margin-bottom: 20px;">
+                <span id="tab-login" class="tab-btn active" onclick="toggleAuthMode('login')">Login</span>
+                <span id="tab-signup" class="tab-btn" onclick="toggleAuthMode('signup')">New Account</span>
+            </div>
+            <div id="auth-msg" style="color:red; margin-bottom:10px; font-size:0.8rem;"></div>
+            <input type="text" id="user-fullname" class="auth-input hidden" placeholder="Full Name">
+            <input type="email" id="user-email" class="auth-input" placeholder="Email Address">
+            <input type="password" id="user-pass" class="auth-input" placeholder="Password">
+            <button id="auth-main-btn" class="btn btn-p" onclick="processAuth()">Login</button>
         </div>
     </div>
 
-    <nav class="sidebar" id="app-sidebar">
-        <h1>Genie 🩺</h1>
-        <div class="side-nav-group">
-            <h3>Student Portal</h3>
-            <a class="side-nav-item active" onclick="showView('v-dash')" id="nav-dash"><span>🏠</span> Dashboard</a>
-            <a class="side-nav-item" onclick="showView('v-res')" id="nav-res"><span>📊</span> My Results</a>
+    <nav class="sidebar" id="sidebar">
+        <h2 style="color:var(--p); text-align:center;">Genie 🩺</h2>
+        <div style="margin-top:40px;">
+            <p id="display-name" style="font-weight:800; font-size:1.2rem; color:var(--p);"></p>
+            <hr border="0" height="1px" background="#eee">
+            <p onclick="location.reload()" style="cursor:pointer;">🏠 Dashboard</p>
         </div>
-        <div class="side-nav-group" style="margin-top:40px">
-            <h3>Admin Panel</h3>
-            <a class="side-nav-item" onclick="showView('v-admin')" id="nav-admin"><span>🛠️</span> Manage Tests</a>
-        </div>
-        <div style="position: absolute; bottom: 30px; width: 220px; text-align: center;">
-            <p id="user-display" style="font-weight:700; margin-bottom:5px;"></p>
-            <button class="btn btn-logout" onclick="auth.signOut()">Logout</button>
-        </div>
+        <button class="btn" style="position:absolute; bottom:30px; background:#fee2e2; color:red;" onclick="auth.signOut()">Logout</button>
     </nav>
 
-    <main class="main-content" id="app-content">
-        <div id="v-dash" class="view">
-            <h2>Welcome to Dashboard</h2>
+    <main class="main-content" id="main-content">
+        <div id="v-dash">
+            <h1>Live Mock Tests</h1>
             <div id="test-list">Loading tests...</div>
         </div>
 
-        <div id="v-quiz" class="view">
-            <div class="card" id="question-area"></div>
-            <div class="palette" id="palette-grid"></div>
-            <button class="btn btn-p" onclick="finishTest()" style="margin-top:20px;">Submit Test</button>
-        </div>
-
-        <div id="v-res" class="view">
-            <div class="card" style="text-align:center;">
-                <h3>Test Result</h3>
-                <div class="chart-container"><canvas id="scoreChart"></canvas></div>
-                <h1 id="res-score-big">0</h1>
-                <button class="btn btn-p" onclick="location.reload()">Back</button>
-            </div>
+        <div id="v-quiz" class="hidden">
+            <div id="timer-display">0 hrs 00 min 00 sec</div>
+            <div id="question-container" class="card" style="background:white; padding:30px; border-radius:20px; border:1px solid #ddd;">
+                </div>
+            <button class="btn btn-p" style="margin-top:20px; background:var(--d);" onclick="finishTest()">Submit Quiz</button>
         </div>
     </main>
 
     <script>
-        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
             authDomain: "neet-genie.firebaseapp.com",
@@ -120,77 +90,92 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        let state = { user: null, tests: [], activeT: null, curIdx: 0, answers: {} };
+        let state = { user: null, tests: [], activeT: null, timer: null, answers: {} };
+        let isLoginMode = true;
 
-        // --- AUTH HANDLER ---
-        async function handleAuth(mode) {
-            const email = document.getElementById('auth-email').value;
-            const pass = document.getElementById('auth-pass').value;
-            const name = document.getElementById('auth-name').value;
-            const errDiv = document.getElementById('auth-error');
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
+        function toggleAuthMode(mode) {
+            isLoginMode = (mode === 'login');
+            document.getElementById('tab-login').className = isLoginMode ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-signup').className = isLoginMode ? 'tab-btn' : 'tab-btn active';
+            document.getElementById('user-fullname').classList.toggle('hidden', isLoginMode);
+            document.getElementById('auth-main-btn').innerText = isLoginMode ? 'Login' : 'Create Account';
+        }
+
+        async function processAuth() {
+            const email = document.getElementById('user-email').value;
+            const pass = document.getElementById('user-pass').value;
+            const name = document.getElementById('user-fullname').value;
             try {
-                if(mode === 'signup') {
+                if (isLoginMode) await auth.signInWithEmailAndPassword(email, pass);
+                else {
                     const res = await auth.createUserWithEmailAndPassword(email, pass);
-                    await db.collection("users").doc(res.user.uid).set({ name, email, role: 'student' });
-                } else {
-                    await auth.signInWithEmailAndPassword(email, pass);
+                    await db.collection("users").doc(res.user.uid).set({ name, email });
                 }
-            } catch (e) { errDiv.innerText = e.message; }
+            } catch (e) { document.getElementById('auth-msg').innerText = e.message; }
         }
 
         auth.onAuthStateChanged(async (u) => {
-            if(u) {
+            if (u) {
                 const doc = await db.collection("users").doc(u.uid).get();
-                state.user = { id: u.uid, ...doc.data() };
-                document.getElementById('auth-page').style.display = 'none';
-                document.getElementById('app-sidebar').style.display = 'block';
-                document.getElementById('app-content').style.display = 'block';
-                document.getElementById('user-display').innerText = state.user.name;
-                initApp();
+                state.user = doc.data();
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('sidebar').style.display = 'block';
+                document.getElementById('main-content').style.display = 'block';
+                document.getElementById('display-name').innerText = "Dr. " + state.user.name;
+                loadTests();
             } else {
-                document.getElementById('auth-page').style.display = 'flex';
-                document.getElementById('app-sidebar').style.display = 'none';
-                document.getElementById('app-content').style.display = 'none';
+                document.getElementById('auth-overlay').style.display = 'flex';
             }
         });
 
-        async function initApp() {
+        async function loadTests() {
             const snap = await db.collection("global_tests").get();
-            state.tests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderTests();
-            showView('v-dash');
-        }
-
-        function renderTests() {
+            state.tests = snap.docs.map(d => ({id: d.id, ...d.data()}));
             document.getElementById('test-list').innerHTML = state.tests.map((t, i) => `
-                <div class="card">
-                    <h4>${t.name}</h4>
-                    <button class="btn btn-p" onclick="startTest(${i})">Start Test</button>
-                </div>`).join('');
+                <div style="background:white; padding:20px; border-radius:15px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center; border:1px solid #eee;">
+                    <div><b>${t.name}</b><br><small>${t.mins} Mins | ${t.qs.length} Questions</small></div>
+                    <button class="btn btn-p" style="width:120px;" onclick="startQuiz(${i})">Start Test</button>
+                </div>
+            `).join('');
         }
 
-        function showView(id) {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-        }
-
-        function startTest(idx) {
+        function startQuiz(idx) {
             state.activeT = state.tests[idx];
-            showView('v-quiz');
-            renderQuestion();
+            document.getElementById('v-dash').classList.add('hidden');
+            document.getElementById('v-quiz').classList.remove('hidden');
+            
+            // --- ACCURATE TIMER LOGIC ---
+            let totalSeconds = state.activeT.mins * 60;
+            state.timer = setInterval(() => {
+                totalSeconds--;
+                if(totalSeconds <= 0) finishTest();
+
+                let h = Math.floor(totalSeconds / 3600);
+                let m = Math.floor((totalSeconds % 3600) / 60);
+                let s = totalSeconds % 60;
+
+                document.getElementById('timer-display').innerText = 
+                    `${h} hrs ${m < 10 ? '0'+m : m} min ${s < 10 ? '0'+s : s} sec`;
+            }, 1000);
+
+            renderQuestion(0);
         }
 
-        function renderQuestion() {
-            const q = state.activeT.qs[0]; // Simplified for first question
-            document.getElementById('question-area').innerHTML = `<h3>${q.txt}</h3>` + 
-                ['A','B','C','D'].map(o => `<button class="opt-btn" onclick="state.answers[0]='${o}'">${o}. ${q[o]}</button>`).join('');
+        function renderQuestion(qIdx) {
+            const q = state.activeT.qs[qIdx];
+            let html = `<h3>Q. ${q.txt}</h3>`;
+            ['A','B','C','D'].forEach(opt => {
+                html += `<button class="opt-btn" onclick="this.classList.add('selected')">${opt}. ${q[opt]}</button>`;
+            });
+            document.getElementById('question-container').innerHTML = html;
         }
 
-        async function finishTest() {
-            showView('v-res');
-            document.getElementById('res-score-big').innerText = "Test Submitted!";
-            // Chart logic can be added here as per v15.0
+        function finishTest() {
+            clearInterval(state.timer);
+            alert("Test Submitted Successfully!");
+            location.reload();
         }
     </script>
 </body>
