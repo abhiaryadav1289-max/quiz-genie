@@ -1,255 +1,313 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NEET Test Platform</title><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script><style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial;}
-body{background:#0f172a;color:#fff;}
-.hidden{display:none;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Prep - Abhishek Sanetiya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; overflow-x: hidden; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .hidden-section { display: none; }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body>
 
-/* Splash Screen */
-#splash{
-position:fixed;inset:0;
-background:#000;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-z-index:9999;
-}
-#splash h1{
-font-size:24px;
-animation:fadeIn 2s ease-in-out;
-}
-@keyframes fadeIn{
-0%{opacity:0;transform:scale(0.8)}
-100%{opacity:1;transform:scale(1)}
-}
+    <div id="intro-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950">
+        <h1 id="intro-text" class="text-3xl md:text-5xl font-bold opacity-0 translate-y-10">
+            Made by <span class="gradient-text">Abhishek Sanetiya</span>
+        </h1>
+        <div id="loader" class="mt-6 h-1 w-0 bg-sky-500 rounded-full"></div>
+    </div>
 
-header{
-padding:15px;
-text-align:center;
-background:#111827;
-}
+    <main id="main-portal" class="hidden-section min-h-screen p-6">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h2 class="text-2xl font-bold">NEET <span class="text-sky-400">Portal</span></h2>
+                <p class="text-slate-400 text-sm">Select a test to begin your preparation</p>
+            </div>
+            <button onclick="toggleAdminLogin()" class="p-3 glass rounded-full hover:bg-slate-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09a2 2 0 011.666-.927H10.75m0 0a2 2 0 002.083-2.083V12m0 0V9m0 0a2 2 0 10-4 0V9" />
+                </svg>
+            </button>
+        </header>
 
-.container{padding:20px;}
+        <div id="test-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="animate-pulse glass p-6 rounded-2xl h-40"></div>
+        </div>
+    </main>
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-}
+    <div id="admin-login" class="hidden-section fixed inset-0 z-40 flex items-center justify-center bg-black/80 px-4">
+        <div class="glass p-8 rounded-2xl w-full max-w-md">
+            <h3 class="text-2xl font-bold mb-6">Admin Access</h3>
+            <input type="text" id="admin-user" placeholder="Username" class="w-full bg-slate-800 p-3 rounded-lg mb-4 outline-none border border-slate-700 focus:border-sky-500">
+            <input type="password" id="admin-pass" placeholder="Password" class="w-full bg-slate-800 p-3 rounded-lg mb-6 outline-none border border-slate-700 focus:border-sky-500">
+            <div class="flex gap-4">
+                <button onclick="loginAdmin()" class="flex-1 bg-sky-600 hover:bg-sky-500 p-3 rounded-lg font-bold transition">Login</button>
+                <button onclick="toggleAdminLogin()" class="flex-1 bg-slate-700 p-3 rounded-lg">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-.card{
-background:#1f2937;
-padding:15px;
-border-radius:10px;
-}
+    <div id="admin-dashboard" class="hidden-section min-h-screen p-6 bg-slate-900">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Admin <span class="text-purple-400">Dashboard</span></h2>
+                <button onclick="location.reload()" class="text-sm text-slate-400 underline">Logout</button>
+            </div>
+            
+            <div class="glass p-6 rounded-2xl space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="new-test-name" placeholder="Test Name (e.g., Biology Mock 1)" class="bg-slate-800 p-3 rounded-lg outline-none">
+                    <input type="number" id="new-test-time" placeholder="Time (Minutes)" class="bg-slate-800 p-3 rounded-lg outline-none">
+                </div>
+                
+                <p class="text-xs text-slate-400">Paste Questions (Format: 1. Question... A) opt1 B) opt2...)</p>
+                <textarea id="raw-questions" rows="8" placeholder="Paste Questions from Gemini here..." class="w-full bg-slate-800 p-3 rounded-lg outline-none text-sm"></textarea>
+                
+                <p class="text-xs text-slate-400">Paste Answers (Format: 1-A, 2-B or just A B C D separated by space)</p>
+                <textarea id="raw-answers" rows="3" placeholder="Paste Answers here..." class="w-full bg-slate-800 p-3 rounded-lg outline-none text-sm"></textarea>
+                
+                <button onclick="generateTest()" class="w-full bg-purple-600 hover:bg-purple-500 p-4 rounded-xl font-bold text-lg transition shadow-lg shadow-purple-500/20">👉 Generate & Sync Test</button>
+            </div>
+        </div>
+    </div>
 
-button{
-padding:10px 15px;
-border:none;
-border-radius:6px;
-cursor:pointer;
-background:#3b82f6;
-color:#fff;
-margin-top:10px;
-}
+    <div id="test-screen" class="hidden-section fixed inset-0 bg-slate-950 z-50 overflow-y-auto">
+        <nav class="sticky top-0 bg-slate-900 p-4 flex justify-between items-center border-b border-slate-800">
+            <span id="active-test-title" class="font-bold"></span>
+            <div class="flex items-center gap-4">
+                <div id="timer" class="text-xl font-mono text-yellow-400 bg-slate-800 px-4 py-1 rounded-lg">00:00</div>
+                <button onclick="submitTest()" class="bg-red-600 px-4 py-1 rounded font-bold">Submit</button>
+            </div>
+        </nav>
 
-.admin-btn{
-position:fixed;
-bottom:20px;
-right:20px;
-background:red;
-border-radius:50%;
-width:60px;
-height:60px;
-}
+        <div class="max-w-3xl mx-auto p-6">
+            <div id="question-container" class="glass p-8 rounded-2xl mb-6 min-h-[300px]">
+                </div>
+            <div class="flex justify-between">
+                <button onclick="prevQuestion()" class="bg-slate-700 px-6 py-2 rounded-lg">Previous</button>
+                <span id="question-index" class="text-slate-400 self-center">Question 1 of 10</span>
+                <button onclick="nextQuestion()" class="bg-sky-600 px-6 py-2 rounded-lg">Next</button>
+            </div>
+        </div>
+    </div>
 
-input,textarea{
-width:100%;
-padding:10px;
-margin:8px 0;
-border-radius:6px;
-border:none;
-}
+    <div id="result-screen" class="hidden-section fixed inset-0 bg-slate-950 z-[60] flex items-center justify-center p-6 text-center">
+        <div class="glass p-10 rounded-3xl max-w-md w-full">
+            <h2 class="text-4xl font-bold mb-2">Test Finished!</h2>
+            <div class="text-6xl font-bold text-sky-400 my-6" id="final-score">0/0</div>
+            <p id="result-text" class="mb-8 text-slate-300"></p>
+            <button onclick="location.reload()" class="w-full bg-sky-600 p-4 rounded-xl font-bold">Back to Home</button>
+        </div>
+    </div>
 
-.question{
-background:#111827;
-padding:15px;
-margin-bottom:10px;
-border-radius:10px;
-}
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-.nav-btns button{margin:5px;}
+        // REPLACE THIS WITH YOUR CONFIG
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-</style></head>
-<body><!-- SPLASH --><div id="splash">
-<h1>Made by Abhishek Sanetiya</h1>
-</div><!-- HOME --><div id="home" class="hidden">
-<header><h2>NEET Test Portal</h2></header>
-<div class="container">
-<div id="testList" class="grid"></div>
-</div>
-</div><!-- ADMIN LOGIN --><div id="adminLogin" class="hidden container">
-<h2>Admin Login</h2>
-<input id="user" placeholder="Username" />
-<input id="pass" type="password" placeholder="Password" />
-<button onclick="loginAdmin()">Login</button>
-</div><!-- ADMIN PANEL --><div id="adminPanel" class="hidden container">
-<h2>Create Test</h2>
-<input id="testName" placeholder="Test Name" />
-<input id="testTime" placeholder="Time (minutes)" />
-<textarea id="questions" placeholder="Paste Questions (AI format)"></textarea>
-<textarea id="answers" placeholder="Paste Answers"></textarea>
-<button onclick="generateTest()">Generate Test</button>
-</div><!-- TEST SCREEN --><div id="testScreen" class="hidden container">
-<h2 id="tName"></h2>
-<h3 id="timer"></h3>
-<div id="qBox"></div>
-<div class="nav-btns">
-<button onclick="prevQ()">Previous</button>
-<button onclick="nextQ()">Next</button>
-<button onclick="submitTest()">Submit</button>
-</div>
-</div><script>
-// FIREBASE CONFIG (PASTE YOUR KEYS HERE)
-const firebaseConfig = {
-apiKey: "YOUR_KEY",
-authDomain: "YOUR_DOMAIN",
-projectId: "YOUR_ID",
-storageBucket: "YOUR_BUCKET",
-messagingSenderId: "YOUR_ID",
-appId: "YOUR_APP_ID"
-};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+        // State Management
+        let currentTests = [];
+        let activeQuestions = [];
+        let userAnswers = {};
+        let currentQIndex = 0;
+        let timerInterval;
 
-let tests = [];
-let currentTest = null;
-let qIndex = 0;
-let score = 0;
-let timeLeft = 0;
-let timer;
+        // --- 1. INTRO ANIMATION ---
+        window.onload = () => {
+            const tl = gsap.timeline();
+            tl.to("#intro-text", { opacity: 1, y: 0, duration: 1, ease: "power4.out" })
+              .to("#loader", { width: "200px", duration: 2, ease: "power1.inOut" }, "-=0.5")
+              .to("#intro-screen", { opacity: 0, pointerEvents: "none", duration: 0.8, delay: 0.5, onComplete: showPortal });
+        };
 
-// SPLASH
-setTimeout(()=>{
- document.getElementById("splash").style.display="none";
- document.getElementById("home").classList.remove("hidden");
- loadTests();
-},3000);
+        function showPortal() {
+            document.getElementById('intro-screen').remove();
+            document.getElementById('main-portal').classList.remove('hidden-section');
+            fetchTests();
+        }
 
-// LOAD TESTS
-async function loadTests(){
- const snap = await db.collection("tests").get();
- tests = [];
- snap.forEach(doc=>tests.push({id:doc.id,...doc.data()}));
- renderTests();
-}
+        // --- 2. FIREBASE LOGIC: FETCH TESTS ---
+        async function fetchTests() {
+            const q = query(collection(db, "tests"), orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(q);
+            const list = document.getElementById('test-list');
+            list.innerHTML = "";
+            
+            querySnapshot.forEach((doc) => {
+                const test = doc.data();
+                test.id = doc.id;
+                currentTests.push(test);
+                
+                list.innerHTML += `
+                    <div class="glass p-6 rounded-2xl hover:border-sky-500 transition cursor-pointer group">
+                        <h4 class="text-xl font-bold mb-2 group-hover:text-sky-400">${test.name}</h4>
+                        <div class="flex justify-between items-center text-slate-400 text-sm mb-4">
+                            <span>⏱ ${test.time} Mins</span>
+                            <span>📝 ${test.questions.length} Qs</span>
+                        </div>
+                        <button onclick="startTest('${doc.id}')" class="w-full bg-slate-700 group-hover:bg-sky-600 py-2 rounded-lg transition font-semibold">Start Test</button>
+                    </div>
+                `;
+            });
+        }
 
-function renderTests(){
- let html="";
- tests.forEach(t=>{
- html+=`<div class='card'>
- <h3>${t.name}</h3>
- <p>${t.time} min</p>
- <button onclick="startTest('${t.id}')">Start Test</button>
- </div>`;
- });
- document.getElementById("testList").innerHTML=html;
-}
+        // --- 3. ADMIN LOGIC ---
+        window.toggleAdminLogin = () => document.getElementById('admin-login').classList.toggle('hidden-section');
 
-// ADMIN LOGIN
-function openAdmin(){
- document.getElementById("adminLogin").classList.remove("hidden");
-}
+        window.loginAdmin = () => {
+            const u = document.getElementById('admin-user').value;
+            const p = document.getElementById('admin-pass').value;
+            if(u === "admin" && p === "neet2026") { // Set your own creds
+                document.getElementById('admin-login').classList.add('hidden-section');
+                document.getElementById('main-portal').classList.add('hidden-section');
+                document.getElementById('admin-dashboard').classList.remove('hidden-section');
+            } else {
+                alert("Wrong credentials!");
+            }
+        };
 
-function loginAdmin(){
- let u=document.getElementById("user").value;
- let p=document.getElementById("pass").value;
- if(u=="admin" && p=="admin123"){
- document.getElementById("adminLogin").classList.add("hidden");
- document.getElementById("adminPanel").classList.remove("hidden");
- } else alert("Wrong credentials");
-}
+        // --- 4. DATA PARSING (AI Workflow) ---
+        window.generateTest = async () => {
+            const name = document.getElementById('new-test-name').value;
+            const time = document.getElementById('new-test-time').value;
+            const rawQ = document.getElementById('raw-questions').value;
+            const rawA = document.getElementById('raw-answers').value;
 
-// GENERATE TEST
-async function generateTest(){
- let name=document.getElementById("testName").value;
- let time=document.getElementById("testTime").value;
- let q=document.getElementById("questions").value.split("\n");
- let a=document.getElementById("answers").value.split("\n");
+            if(!name || !rawQ) return alert("Fill all fields");
 
- let questions=[];
- for(let i=0;i<q.length;i++){
- questions.push({
- q:q[i],
- a:a[i]||""
- });
- }
+            // Smart Parser: Split by question numbers
+            const qBlocks = rawQ.split(/\d+\./).filter(b => b.trim() !== "");
+            const ansArray = rawA.match(/[A-D]/gi) || [];
 
- await db.collection("tests").add({
- name,time,questions
- });
+            const structuredQuestions = qBlocks.map((block, index) => {
+                const lines = block.trim().split('\n');
+                const questionText = lines[0];
+                const options = block.match(/[A-D]\)(.*?)(?=[A-D]\)|$)/gs) || [];
+                
+                return {
+                    id: index,
+                    question: questionText,
+                    options: options.map(o => o.replace(/[A-D]\)/, '').trim()),
+                    correct: ansArray[index] ? ansArray[index].toUpperCase() : "A"
+                };
+            });
 
- alert("Test Created");
- loadTests();
-}
+            try {
+                await addDoc(collection(db, "tests"), {
+                    name,
+                    time: parseInt(time),
+                    questions: structuredQuestions,
+                    createdAt: serverTimestamp()
+                });
+                alert("Test Generated Successfully!");
+                location.reload();
+            } catch(e) {
+                console.error(e);
+            }
+        };
 
-// START TEST
-function startTest(id){
- currentTest=tests.find(t=>t.id==id);
- qIndex=0;
- score=0;
- timeLeft=currentTest.time*60;
+        // --- 5. STUDENT TEST SYSTEM ---
+        window.startTest = (id) => {
+            const test = currentTests.find(t => t.id === id);
+            activeQuestions = test.questions;
+            currentQIndex = 0;
+            userAnswers = {};
+            
+            document.getElementById('active-test-title').innerText = test.name;
+            document.getElementById('test-screen').classList.remove('hidden-section');
+            
+            startTimer(test.time * 60);
+            renderQuestion();
+        };
 
- document.getElementById("home").classList.add("hidden");
- document.getElementById("testScreen").classList.remove("hidden");
- document.getElementById("tName").innerText=currentTest.name;
+        function renderQuestion() {
+            const q = activeQuestions[currentQIndex];
+            const container = document.getElementById('question-container');
+            document.getElementById('question-index').innerText = `Question ${currentQIndex + 1} of ${activeQuestions.length}`;
 
- startTimer();
- renderQ();
-}
+            let optionsHTML = q.options.map((opt, i) => {
+                const label = String.fromCharCode(65 + i); // A, B, C, D
+                const isSelected = userAnswers[currentQIndex] === label;
+                return `
+                    <div onclick="selectOption('${label}')" class="flex items-center p-4 rounded-xl cursor-pointer transition border-2 ${isSelected ? 'border-sky-500 bg-sky-500/10' : 'border-slate-700 bg-slate-800 hover:bg-slate-700'} mb-3">
+                        <span class="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center mr-4 font-bold text-sky-400">${label}</span>
+                        <p>${opt}</p>
+                    </div>
+                `;
+            }).join('');
 
-function startTimer(){
- timer=setInterval(()=>{
- timeLeft--;
- document.getElementById("timer").innerText=timeLeft+" sec";
- if(timeLeft<=0){submitTest();}
- },1000);
-}
+            container.innerHTML = `
+                <p class="text-xl font-semibold mb-8">Q${currentQIndex + 1}. ${q.question}</p>
+                <div class="grid grid-cols-1 gap-2">${optionsHTML}</div>
+            `;
+        }
 
-function renderQ(){
- let q=currentTest.questions[qIndex];
- document.getElementById("qBox").innerHTML=
- `<div class='question'>
- <h3>Q${qIndex+1}. ${q.q}</h3>
- <input placeholder='Your Answer' id='ans'>
- </div>`;
-}
+        window.selectOption = (label) => {
+            userAnswers[currentQIndex] = label;
+            renderQuestion();
+        };
 
-function nextQ(){qIndex++;renderQ();}
-function prevQ(){qIndex--;renderQ();}
+        window.nextQuestion = () => {
+            if(currentQIndex < activeQuestions.length - 1) {
+                currentQIndex++;
+                renderQuestion();
+            }
+        };
 
-function submitTest(){
- clearInterval(timer);
- let inputs=document.querySelectorAll("#ans");
- currentTest.questions.forEach((q,i)=>{
- if(q.a.trim().toLowerCase()==(inputs[0]?.value||"").trim().toLowerCase()){
- score++;
- }
- });
- alert("Score: "+score);
- location.reload();
-}
+        window.prevQuestion = () => {
+            if(currentQIndex > 0) {
+                currentQIndex--;
+                renderQuestion();
+            }
+        };
 
-// ADMIN BUTTON
-let btn=document.createElement("button");
-btn.innerText="A";
-btn.className="admin-btn";
-btn.onclick=openAdmin;
-document.body.appendChild(btn);
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            let time = seconds;
+            timerInterval = setInterval(() => {
+                let mins = Math.floor(time / 60);
+                let secs = time % 60;
+                document.getElementById('timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                if(time <= 0) {
+                    clearInterval(timerInterval);
+                    submitTest();
+                }
+                time--;
+            }, 1000);
+        }
 
-</script></body>
+        window.submitTest = () => {
+            clearInterval(timerInterval);
+            let score = 0;
+            activeQuestions.forEach((q, i) => {
+                if(userAnswers[i] === q.correct) score++;
+            });
+
+            document.getElementById('test-screen').classList.add('hidden-section');
+            document.getElementById('result-screen').classList.remove('hidden-section');
+            document.getElementById('final-score').innerText = `${score} / ${activeQuestions.length}`;
+            
+            const percentage = (score / activeQuestions.length) * 100;
+            document.getElementById('result-text').innerText = percentage > 50 ? "Great job! Keep practicing." : "Need more focus. Review the concepts.";
+        };
+    </script>
+</body>
 </html>
