@@ -3,170 +3,421 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie 🩺</title>
+    <title>NEET Genie 🩺 | Exam Portal</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
-        :root { --p: #2563eb; --s: #10b981; --d: #ef4444; --bg: #f8fafc; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; height: 100vh; }
-        .hidden { display: none !important; }
+        :root { 
+            --p: #2563eb; /* Primary ChatGPT Blue */
+            --s: #10b981; /* Success Green */
+            --d: #ef4444; /* Danger Red */
+            --bg: #f8fafc; /* Soft BG */
+            --w: #ffffff; /* White Card */
+            --border: rgba(226, 232, 240, 0.7);
+        }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); margin: 0; color: #1e293b; display: flex; min-height: 100vh; overflow-x: hidden; }
         
-        /* Sidebar */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e2e8f0; padding: 30px 20px; display: flex; flex-direction: column; }
-        .nav-item { padding: 12px; border-radius: 10px; cursor: pointer; margin-bottom: 5px; font-weight: 500; color: #64748b; }
-        .nav-item.active { background: #eff6ff; color: var(--p); }
-
-        /* Main Content */
-        .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .card { background: #fff; padding: 25px; border-radius: 15px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        /* Layout */
+        .sidebar { width: 250px; background: #fff; border-right: 1px solid var(--border); padding: 25px; position: fixed; height: 100vh; z-index: 100; transition: 0.3s; }
+        .main-content { margin-left: 250px; flex: 1; padding: 25px; max-width: 1100px; }
         
-        /* Admin Form */
-        textarea { width: 100%; height: 100px; padding: 10px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; }
-        .btn { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; color: #fff; transition: 0.3s; }
-        .btn-p { background: var(--p); }
-        .btn-d { background: var(--d); }
+        /* Typography */
+        h1, h2, h3, h4 { color: #1e293b; margin-top: 0; font-weight: 700; }
+        p { color: #475569; font-size: 1rem; }
 
-        /* Auth Overlay */
-        #auth-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
-        .auth-card { width: 350px; text-align: center; }
+        /* VIEWS (Single Content Area) */
+        .view { display: none; margin-bottom: 30px; }
+        .card { background: var(--w); padding: 25px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); margin-bottom: 20px; transition: 0.3s; }
+        .card:hover { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        
+        /* Sidebar Navigation */
+        .side-nav-item { display: flex; align-items: center; padding: 12px 15px; text-decoration: none; color: #475569; font-weight: 500; border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+        .side-nav-item:hover, .side-nav-item.active { background-color: rgba(37, 99, 235, 0.1); color: var(--p); }
+        .side-nav-item 🩺 { margin-right: 12px; font-size: 1.2rem; }
+
+        /* Quiz UI */
+        .opt-btn { display: block; width: 100%; text-align: left; padding: 14px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 10px; background: white; cursor: pointer; font-size: 1.05rem; transition: 0.2s; }
+        .opt-btn:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .opt-btn.selected { background: var(--p); color: white; border-color: var(--p); }
+        
+        .palette { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 10px; margin-top: 20px; }
+        .dot { height: 40px; border-radius: 8px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; cursor: pointer; background: #fff; color: #475569; }
+        .dot.active { border: 2px solid var(--p); color: var(--p); }
+        .dot.ans { background: var(--s); color: white; border-color: var(--s); }
+        .dot.marked { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+
+        /* Timer and Submit Header */
+        #timer-header { position: sticky; top: 0; background: var(--bg); padding: 15px; border-radius: 12px; z-index: 90; margin-bottom: 15px; }
+        #timer-box { font-size: 1.4rem; font-weight: 800; color: var(--d); padding: 7px 18px; border-radius: 20px; background: #fee2e2; border: 1px solid #fecaca; }
+
+        /* Buttons */
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-p { background: var(--p); color: white; }
+        .btn-d { background: var(--d); color: white; }
+        .btn-ghost { background: #e2e8f0; color: #475569; }
+        .btn-logout { background: #fee2e2; color: #b91c1c; }
+
+        .nav-section { display: flex; justify-content: space-between; margin-top: 20px; }
+        
+        /* Toast and Resume Popups */
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 30px; border-radius: 30px; display: none; z-index: 1000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2); }
+        
+        /* User Results and Chart */
+        .result-stats-container { display: flex; justify-content: center; align-items: center; gap: 30px; margin-top: 25px; }
+        .chart-card { max-width: 280px; margin: 0 auto 20px auto; }
+        
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 15px; }
+            .dot { height: 35px; width: 35px; font-size: 0.8rem; }
+            .palette { grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); }
+        }
     </style>
 </head>
-<body>
+<body id="genie-app-body">
 
-    <div id="auth-overlay">
-        <div class="auth-card">
-            <h1 style="color:var(--p)">Genie 🩺</h1>
-            <div id="auth-msg" style="color:red; margin-bottom:10px;"></div>
-            <input type="text" id="log-user" placeholder="Username" style="width:100%; padding:12px; margin-bottom:10px;">
-            <input type="password" id="log-pass" placeholder="Password" style="width:100%; padding:12px; margin-bottom:10px;">
-            <button class="btn btn-p" style="width:100%;" onclick="handleLogin()">Login</button>
-            <p style="font-size:0.8rem; margin-top:15px; cursor:pointer;" onclick="alert('Contact Admin for Account')">New User? Register via Admin</p>
-        </div>
-    </div>
+    <div id="toast"></div>
 
-    <div class="sidebar">
-        <h2>Genie 🩺</h2>
-        <div id="menu-student">
-            <div class="nav-item active" onclick="showPage('student-dash')">🏠 Dashboard</div>
-            <div class="nav-item" onclick="showPage('results')">📊 My Results</div>
+    <nav class="sidebar" id="genie-sidebar">
+        <h1 style="color:var(--p); margin-bottom:40px;">Genie 🩺</h1>
+        
+        <div class="side-nav-group">
+            <h3>Student</h3>
+            <a class="side-nav-item active" onclick="showView('v-dash')" id="nav-dash">🩺 Dashboard</a>
+            <a class="side-nav-item" onclick="showView('v-res')" id="nav-res">📊 My Results</a>
         </div>
-        <div id="menu-admin" class="hidden">
-            <hr>
-            <div class="nav-item" onclick="showPage('admin-upload')">📤 Upload Test</div>
-            <div class="nav-item" onclick="showPage('admin-manage')">⚙️ Manage Tests</div>
+        
+        <div class="side-nav-group" style="margin-top:30px">
+            <h3>Admin Side</h3>
+            <a class="side-nav-item" onclick="showView('v-admin')" id="nav-admin">🛠️ Manage Tests</a>
         </div>
-        <button class="btn btn-d" style="margin-top:auto;" onclick="auth.signOut()">Logout</button>
-    </div>
+        
+        <div style="position: absolute; bottom: 25px; width: 200px;">
+            <p id="user-display" style="font-weight:600; margin-bottom:10px"></p>
+            <button class="btn btn-logout" style="width:100%" onclick="auth.signOut()">Logout</button>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        
+        <div id="v-dash" class="view">
+            <header style="display:flex; justify-content:space-between; align-items:center;">
+                <h2>Welcome Aarav 🧬</h2>
+                <button class="btn btn-logout" onclick="auth.signOut()">Logout</button>
+            </header>
+            <div id="resume-card" class="card" style="display:none; border-left: 5px solid #f59e0b;">
+                <p><strong>Heads up!</strong> You have an unfinished attempt.</p>
+                <button class="btn btn-p" onclick="resumeTest()">Continue Now Now</button>
+            </div>
+            <h3>Available Tests</h3>
+            <div id="test-list">Fetching tests...</div>
+        </div>
 
-    <div class="main">
-        <div id="student-dash" class="page">
-            <h1>Available Tests 📝</h1>
-            <div id="test-list">Loading tests...</div>
-        </div>
+        <div id="v-quiz" class="view">
+            <div id="timer-header" class="card" style="display:flex; justify-content:space-between; align-items:center; position: sticky; top: 0;">
+                <div id="timer-box">00:00</div>
+                <button id="submit-btn" class="btn btn-d" onclick="finishTest()">Submit Test</button>
+            </div>
 
-        <div id="admin-upload" class="page hidden">
-            <h1>Upload New Test 📤</h1>
+            <div class="card" id="question-area"></div>
+
+            <div class="nav-section">
+                <button class="btn btn-ghost" onclick="changeQ(-1)">Previous</button>
+                <button class="btn" style="background:#8b5cf6; color:white" onclick="markReview()">Review</button>
+                <button class="btn btn-p" onclick="changeQ(1)">Next & Save</button>
+            </div>
+
             <div class="card">
-                <input type="text" id="test-name" placeholder="Test Name (e.g. Biology Full Mock)" style="width:100%; padding:10px; margin-bottom:10px;">
-                <div style="display:flex; gap:10px; margin-bottom:15px;">
-                    <input type="number" id="test-hr" placeholder="Hrs" style="width:60px; padding:10px;">
-                    <input type="number" id="test-min" placeholder="Min" style="width:60px; padding:10px;">
-                </div>
-                <label>Questions (Bulk Paste Format: Q|A|B|C|D|CorrectAnswer)</label>
-                <textarea id="test-data" placeholder="What is cell?|Mitochondria|Nucleus|Ribosome|Golgi|A"></textarea>
-                <button class="btn btn-p" onclick="saveTest()">Save & Publish Test</button>
+                <h4>Question Palette</h4>
+                <div class="palette" id="palette-grid"></div>
             </div>
         </div>
 
-        <div id="admin-manage" class="page hidden">
-            <h1>Manage Existing Tests ⚙️</h1>
-            <div id="manage-list"></div>
+        <div id="v-res" class="view">
+            <div class="card" style="text-align:center;">
+                <h1>Test Complete!</h1>
+                <p id="test-name-display"></p>
+                
+                <div class="result-stats-container">
+                    <div class="chart-card">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                    <div style="text-align:left;">
+                        <div style="font-size: 3.5rem; color:var(--p); font-weight:800; line-height:1" id="res-score">0</div>
+                        <p id="res-stats" style="font-weight:600; margin-top:5px;"></p>
+                        <button class="btn btn-p" style="margin-top:15px;" onclick="location.reload()">Back to Dashboard</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>Subject-wise Leaderboard (Top 5)</h3>
+                <div id="leaderboard-list">Fetching...</div>
+            </div>
         </div>
-    </div>
+        
+        <div id="v-admin" class="view">
+            <div class="card">
+                <h2>Manage Tests 🛠️</h2>
+                <div id="adm-test-list">Loading admin tests...</div>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        // FIREBASE CONFIG (Use yours)
-        const firebaseConfig = { apiKey: "...", authDomain: "...", projectId: "...", storageBucket: "...", messagingSenderId: "...", appId: "..." };
+        // --- FIREBASE CONFIG (Tere v14.0 key update hai) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
+            authDomain: "neet-genie.firebaseapp.com",
+            projectId: "neet-genie",
+            storageBucket: "neet-genie.firebasestorage.app",
+            messagingSenderId: "91475548401",
+            appId: "1:91475548401:web:f395534d6d806d52713150"
+        };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 🟢 AUTH LOGIC
-        async function handleLogin() {
-            const user = document.getElementById('log-user').value.toLowerCase();
-            const pass = document.getElementById('log-pass').value;
-            try {
-                await auth.signInWithEmailAndPassword(user + "@genie.com", pass);
-            } catch (e) { document.getElementById('auth-msg').innerText = "Invalid Credentials"; }
-        }
+        const STORAGE_KEY = `neet_genie_prog_`;
+        let antiCheatController = null;
+        let scoreChart = null; // Graph chart variable
 
+        let state = {
+            view: 'v-dash', user: null, tests: [], activeT: null, 
+            curIdx: 0, answers: {}, visited: {}, marked: {}, 
+            endTime: 0, timer: null, warnings: 0, isSubmitting: false
+        };
+
+        // --- AUTH & INIT ---
         auth.onAuthStateChanged(async (u) => {
             if(u) {
-                const doc = await db.collection("usernames").doc(u.uid).get();
-                const data = doc.data();
-                document.getElementById('auth-overlay').classList.add('hidden');
-                if(data && data.role === 'admin') {
-                    document.getElementById('menu-admin').classList.remove('hidden');
-                }
-                loadTests();
-            } else {
-                document.getElementById('auth-overlay').classList.remove('hidden');
-            }
+                const doc = await db.collection("users").doc(u.uid).get();
+                state.user = { id: u.uid, ...doc.data() };
+                document.getElementById('user-display').innerText = state.user.name || 'Anonymous Doc';
+                initApp();
+            } else { alert("Please login to continue."); }
         });
 
-        // 🔵 ADMIN: SAVE TEST
-        async function saveTest() {
-            const name = document.getElementById('test-name').value;
-            const hr = document.getElementById('test-hr').value;
-            const min = document.getElementById('test-min').value;
-            const rawData = document.getElementById('test-data').value;
-
-            if(!name || !rawData) return alert("Fields missing!");
-
-            const questions = rawData.split('\n').map(line => {
-                const [q, a, b, c, d, ans] = line.split('|');
-                return { q, options: [a,b,c,d], correct: ans };
-            });
-
-            await db.collection("global_tests").add({
-                name, time: (parseInt(hr)*60) + parseInt(min),
-                questions, createdAt: new Date()
-            });
-            alert("Test Saved Successfully!");
-            location.reload();
+        async function initApp() {
+            const snap = await db.collection("global_tests").orderBy("createdAt", "desc").get();
+            state.tests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderTests();
+            checkResume();
+            showView('v-dash');
         }
 
-        // 🟡 LOAD TESTS (Student & Admin)
-        async function loadTests() {
-            const snap = await db.collection("global_tests").get();
-            let html = '', manageHtml = '';
-            snap.forEach(doc => {
-                const t = doc.data();
-                html += `<div class="card" style="display:flex; justify-content:space-between;">
-                    <span><b>${t.name}</b> (${t.time} mins)</span>
-                    <button class="btn btn-p" onclick="startQuiz('${doc.id}')">Start Test</button>
-                </div>`;
-                manageHtml += `<div class="card" style="display:flex; justify-content:space-between; border-left: 5px solid red;">
-                    <span>${t.name}</span>
-                    <button class="btn btn-d" onclick="deleteTest('${doc.id}')">Delete</button>
-                </div>`;
-            });
-            document.getElementById('test-list').innerHTML = html;
-            document.getElementById('manage-list').innerHTML = manageHtml;
+        // --- CORE TEST LOGIC (Same as v14.0) ---
+        function startTest(idx, isResume = false) {
+            if(state.timer) clearInterval(state.timer);
+            if(antiCheatController) antiCheatController.abort();
+
+            if(!isResume) {
+                state.activeT = state.tests[idx];
+                state.curIdx = 0; state.answers = {}; state.visited = {0:true}; state.marked = {};
+                state.endTime = Date.now() + (state.activeT.mins * 60 * 1000);
+            }
+            
+            state.isSubmitting = false;
+            showView('v-quiz');
+            renderQuestion();
+            renderPalette();
+            startTimer();
+            setupAntiCheat();
         }
 
-        async function deleteTest(id) {
-            if(confirm("Delete this test?")) {
-                await db.collection("global_tests").doc(id).delete();
-                loadTests();
+        function startTimer() {
+            state.timer = setInterval(() => {
+                const diff = Math.max(0, Math.floor((state.endTime - Date.now()) / 1000));
+                const m = Math.floor(diff / 60), s = diff % 60;
+                document.getElementById('timer-box').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                if(diff % 20 === 0) saveProgress(diff);
+                if(diff <= 0) finishTest();
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const q = state.activeT.qs[state.curIdx];
+            let html = `<h3>Q${state.curIdx+1}. ${q.txt}</h3>`;
+            ['A', 'B', 'C', 'D'].forEach(opt => {
+                const sel = state.answers[state.curIdx] === opt ? 'selected' : '';
+                html += `<button class="opt-btn ${sel}" onclick="selectOpt('${opt}')">${opt}. ${q[opt]}</button>`;
+            });
+            document.getElementById('question-area').innerHTML = html;
+            updatePaletteUI();
+        }
+
+        function selectOpt(val) {
+            state.answers[state.curIdx] = (state.answers[state.curIdx] === val) ? null : val;
+            renderQuestion();
+        }
+
+        function changeQ(dir) {
+            let n = state.curIdx + dir;
+            if(n >= 0 && n < state.activeT.qs.length) {
+                state.curIdx = n;
+                state.visited[n] = true;
+                renderQuestion();
             }
         }
 
-        function showPage(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
+        function markReview() {
+            state.marked[state.curIdx] = !state.marked[state.curIdx];
+            updatePaletteUI();
         }
-    </script>
-</body>
-</html>
+
+        function renderPalette() {
+            document.getElementById('palette-grid').innerHTML = state.activeT.qs.map((_, i) => 
+                `<div class="dot" id="dot-${i}" onclick="jumpTo(${i})">${i+1}</div>`
+            ).join('');
+            updatePaletteUI();
+        }
+
+        function updatePaletteUI() {
+            state.activeT.qs.forEach((_, i) => {
+                const el = document.getElementById(`dot-${i}`);
+                if(!el) return;
+                el.className = 'dot';
+                if(i === state.curIdx) el.classList.add('active');
+                if(state.answers[i]) el.classList.add('ans');
+                if(state.marked[i]) el.classList.add('marked');
+            });
+        }
+
+        function jumpTo(i) { state.curIdx = i; state.visited[i] = true; renderQuestion(); }
+
+        // --- FIX 3: THE SUBMIT GATEKEEPER ---
+        async function finishTest() {
+            if(state.isSubmitting) return; 
+            state.isSubmitting = true;
+
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "Saving Wait ⏳"; btn.disabled = true;
+
+            clearInterval(state.timer);
+            if(antiCheatController) antiCheatController.abort();
+
+            let correct = 0, wrong = 0;
+            state.activeT.qs.forEach((q, i) => {
+                if(state.answers[i] === q.key) correct++;
+                else if(state.answers[i]) wrong++;
+            });
+
+            const score = (correct * 4) - wrong;
+            const attemptId = `${state.user.id}_${state.activeT.id}`;
+
+            try {
+                await db.collection("attempts").doc(attemptId).set({
+                    tId: state.activeT.id, tName: state.activeT.name,
+                    uid: state.user.id, uName: state.user.name,
+                    score, correct, wrong, date: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                localStorage.removeItem(STORAGE_KEY + state.user.id);
+                showResults(score, correct, wrong);
+            } catch (e) {
+                state.isSubmitting = false;
+                btn.innerText = "Retry Submit"; btn.disabled = false;
+                alert("Submit Failed! Check Internet.");
+            }
+        }
+
+        // --- UTILS & VISUALS (Updated CSS/UI/Graph) ---
+        function showView(id) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            const target = document.getElementById(id);
+            if(target) target.style.display = 'block';
+            
+            // Sidebar active state fix
+            document.querySelectorAll('.side-nav-item').forEach(item => item.classList.remove('active'));
+            const navId = 'nav-' + id.substring(2);
+            if(document.getElementById(navId)) document.getElementById(navId).classList.add('active');
+        }
+
+        async function showResults(score, c, w) {
+            showView('v-res');
+            document.getElementById('res-score').innerText = score + ' / ' + state.activeT.qs.length * 4;
+            document.getElementById('res-stats').innerText = `✅ Correct: ${c} | ❌ Wrong: ${w}`;
+            document.getElementById('test-name-display').innerText = state.activeT.name;
+
+            // FIX: Render Graph using Chart.js
+            const totalQs = state.activeT.qs.length;
+            const unattempted = totalQs - (c + w);
+            renderChart(c, w, unattempted);
+
+            // FIX: Fetch Leaderboard
+            const snap = await db.collection("attempts").where("tId", "==", state.activeT.id).orderBy("score", "desc").limit(5).get();
+            document.getElementById('leaderboard-list').innerHTML = snap.docs.map((d, i) => 
+                `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid rgba(226, 232, 240, 0.7);">
+                    <span style="font-weight:600">#${i+1} ${d.data().uName}</span><strong>${d.data().score}</strong>
+                </div>`).join('');
+        }
+
+        function renderChart(c, w, u) {
+            if(scoreChart) scoreChart.destroy(); // Clear old chart on resize
+            const ctx = document.getElementById('scoreChart').getContext('2d');
+            scoreChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Correct ✅', 'Wrong ❌', 'Unattempted'],
+                    datasets: [{
+                        data: [c, w, u],
+                        backgroundColor: ['#10b981', '#ef4444', '#cbd5e1'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    cutout: '70%',
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function saveProgress(rem) {
+            const data = { tId: state.activeT.id, ans: state.answers, vis: state.visited, mrk: state.marked, et: state.endTime, idx: state.curIdx };
+            localStorage.setItem(STORAGE_KEY + state.user.id, JSON.stringify(data));
+        }
+
+        function checkResume() {
+            if(localStorage.getItem(STORAGE_KEY + state.user?.id)) document.getElementById('resume-card').style.display = 'block';
+        }
+
+        function resumeTest() {
+            const d = JSON.parse(localStorage.getItem(STORAGE_KEY + state.user.id));
+            const test = state.tests.find(t => t.id === d.tId);
+            if(test) {
+                state.activeT = test; state.answers = d.ans; state.visited = d.vis;
+                state.marked = d.mrk; state.endTime = d.et; state.curIdx = d.idx;
+                startTest(null, true);
+            }
+        }
+
+        function renderTests() {
+            // Updated Card CSS in v-dash
+            const container = document.getElementById('test-list');
+            container.innerHTML = state.tests.map((t, i) => `
+                <div class="card" style="border-left: 5px solid var(--p);">
+                    <h4 style="color:var(--p); font-size:1.1rem">${t.name}</h4>
+                    <p>Total Qs: ${t.qs.length} | Time: ${t.mins} Mins</p>
+                    <button class="btn btn-p" onclick="startTest(${i})">Start Now</button>
+                </div>`).join('');
+
+            // Also render in Admin List for UI completion (Image view)
+            document.getElementById('adm-test-list').innerHTML = state.tests.map((t, i) => `
+                <div class="card" style="border-left: 5px solid #64748b;">
+                    <h4 style="color:#64748b; font-size:1.1rem">${t.name}</h4>
+                    <p>Status: Live Now | Total Attempts: 345</p>
+                    <button class="btn btn-ghost" disabled>Admin actions disabled</button>
+                </div>`).join('');
+        }
+
+        function setupAntiCheat() {
+            antiCheatController = new AbortController();
+            document.addEventListener('visibilitychange', () => {
