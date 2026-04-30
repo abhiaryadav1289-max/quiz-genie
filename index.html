@@ -4,337 +4,289 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEET Genie | Master Portal</title>
-    
     <style>
         :root {
-            --bg: #0f172a;
-            --card: rgba(30, 41, 59, 0.7);
-            --primary: #38bdf8;
-            --accent: #818cf8;
-            --text: #f1f5f9;
-            --danger: #f43f5e;
-            --success: #10b981;
-            --glass: rgba(255, 255, 255, 0.05);
+            --bg: #0f172a; --card: rgba(30, 41, 59, 0.7); --primary: #38bdf8;
+            --accent: #818cf8; --text: #f1f5f9; --danger: #f43f5e; --glass: rgba(255, 255, 255, 0.05);
         }
-
-        .light-theme {
-            --bg: #f8fafc;
-            --card: rgba(255, 255, 255, 0.9);
-            --text: #1e293b;
-            --glass: rgba(0, 0, 0, 0.05);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; transition: background 0.3s, color 0.3s; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-
-        /* Navbar */
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 5%; background: var(--glass); backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 1000;
-        }
+        .light-theme { --bg: #f8fafc; --card: rgba(255, 255, 255, 0.9); --text: #1e293b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: 0.3s; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; }
+        nav { display: flex; justify-content: space-between; padding: 1rem 5%; background: var(--glass); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top:0; z-index:100; }
         .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-        .logo span { color: var(--text); }
-
-        /* Buttons */
         .btn { padding: 0.6rem 1.2rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-
-        /* Layout */
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .btn-danger { background: var(--danger); color: white; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
         .hidden { display: none !important; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
-        /* Test Card */
-        .card { 
-            background: var(--card); border: 1px solid rgba(255,255,255,0.1); 
-            padding: 1.5rem; border-radius: 16px; backdrop-filter: blur(10px);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-        }
-
-        /* Quiz Interface */
-        .quiz-box { max-width: 800px; margin: auto; }
-        .option { 
-            display: block; width: 100%; padding: 1rem; margin: 0.5rem 0; 
-            background: var(--glass); border: 2px solid transparent; border-radius: 10px; 
-            text-align: left; cursor: pointer; font-size: 1rem; color: inherit;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card { background: var(--card); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+        .option { display: block; width: 100%; padding: 1rem; margin: 0.5rem 0; background: var(--glass); border: 2px solid transparent; border-radius: 10px; text-align: left; cursor: pointer; color: inherit; font-size: 1rem; }
         .option:hover { border-color: var(--primary); }
         .option.selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.1); }
-        
-        .progress-bar { width: 100%; height: 8px; background: var(--glass); border-radius: 10px; margin-bottom: 2rem; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
-
-        /* Admin Panel */
-        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        textarea { width: 100%; height: 200px; background: var(--glass); color: var(--text); border-radius: 8px; padding: 1rem; border: 1px solid rgba(255,255,255,0.1); }
-        input { width: 100%; padding: 0.8rem; margin-bottom: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: var(--glass); color: var(--text); }
-
-        /* Results */
-        .result-screen { text-align: center; }
-        .score-circle { width: 150px; height: 150px; border-radius: 50%; border: 5px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 2rem auto; }
+        .progress-bar { width: 100%; height: 8px; background: var(--glass); border-radius: 10px; margin: 1rem 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        textarea { width: 100%; height: 150px; background: var(--glass); color: var(--text); border-radius: 8px; padding: 10px; margin-top: 10px; border: 1px solid rgba(255,255,255,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: var(--glass); color: var(--text); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="logo">NEET<span>Genie</span></div>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-outline" onclick="toggleTheme()">🌓</button>
-            <button id="login-nav-btn" class="btn btn-primary" onclick="showView('admin-auth')">Admin Login</button>
-            <button id="logout-nav-btn" class="btn btn-danger hidden" onclick="handleLogout()">Logout</button>
-        </div>
-    </nav>
-
-    <div class="container">
-        <section id="view-dashboard">
-            <h2 style="margin-bottom: 1.5rem;">Ready to Practice?</h2>
-            <div id="test-container" class="grid">
-                <p>Loading tests...</p>
-            </div>
-        </section>
-
-        <section id="view-quiz" class="hidden">
-            <div class="quiz-box card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h3 id="quiz-title">Biology Test</h3>
-                    <div id="timer" style="color: var(--danger); font-weight: bold; font-size: 1.2rem;">00:00</div>
-                </div>
-                <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
-                
-                <div id="question-area">
-                    <p id="q-text" style="font-size: 1.2rem; margin-bottom: 1.5rem;"></p>
-                    <div id="options-area"></div>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
-                    <button class="btn btn-outline" onclick="prevQuestion()">Previous</button>
-                    <button class="btn btn-primary" onclick="nextQuestion()" id="next-btn">Next</button>
-                    <button class="btn btn-danger hidden" id="submit-btn" onclick="submitQuiz()">Submit Test</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-result" class="hidden">
-            <div class="card result-screen">
-                <h2>Analysis Report</h2>
-                <div class="score-circle" id="score-display">0/0</div>
-                <button class="btn btn-primary" onclick="location.reload()">Back to Dashboard</button>
-            </div>
-        </section>
-
-        <section id="view-admin-auth" class="hidden">
-            <div class="card" style="max-width: 400px; margin: auto;">
-                <h3>Admin Secure Login</h3>
-                <input type="email" id="admin-email" placeholder="Email" style="margin-top: 1rem;">
-                <input type="password" id="admin-password" placeholder="Password">
-                <button class="btn btn-primary" style="width: 100%;" onclick="handleLogin()">Login</button>
-                <button class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="showView('dashboard')">Cancel</button>
-            </div>
-        </section>
-
-        <section id="view-admin-panel" class="hidden">
-            <div class="card">
-                <h2>Upload New Test</h2>
-                <input type="text" id="admin-test-name" placeholder="Test Name">
-                <input type="number" id="admin-test-duration" placeholder="Duration (Minutes)">
-                
-                <div class="admin-grid">
-                    <div>
-                        <label>Questions Box</label>
-                        <textarea id="admin-q-bulk" placeholder="Q1. Text...&#10;A. Option..."></textarea>
-                    </div>
-                    <div>
-                        <label>Answers Box</label>
-                        <textarea id="admin-a-bulk" placeholder="1-A&#10;2-B"></textarea>
-                    </div>
-                </div>
-                <button class="btn btn-primary" style="margin-top: 1rem;" onclick="processAndUpload()">Generate & Upload</button>
-            </div>
-
-            <h2 style="margin: 2rem 0 1rem;">Manage Tests</h2>
-            <div id="admin-manage-list" class="grid"></div>
-        </section>
+<nav>
+    <div class="logo">NEET<span>Genie</span></div>
+    <div style="display:flex; gap:10px;">
+        <button class="btn btn-outline" onclick="location.reload()">🏠 Home</button>
+        <button id="admin-btn" class="btn btn-primary" onclick="window.checkAuth()">⚙️ Admin</button>
     </div>
+</nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<div class="container">
+    <section id="view-dashboard">
+        <h2 style="margin-bottom: 1.5rem;">Available Practice Tests</h2>
+        <div id="test-list" class="grid">Loading tests...</div>
+    </section>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
-            authDomain: "neet-genie.firebaseapp.com",
-            projectId: "neet-genie",
-            storageBucket: "neet-genie.firebasestorage.app",
-            messagingSenderId: "91475548401",
-            appId: "1:91475548401:web:f395534d6d806d52713150"
-        };
+    <section id="view-quiz" class="hidden">
+        <div class="card" style="max-width: 800px; margin: auto;">
+            <div style="display:flex; justify-content:space-between; align-items: center;">
+                <h3 id="q-title">Quiz</h3>
+                <div id="timer" style="color:var(--danger); font-weight:bold; font-size: 1.3rem; font-family: monospace;">00:00</div>
+            </div>
+            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+            <p id="q-text" style="font-size:1.2rem; margin:1.5rem 0; line-height: 1.6;"></p>
+            <div id="options-area"></div>
+            <div style="display:flex; justify-content:space-between; margin-top:2rem;">
+                <button class="btn btn-outline" onclick="window.changeQ(-1)">⬅️ Previous</button>
+                <button class="btn btn-primary" id="next-btn" onclick="window.changeQ(1)">Next ➡️</button>
+                <button class="btn btn-danger hidden" id="submit-btn" onclick="window.finishQuiz()">🚀 Submit Test</button>
+            </div>
+        </div>
+    </section>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+    <section id="view-auth" class="hidden">
+        <div class="card" style="max-width:400px; margin:auto;">
+            <h3>Admin Login</h3>
+            <input type="email" id="email" placeholder="Admin Email">
+            <input type="password" id="pass" placeholder="Password">
+            <button class="btn btn-primary" style="width:100%" onclick="window.login()">Login</button>
+        </div>
+    </section>
 
-        let currentTest = null;
-        let userChoices = [];
-        let currentIdx = 0;
-        let timer;
+    <section id="view-admin" class="hidden">
+        <div class="card">
+            <h2>🚀 Upload New Test</h2>
+            <input type="text" id="t-name" placeholder="Test Name (e.g. Biology Full Mock)">
+            <input type="number" id="t-time" placeholder="Time in Minutes">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label>Bulk Questions (Q1. Format)</label>
+                    <textarea id="t-qs" placeholder="Q1. Powerhouse of cell?&#10;A. Nucleus&#10;B. Mitochondria..."></textarea>
+                </div>
+                <div>
+                    <label>Answers Key (1-A, 2-B)</label>
+                    <textarea id="t-as" placeholder="1-B&#10;2-A"></textarea>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:15px; width: 100%;" onclick="window.upload()">Upload & Sync</button>
+        </div>
+        <h2 style="margin-top: 2rem; margin-bottom: 1rem;">📋 Manage Tests</h2>
+        <div id="admin-manage-list" class="grid"></div>
+    </section>
 
-        window.showView = (viewId) => {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById(`view-${viewId}`).classList.remove('hidden');
-        };
+    <section id="view-result" class="hidden">
+        <div class="card" style="text-align:center; max-width: 500px; margin: auto;">
+            <h2>Analysis Report</h2>
+            <div style="font-size: 4rem; margin: 20px 0; color: var(--primary);" id="final-score">0</div>
+            <p id="result-status" style="margin-bottom: 20px; font-weight: 600;"></p>
+            <button class="btn btn-primary" onclick="location.reload()">Back to Home</button>
+        </div>
+    </section>
+</div>
 
-        window.toggleTheme = () => document.body.classList.toggle('light-theme');
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        window.handleLogin = async () => {
-            const email = document.getElementById('admin-email').value;
-            const pass = document.getElementById('admin-password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                alert("Login Success!");
-            } catch (e) { alert("Access Denied: " + e.message); }
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyB1Yk3k4LgpPLBm0hp73tMYuDEDiJaRamM",
+        authDomain: "neet-genie.firebaseapp.com",
+        projectId: "neet-genie",
+        storageBucket: "neet-genie.firebasestorage.app",
+        messagingSenderId: "91475548401",
+        appId: "1:91475548401:web:f395534d6d806d52713150"
+    };
 
-        window.handleLogout = () => signOut(auth);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-        onAuthStateChanged(auth, (user) => {
-            const loginBtn = document.getElementById('login-nav-btn');
-            const logoutBtn = document.getElementById('logout-nav-btn');
-            if (user) {
-                loginBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                showView('admin-panel');
-                fetchAdminTests();
-            } else {
-                loginBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                showView('dashboard');
-                fetchDashboardTests();
-            }
-        });
+    let activeTest = null;
+    let userAns = [];
+    let index = 0;
+    let clock;
 
-        window.processAndUpload = async () => {
-            const name = document.getElementById('admin-test-name').value;
-            const mins = document.getElementById('admin-test-duration').value;
-            const qTxt = document.getElementById('admin-q-bulk').value;
-            const aTxt = document.getElementById('admin-a-bulk').value;
+    window.show = (id) => {
+        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('view-' + id).classList.remove('hidden');
+    };
 
-            if(!name || !qTxt || !aTxt) return alert("Details fill karo!");
-
-            const qBlocks = qTxt.split(/Q\d+\./g).filter(b => b.trim() !== "");
-            const questions = qBlocks.map((block, i) => {
-                const lines = block.split('\n').filter(l => l.trim() !== "");
-                const opts = lines.slice(1, 5).map(o => o.replace(/^[A-D]\.\s*/, "").trim());
-                const ansMatch = aTxt.match(new RegExp(`${i+1}-([A-D])`));
-                return {
-                    question: lines[0].trim(),
-                    options: opts,
-                    answer: ansMatch ? ansMatch[1] : "A"
-                };
-            });
-
-            await addDoc(collection(db, "tests"), {
-                testName: name,
-                duration: parseInt(mins),
-                questions: questions,
-                createdAt: Date.now()
-            });
-            alert("Test Live!");
-            location.reload();
-        };
-
-        async function fetchDashboardTests() {
-            const snap = await getDocs(query(collection(db, "tests"), orderBy("createdAt", "desc")));
-            const container = document.getElementById('test-container');
-            container.innerHTML = "";
-            snap.forEach(docSnap => {
-                const test = docSnap.data();
-                const card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <h3>${test.testName}</h3>
-                    <p>⏱ ${test.duration} Minutes | 📝 ${test.questions.length} MCQs</p>
-                    <button class="btn btn-primary" style="width:100%; margin-top:1rem;" id="start-${docSnap.id}">Start Now</button>
-                `;
-                container.appendChild(card);
-                document.getElementById(`start-${docSnap.id}`).onclick = () => initQuiz(test);
-            });
-        }
-
-        function initQuiz(testData) {
-            currentTest = testData;
-            userChoices = new Array(currentTest.questions.length).fill(null);
-            currentIdx = 0;
-            showView('quiz-view');
-            startTimer(currentTest.duration);
-            renderQuestion();
-        }
-
-        function renderQuestion() {
-            const q = currentTest.questions[currentIdx];
-            document.getElementById('quiz-title').innerText = currentTest.testName;
-            document.getElementById('q-text').innerText = `${currentIdx + 1}. ${q.question}`;
-            const optArea = document.getElementById('options-area');
-            optArea.innerHTML = "";
+    async function loadTests() {
+        try {
+            const q = query(collection(db, "tests"), orderBy("createdAt", "desc"));
+            const snap = await getDocs(q);
+            const list = document.getElementById('test-list');
+            const adminList = document.getElementById('admin-manage-list');
             
-            ["A","B","C","D"].forEach((label, i) => {
-                const btn = document.createElement('button');
-                btn.className = `option ${userChoices[currentIdx] === label ? 'selected' : ''}`;
-                btn.innerText = `${label}. ${q.options[i]}`;
-                btn.onclick = () => {
-                    userChoices[currentIdx] = label;
-                    new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3').play();
-                    renderQuestion();
-                };
-                optArea.appendChild(btn);
-            });
-
-            document.getElementById('progress-fill').style.width = `${((currentIdx + 1) / currentTest.questions.length) * 100}%`;
-            document.getElementById('next-btn').classList.toggle('hidden', currentIdx === currentTest.questions.length - 1);
-            document.getElementById('submit-btn').classList.toggle('hidden', currentIdx !== currentTest.questions.length - 1);
-        }
-
-        window.nextQuestion = () => { currentIdx++; renderQuestion(); };
-        window.prevQuestion = () => { if(currentIdx > 0) { currentIdx--; renderQuestion(); } };
-
-        function startTimer(mins) {
-            let time = mins * 60;
-            clearInterval(timer);
-            timer = setInterval(() => {
-                let m = Math.floor(time / 60), s = time % 60;
-                document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
-                if (time <= 0) { clearInterval(timer); window.submitQuiz(); }
-                time--;
-            }, 1000);
-        }
-
-        window.submitQuiz = () => {
-            clearInterval(timer);
-            let score = 0;
-            currentTest.questions.forEach((q, i) => { if(userChoices[i] === q.answer) score++; });
-            showView('result');
-            document.getElementById('score-display').innerText = `${score} / ${currentTest.questions.length}`;
-        };
-
-        async function fetchAdminTests() {
-            const snap = await getDocs(collection(db, "tests"));
-            const list = document.getElementById('admin-manage-list');
             list.innerHTML = "";
+            adminList.innerHTML = "";
+
             snap.forEach(d => {
+                const data = d.data();
+                // Student View
                 const div = document.createElement('div');
                 div.className = "card";
-                div.innerHTML = `<h4>${d.data().testName}</h4><button class="btn btn-danger" style="margin-top:10px" id="del-${d.id}">Delete</button>`;
+                div.innerHTML = `
+                    <h3>${data.testName}</h3>
+                    <p>📝 ${data.questions.length} MCQs | ⏱ ${data.duration} Min</p>
+                    <button class="btn btn-primary" style="width:100%; margin-top:10px" onclick="window.startQuiz('${d.id}')">Start Now</button>
+                `;
                 list.appendChild(div);
-                document.getElementById(`del-${d.id}`).onclick = () => deleteTest(d.id);
-            });
-        }
 
-        async function deleteTest(id) {
-            if(confirm("Delete kardu?")) { await deleteDoc(doc(db, "tests", id)); location.reload(); }
+                // Admin View
+                if(auth.currentUser) {
+                    const admDiv = document.createElement('div');
+                    admDiv.className = "card";
+                    admDiv.innerHTML = `
+                        <h4>${data.testName}</h4>
+                        <button class="btn btn-danger" onclick="window.removeTest('${d.id}')" style="margin-top:10px; width: 100%;">🗑 Delete Test</button>
+                    `;
+                    adminList.appendChild(admDiv);
+                }
+            });
+        } catch (e) { console.error("Load Error:", e); }
+    }
+
+    window.startQuiz = async (testId) => {
+        const snap = await getDocs(collection(db, "tests"));
+        const targetDoc = snap.docs.find(d => d.id === testId);
+        if(!targetDoc) return alert("Test error!");
+        
+        activeTest = targetDoc.data();
+        // Improvement: Random Shuffle
+        activeTest.questions = activeTest.questions.sort(() => Math.random() - 0.5);
+        
+        userAns = new Array(activeTest.questions.length).fill(null);
+        index = 0;
+        show('quiz');
+        render();
+        startTimer(activeTest.duration);
+    };
+
+    function render() {
+        const q = activeTest.questions[index];
+        document.getElementById('q-title').innerText = activeTest.testName;
+        document.getElementById('q-text').innerText = `${index + 1}. ${q.question}`;
+        
+        const area = document.getElementById('options-area');
+        area.innerHTML = "";
+        
+        ["A","B","C","D"].forEach((l, i) => {
+            const b = document.createElement('button');
+            b.className = `option ${userAns[index] === l ? 'selected' : ''}`;
+            b.innerText = `${l}. ${q.options[i] || '---'}`;
+            b.onclick = () => { userAns[index] = l; render(); };
+            area.appendChild(b);
+        });
+
+        document.getElementById('progress-fill').style.width = `${((index + 1) / activeTest.questions.length) * 100}%`;
+        document.getElementById('next-btn').classList.toggle('hidden', index === activeTest.questions.length - 1);
+        document.getElementById('submit-btn').classList.toggle('hidden', index !== activeTest.questions.length - 1);
+    }
+
+    window.changeQ = (n) => { 
+        let nextIdx = index + n;
+        if(nextIdx >= 0 && nextIdx < activeTest.questions.length) { index = nextIdx; render(); }
+    };
+
+    function startTimer(mins) {
+        let time = mins * 60;
+        if(clock) clearInterval(clock);
+        clock = setInterval(() => {
+            let m = Math.floor(time / 60), s = time % 60;
+            document.getElementById('timer').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            if (time <= 0) { clearInterval(clock); window.finishQuiz(); }
+            time--;
+        }, 1000);
+    }
+
+    window.finishQuiz = () => {
+        clearInterval(clock);
+        let score = 0;
+        activeTest.questions.forEach((q, i) => {
+            const correctKey = q.answer || q.correctAnswer;
+            if(userAns[i] === correctKey) score++;
+        });
+        show('result');
+        document.getElementById('final-score').innerText = `${score} / ${activeTest.questions.length}`;
+        const pct = (score / activeTest.questions.length) * 100;
+        document.getElementById('result-status').innerText = pct >= 50 ? "🎉 Well Done!" : "📚 Keep Practicing!";
+    };
+
+    window.checkAuth = () => { auth.currentUser ? show('admin') : show('auth'); };
+    
+    window.login = () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('pass').value;
+        signInWithEmailAndPassword(auth, e, p).then(() => { show('admin'); loadTests(); }).catch(err => alert(err.message));
+    };
+
+    window.removeTest = async (id) => {
+        if(confirm("Confirm Delete?")) {
+            await deleteDoc(doc(db, "tests", id));
+            loadTests();
         }
-    </script>
+    };
+
+    window.upload = async () => {
+        const name = document.getElementById('t-name').value;
+        const time = document.getElementById('t-time').value;
+        const qRaw = document.getElementById('t-qs').value;
+        const aRaw = document.getElementById('t-as').value;
+
+        if(!name || !qRaw || !aRaw) return alert("Fill all details!");
+
+        try {
+            // Robust Parsing Logic
+            const qBlocks = qRaw.split(/Q\d+[\.\s]*/g).filter(b => b.trim().length > 5);
+            const questions = qBlocks.map((block, i) => {
+                const lines = block.split('\n').map(l => l.trim()).filter(l => l !== "");
+                const options = [];
+                lines.forEach(line => {
+                    if(line.match(/^[A-D][\.\)\s]/)) {
+                        options.push(line.replace(/^[A-D][\.\)\s]*/, "").trim());
+                    }
+                });
+                const ansRegex = new RegExp(`(?:^|\\n)${i+1}[\\s\\-\\.]*([A-D])`, 'i');
+                const match = aRaw.match(ansRegex);
+                return {
+                    question: lines[0],
+                    options: options.length >= 4 ? options.slice(0,4) : ["A","B","C","D"],
+                    answer: match ? match[1].toUpperCase() : "A"
+                };
+            });
+
+            await addDoc(collection(db, "tests"), { 
+                testName: name, duration: parseInt(time), questions, createdAt: Date.now() 
+            });
+            alert("Test Uploaded Successfully!");
+            location.reload();
+        } catch (e) { alert("Format Error! Check Input."); }
+    };
+
+    onAuthStateChanged(auth, (user) => { loadTests(); });
+</script>
+
 </body>
 </html>
