@@ -3,148 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEET Genie PRO | Ultimate AI Portal</title>
+    <title>NEET Genie Ultra | AI Exam Platform</title>
     <style>
         :root {
             --bg: #0f172a; --card: #1e293b; --primary: #38bdf8;
             --accent: #818cf8; --text: #f1f5f9; --danger: #f43f5e; --success: #10b981;
-            --glass: rgba(255, 255, 255, 0.05);
+            --warning: #fbbf24; --glass: rgba(255, 255, 255, 0.05);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+        body { background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; overflow-x: hidden; }
         
         nav { background: rgba(30, 41, 59, 0.9); backdrop-filter: blur(10px); padding: 1rem 5%; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
         
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+
         .card { background: var(--card); border-radius: 1.2rem; padding: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 1.5rem; animation: fadeIn 0.4s ease; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Question Palette */
+        .palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 15px; }
+        .p-btn { aspect-ratio: 1; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; background: #334155; color: white; font-size: 0.8rem; }
+        .p-btn.answered { background: var(--success); }
+        .p-btn.review { background: var(--accent); }
+        .p-btn.current { border: 2px solid var(--primary); transform: scale(1.1); }
 
-        .q-img { max-width: 100%; border-radius: 10px; margin-bottom: 1.5rem; display: block; border: 1px solid var(--glass); }
-        .sub-badge { background: var(--primary); color: #000; padding: 2px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: inline-block; }
+        .sub-badge { background: var(--primary); color: #000; padding: 2px 10px; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: inline-block; }
         
         .option { display: block; width: 100%; padding: 1.2rem; margin: 0.8rem 0; background: var(--glass); border: 2px solid transparent; border-radius: 12px; cursor: pointer; color: var(--text); text-align: left; transition: 0.2s; }
-        .option.selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.15); }
+        .option.selected { border-color: var(--primary); background: rgba(56, 189, 248, 0.15); font-weight: 600; }
         
-        .score-circle { width: 150px; height: 150px; border-radius: 50%; border: 6px solid var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1.5rem auto; }
+        .score-circle { width: 140px; height: 140px; border-radius: 50%; border: 6px solid var(--primary); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 1.5rem auto; }
         
-        /* Analysis Table */
-        .analysis-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 12px; overflow: hidden; }
-        .analysis-table th, .analysis-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .analysis-table th { color: var(--primary); font-size: 0.9rem; }
-
         .ai-btn { background: linear-gradient(45deg, #6366f1, #a855f7); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; margin-top: 10px; }
-        .explanation { background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--accent); font-size: 0.95rem; display: none; white-space: pre-line; }
+        .explanation { background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; margin-top: 12px; border-left: 4px solid var(--accent); font-size: 0.9rem; display: none; white-space: pre-line; }
         
         .hidden { display: none !important; }
         .btn { padding: 0.8rem 1.8rem; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: #0f172a; }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-danger { background: var(--danger); color: white; }
-        .btn-success { background: var(--success); color: white; }
 
         input, textarea, select { width: 100%; padding: 12px; margin: 10px 0; background: var(--glass); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--glass); }
+        th { color: var(--primary); font-size: 0.8rem; text-transform: uppercase; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="#" class="logo" onclick="location.reload()">NEET<span>Genie AI</span></a>
+    <a href="#" class="logo" onclick="location.reload()">NEET<span>Genie Ultra</span></a>
     <div style="display: flex; gap: 15px; align-items: center;">
         <div id="nav-timer" class="hidden" style="color: var(--danger); font-weight: 800; font-size: 1.2rem;">00:00</div>
-        <button class="btn-outline" style="padding: 5px 10px;" onclick="show('admin')">⚙️ Admin</button>
+        <button class="btn-outline" style="padding: 5px 10px;" onclick="showView('admin-tests')">⚙️ Admin</button>
     </div>
 </nav>
 
 <div class="container">
-    <section id="view-dashboard">
-        <h2 style="margin-bottom: 1.5rem;">🎯 Mock Test Series</h2>
-        <div id="test-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;"></div>
-    </section>
-
-    <section id="view-quiz" class="hidden">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <div>
-                    <div id="q-subject" class="sub-badge">Detecting...</div>
-                    <div id="q-number" style="font-weight: 600; opacity: 0.7;">Question 1</div>
-                </div>
-                <button class="btn-outline" style="padding: 5px 15px;" onclick="window.togglePause()" id="pause-btn">⏸ Pause</button>
+    <main>
+        <section id="view-dashboard">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h2>🎯 Active Test Series</h2>
+                <button class="btn btn-outline" onclick="showView('history')">📜 History</button>
             </div>
-            
-            <div id="quiz-area">
+            <div id="test-list" style="display: grid; grid-template-columns: 1fr; gap: 15px;"></div>
+        </section>
+
+        <section id="view-quiz" class="hidden">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <div id="q-sub-topic" class="sub-badge">Physics • Mechanics</div>
+                        <h3 id="q-text" style="font-size: 1.2rem; margin-top:10px;"></h3>
+                    </div>
+                    <button class="btn-outline" style="padding: 5px;" onclick="toggleBookmark()">🔖</button>
+                </div>
                 <img id="q-image" class="q-img hidden" src="">
-                <h3 id="q-text" style="margin-bottom: 1.5rem;"></h3>
                 <div id="options-container"></div>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
-                <button class="btn btn-outline" onclick="window.nav(-1)">Prev</button>
-                <div style="display: flex; gap: 10px;">
+                
+                <div style="display: flex; justify-content: space-between; margin-top: 2rem; flex-wrap: wrap; gap: 10px;">
+                    <button class="btn btn-outline" onclick="window.nav(-1)">Prev</button>
+                    <button class="btn btn-outline" style="border-color: var(--accent); color: var(--accent);" onclick="markReview()">Mark for Review</button>
                     <button class="btn btn-primary" id="next-btn" onclick="window.nav(1)">Next</button>
-                    <button class="btn btn-danger hidden" id="submit-btn" onclick="window.completeTest()">Finish</button>
+                    <button class="btn btn-danger hidden" id="submit-btn" onclick="completeTest()">Submit Test</button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="view-result" class="hidden">
-        <div class="card" style="text-align: center;">
-            <h2>Performance Scorecard</h2>
-            <div class="score-circle">
-                <span style="font-size: 2.5rem; font-weight: 900;" id="res-score">0</span>
-                <span style="font-size: 0.7rem; opacity: 0.6;">NEET MARKS</span>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
-                <div class="card" style="padding:10px; margin:0; background:rgba(255,255,255,0.03)">
-                    <small>Accuracy</small><br><b id="res-acc" style="color:var(--primary)">0%</b>
+        <section id="view-result" class="hidden">
+            <div class="card" style="text-align: center;">
+                <h2>Test Analysis</h2>
+                <div class="score-circle">
+                    <span class="score-val" id="res-score">0</span>
+                    <span style="font-size: 0.7rem; opacity: 0.6;">NEET SCORE</span>
                 </div>
-                <div class="card" style="padding:10px; margin:0; background:rgba(255,255,255,0.03)">
-                    <small>Negative Marks</small><br><b id="res-neg" style="color:var(--danger)">0</b>
+                <div id="rank-sim" style="color: var(--accent); font-weight: bold; margin-bottom: 20px;"></div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px;">
+                    <div class="card" style="padding:10px; margin:0;"><small>Accuracy</small><br><b id="res-acc" style="color:var(--primary)">0%</b></div>
+                    <div class="card" style="padding:10px; margin:0;"><small>Negatives</small><br><b id="res-neg" style="color:var(--danger)">0</b></div>
+                </div>
+
+                <h3>Subject Report</h3>
+                <table class="analysis-table">
+                    <thead><tr><th>Subject</th><th>Score</th><th>Correct</th><th>Wrong</th></tr></thead>
+                    <tbody id="subject-report"></tbody>
+                </table>
+
+                <div class="card" style="text-align: left; border: 1px dashed var(--danger); background: rgba(244,63,94,0.05); margin-top:20px;">
+                    <h4 style="color:var(--danger)">🔍 AI Weakness Analyzer</h4>
+                    <p id="weakness-text" style="font-size:0.9rem; margin-top:5px;"></p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="startRetry()">🔄 Retry Wrong Questions</button>
+                    <button class="btn btn-outline" onclick="location.reload()">Back Home</button>
                 </div>
             </div>
+            <div id="review-list"></div>
+        </section>
 
-            <table class="analysis-table">
-                <thead><tr><th>Subject</th><th>Score</th><th>Correct</th><th>Wrong</th></tr></thead>
-                <tbody id="subject-report"></tbody>
-            </table>
+        <section id="view-history" class="hidden">
+            <h2>📜 Performance History</h2>
+            <div id="history-list"></div>
+        </section>
 
-            <div id="weakness-box" class="card" style="margin-top:20px; border: 1px dashed var(--danger); background: rgba(244,63,94,0.05); text-align: left;">
-                <h4 style="color:var(--danger)">🔍 AI Weakness Analysis</h4>
-                <p id="weakness-text" style="font-size: 0.9rem; margin-top:5px;"></p>
+        <section id="view-admin-tests" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h2>🛠 Manage Tests</h2>
+                <button class="btn btn-primary" onclick="showView('admin-edit')">+ Create Test</button>
             </div>
+            <div id="admin-test-list"></div>
+        </section>
 
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
-                <button id="retry-btn" class="btn btn-success" onclick="window.startRetry()">🔄 Retry Wrong Questions</button>
-                <button class="btn btn-primary" onclick="location.reload()">Back to Home</button>
+        <section id="view-admin-edit" class="hidden">
+            <div class="card">
+                <h2 id="admin-title">Create New Mock Test</h2>
+                <input type="text" id="adm-name" placeholder="Test Title">
+                <input type="number" id="adm-duration" placeholder="Duration (Minutes)">
+                
+                <div id="adm-q-container"></div>
+                <button class="btn btn-outline" style="width: 100%; margin-top:10px;" onclick="addQuestionUI()">+ Add Question</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top:20px;" onclick="saveTest()">🚀 Save & Sync to Firebase</button>
+            </div>
+        </section>
+    </main>
+
+    <aside id="quiz-sidebar" class="hidden">
+        <div class="card" style="padding: 1.5rem; position: sticky; top: 100px;">
+            <h4>Time Left</h4>
+            <div id="timer-large" style="font-size: 2rem; font-weight: 900; color: var(--primary); margin: 10px 0;">00:00:00</div>
+            
+            <h4 style="margin-top: 20px;">Question Palette</h4>
+            <div class="palette" id="palette-container"></div>
+            
+            <div style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">
+                <p>🟢 Answered</p>
+                <p>🟣 Review</p>
+                <p>⚪ Not Visited</p>
             </div>
         </div>
-        <div id="review-container"></div>
-    </section>
-
-    <section id="view-admin" class="hidden">
-        <div class="card">
-            <h2>🛠 Test Creator</h2>
-            <input type="text" id="adm-test-name" placeholder="Test Name (e.g. Full Syllabus Mock 1)">
-            <input type="number" id="adm-duration" placeholder="Duration (Minutes)">
-            
-            <div id="adm-questions-list" style="margin-top: 20px;">
-                <h4>Questions</h4>
-                <div id="questions-inputs"></div>
-                <button class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="window.addQuestionInput()">+ Add Question</button>
-            </div>
-            
-            <button class="btn btn-primary" style="width: 100%; margin-top: 2rem;" onclick="window.saveTest()">🚀 Publish Test to Firebase</button>
-            <button class="btn btn-outline" style="width: 100%; margin-top: 10px;" onclick="show('dashboard')">Cancel</button>
-        </div>
-    </section>
+    </aside>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB1Xl8legdU-lIflwNVBl6sPs4OZags4eM",
@@ -161,221 +189,179 @@
 
     let currentTest = null;
     let answers = [];
+    let qStatuses = []; // 'answered', 'review', 'none'
     let qIdx = 0;
     let timer;
     let timeLeft = 0;
     let isPaused = false;
-    let isRetryMode = false;
 
-    // --- SUBJECT DETECTION LOGIC ---
-    const detectSubject = (text = "") => {
+    // --- UTILS: Topic Detection ---
+    const getSubjectInfo = (text = "") => {
         const t = text.toLowerCase();
-        if(/force|velocity|mass|electric|field|circuit|wave|optics|energy|thermal|physics/.test(t)) return "Physics";
-        if(/molar|reaction|bond|organic|atomic|acid|base|element|chemistry/.test(t)) return "Chemistry";
-        if(/cell|dna|blood|plant|animal|bio|human|organ|genetics/.test(t)) return "Biology";
-        return "Biology"; // Default for NEET
+        let sub = "Biology", topic = "General";
+        if(/force|velocity|acceleration|electric|circuit|wave|prism|thermal|energy|physics/.test(t)) {
+            sub = "Physics";
+            topic = /force|motion|friction/.test(t) ? "Mechanics" : /electric|charge|resistor/.test(t) ? "Electrostatics" : "Modern Physics";
+        } else if(/molar|reaction|acid|bond|organic|atomic|molecule|gas|equilibrium/.test(t)) {
+            sub = "Chemistry";
+            topic = /reaction|bond|carbon/.test(t) ? "Organic" : /mole|mass/.test(t) ? "Physical" : "Inorganic";
+        } else {
+            topic = /cell|dna|blood/.test(t) ? "Cytology" : /plant|flower/.test(t) ? "Botany" : "Human Physiology";
+        }
+        return { sub, topic };
     };
 
-    // --- NAVIGATION & UI ---
-    function show(id) {
-        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    // --- NAVIGATION ---
+    window.showView = (id) => {
+        document.querySelectorAll('section, aside').forEach(el => el.classList.add('hidden'));
         document.getElementById('view-' + id).classList.remove('hidden');
+        if(id === 'quiz') document.getElementById('quiz-sidebar').classList.remove('hidden');
         window.scrollTo(0,0);
-    }
+    };
 
-    // --- DASHBOARD ---
-    async function loadTests() {
+    // --- ADMIN SYSTEM ---
+    async function loadAdminTests() {
         const snap = await getDocs(collection(db, "tests"));
-        const list = document.getElementById('test-list');
+        const list = document.getElementById('admin-test-list');
         list.innerHTML = "";
         snap.forEach(d => {
             const t = d.data();
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.style.cursor = 'pointer';
-            div.innerHTML = `<h3>${t.testName}</h3><p>⏳ ${t.duration} Mins | 📋 ${t.questions.length} Questions</p>`;
-            div.onclick = () => startTest(d.id);
-            list.appendChild(div);
+            list.innerHTML += `
+                <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                    <div><b>${t.testName}</b><br><small>${t.questions.length} Qs</small></div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-outline" style="padding:5px 10px;" onclick="window.editTest('${d.id}')">Edit</button>
+                        <button class="btn-danger" style="padding:5px 10px;" onclick="window.delTest('${d.id}')">Del</button>
+                    </div>
+                </div>`;
         });
     }
 
-    // --- QUIZ LOGIC ---
+    window.addQuestionUI = (data = null) => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.style.background = "rgba(0,0,0,0.1)";
+        div.innerHTML = `
+            <input type="text" class="adm-q-txt" placeholder="Question Text" value="${data?data.question:''}">
+            <input type="text" class="adm-q-img" placeholder="Image URL" value="${data?data.imgUrl||'':''}">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <input type="text" placeholder="Option A" class="adm-o-a" value="${data?data.options[0]:''}">
+                <input type="text" placeholder="Option B" class="adm-o-b" value="${data?data.options[1]:''}">
+                <input type="text" placeholder="Option C" class="adm-o-c" value="${data?data.options[2]:''}">
+                <input type="text" placeholder="Option D" class="adm-o-d" value="${data?data.options[3]:''}">
+            </div>
+            <select class="adm-ans">
+                <option value="A" ${data&&data.answer=='A'?'selected':''}>Ans: A</option>
+                <option value="B" ${data&&data.answer=='B'?'selected':''}>Ans: B</option>
+                <option value="C" ${data&&data.answer=='C'?'selected':''}>Ans: C</option>
+                <option value="D" ${data&&data.answer=='D'?'selected':''}>Ans: D</option>
+            </select>`;
+        document.getElementById('adm-q-container').appendChild(div);
+    };
+
+    window.saveTest = async () => {
+        const questions = [];
+        document.querySelectorAll('#adm-q-container .card').forEach(c => {
+            const txt = c.querySelector('.adm-q-txt').value;
+            const { sub, topic } = getSubjectInfo(txt);
+            questions.push({
+                question: txt, imgUrl: c.querySelector('.adm-q-img').value,
+                options: [c.querySelector('.adm-o-a').value, c.querySelector('.adm-o-b').value, c.querySelector('.adm-o-c').value, c.querySelector('.adm-o-d').value],
+                answer: c.querySelector('.adm-ans').value, subject: sub, topic: topic
+            });
+        });
+        await addDoc(collection(db, "tests"), { 
+            testName: document.getElementById('adm-name').value, 
+            duration: parseInt(document.getElementById('adm-duration').value), 
+            questions 
+        });
+        alert("Test Published!"); location.reload();
+    };
+
+    window.delTest = async (id) => { if(confirm("Delete test?")) { await deleteDoc(doc(db, "tests", id)); loadAdminTests(); }};
+
+    // --- QUIZ CORE ---
     async function startTest(id) {
         const snap = await getDoc(doc(db, "tests", id));
         currentTest = snap.data();
-        currentTest.questions.forEach(q => q.subject = q.subject || detectSubject(q.question));
-        
         answers = new Array(currentTest.questions.length).fill(null);
-        timeLeft = currentTest.duration * 60;
-        qIdx = 0; isRetryMode = false;
-        show('quiz'); renderQ(); startTimer();
+        qStatuses = new Array(currentTest.questions.length).fill('none');
+        qIdx = 0; timeLeft = currentTest.duration * 60;
+        showView('quiz'); renderQ(); startTimer(); renderPalette();
     }
-
-    window.startRetry = () => {
-        const wrongIndices = currentTest.questions.map((q, i) => (answers[i] !== q.answer) ? i : null).filter(x => x !== null);
-        const retryQs = wrongIndices.map(i => currentTest.questions[i]);
-        if(retryQs.length === 0) return alert("All correct! No need to retry.");
-        
-        currentTest = { ...currentTest, questions: retryQs, testName: "Retry Mode" };
-        answers = new Array(retryQs.length).fill(null);
-        qIdx = 0; isRetryMode = true;
-        show('quiz'); renderQ();
-    };
 
     function renderQ() {
         const q = currentTest.questions[qIdx];
-        document.getElementById('q-subject').innerText = q.subject;
-        document.getElementById('q-number').innerText = `Question ${qIdx + 1}/${currentTest.questions.length}`;
+        document.getElementById('q-sub-topic').innerText = `${q.subject} • ${q.topic}`;
         document.getElementById('q-text').innerText = q.question;
-        
         const img = document.getElementById('q-image');
-        if(q.imgUrl) { img.src = q.imgUrl; img.classList.remove('hidden'); }
-        else { img.classList.add('hidden'); }
+        if(q.imgUrl) { img.src = q.imgUrl; img.classList.remove('hidden'); } else { img.classList.add('hidden'); }
 
-        const container = document.getElementById('options-container');
-        container.innerHTML = "";
+        const cont = document.getElementById('options-container');
+        cont.innerHTML = "";
         ["A","B","C","D"].forEach((l, i) => {
-            if(q.options[i]) {
-                const btn = document.createElement('button');
-                btn.className = `option ${answers[qIdx] === l ? 'selected' : ''}`;
-                btn.innerHTML = `<b>${l}.</b> ${q.options[i]}`;
-                btn.onclick = () => { if(!isPaused) { answers[qIdx] = l; renderQ(); } };
-                container.appendChild(btn);
-            }
+            const b = document.createElement('button');
+            b.className = `option ${answers[qIdx] === l ? 'selected' : ''}`;
+            b.innerHTML = `<b>${l}.</b> ${q.options[i]}`;
+            b.onclick = () => { answers[qIdx] = l; qStatuses[qIdx] = 'answered'; renderQ(); renderPalette(); };
+            cont.appendChild(b);
         });
-
-        document.getElementById('next-btn').classList.toggle('hidden', qIdx === currentTest.questions.length - 1);
-        document.getElementById('submit-btn').classList.toggle('hidden', qIdx !== currentTest.questions.length - 1);
+        document.getElementById('next-btn').classList.toggle('hidden', qIdx === currentTest.questions.length -1);
+        document.getElementById('submit-btn').classList.toggle('hidden', qIdx !== currentTest.questions.length -1);
+        renderPalette();
     }
 
-    window.nav = (n) => { if(!isPaused) { qIdx += n; renderQ(); } };
+    window.nav = (n) => { qIdx += n; renderQ(); };
+    window.markReview = () => { qStatuses[qIdx] = 'review'; renderPalette(); nav(1); };
+
+    function renderPalette() {
+        const cont = document.getElementById('palette-container');
+        cont.innerHTML = "";
+        qStatuses.forEach((s, i) => {
+            const b = document.createElement('button');
+            b.className = `p-btn ${s} ${qIdx === i ? 'current' : ''}`;
+            b.innerText = i + 1;
+            b.onclick = () => { qIdx = i; renderQ(); };
+            cont.appendChild(b);
+        });
+    }
 
     function startTimer() {
-        const display = document.getElementById('nav-timer');
-        display.classList.remove('hidden');
         timer = setInterval(() => {
             if(!isPaused) {
                 timeLeft--;
-                let m = Math.floor(timeLeft/60), s = timeLeft%60;
-                display.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+                const h = Math.floor(timeLeft/3600), m = Math.floor((timeLeft%3600)/60), s = timeLeft%60;
+                const timeStr = `${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+                document.getElementById('nav-timer').innerText = timeStr;
+                document.getElementById('timer-large').innerText = timeStr;
+                if(timeLeft === 300) alert("⚠️ Only 5 minutes left!");
                 if(timeLeft <= 0) completeTest();
             }
         }, 1000);
     }
 
-    window.togglePause = () => {
-        isPaused = !isPaused;
-        document.getElementById('pause-btn').innerText = isPaused ? "▶ Resume" : "⏸ Pause";
-        document.getElementById('quiz-area').style.opacity = isPaused ? "0.1" : "1";
-    };
-
-    // --- RESULT & AI ANALYSIS ---
+    // --- ANALYTICS & AI ---
     window.completeTest = () => {
         clearInterval(timer);
-        let correct = 0, wrong = 0, skipped = 0;
-        let subjStats = { Physics: {c:0, w:0}, Chemistry: {c:0, w:0}, Biology: {c:0, w:0} };
+        let correct = 0, wrong = 0, score = 0;
+        let stats = { Physics: {c:0, w:0}, Chemistry: {c:0, w:0}, Biology: {c:0, w:0} };
+        let topicMap = {};
 
         currentTest.questions.forEach((q, i) => {
-            const s = q.subject;
-            if(!answers[i]) skipped++;
-            else if(answers[i] === q.answer) { correct++; subjStats[s].c++; }
-            else { wrong++; subjStats[s].w++; }
+            const sub = q.subject;
+            if(!topicMap[q.topic]) topicMap[q.topic] = {c:0, w:0};
+            if(answers[i] === q.answer) { correct++; score += 4; stats[sub].c++; topicMap[q.topic].c++; }
+            else if(answers[i]) { wrong++; score -= 1; stats[sub].w++; topicMap[q.topic].w++; }
         });
 
-        show('result');
-        const finalScore = (correct * 4) - (wrong * 1);
-        document.getElementById('res-score').innerText = finalScore;
-        document.getElementById('res-acc').innerText = Math.round((correct / (correct+wrong || 1)) * 100) + "%";
-        document.getElementById('res-neg').innerText = "-" + (wrong);
+        showView('result');
+        document.getElementById('res-score').innerText = score;
+        document.getElementById('res-acc').innerText = Math.round((correct / (correct+wrong || 1))*100) + "%";
+        document.getElementById('res-neg').innerText = `-${wrong}`;
 
-        // Subject Table
-        const tbody = document.getElementById('subject-report');
-        tbody.innerHTML = "";
-        let weakAreas = [];
-        for(let s in subjStats) {
-            const sc = (subjStats[s].c * 4) - (subjStats[s].w);
-            tbody.innerHTML += `<tr><td>${s}</td><td>${sc}</td><td>${subjStats[s].c}</td><td>${subjStats[s].w}</td></tr>`;
-            if(subjStats[s].w > subjStats[s].c) weakAreas.push(s);
-        }
+        // Simulated Rank
+        const percentile = Math.min(99.9, (score / (currentTest.questions.length * 4)) * 100);
+        document.getElementById('rank-sim').innerText = `Estimated Percentile: ${percentile.toFixed(2)} | Simulated AIR: ~${Math.floor(2000000 * (1 - percentile/100))}`;
 
-        // Weakness Analyzer
-        const wText = document.getElementById('weakness-text');
-        if(weakAreas.length > 0) wText.innerText = `Focus needed in ${weakAreas.join(', ')}. Your negative marking is high here. Review NCERT concepts immediately.`;
-        else wText.innerText = "Excellent balance! Keep practicing to maintain speed.";
-
-        renderReview();
-    };
-
-    function renderReview() {
-        const container = document.getElementById('review-container');
-        container.innerHTML = "<h3 style='margin: 2rem 0 1rem;'>Detailed Review</h3>";
-        currentTest.questions.forEach((q, i) => {
-            const isCorrect = answers[i] === q.answer;
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <div class="sub-badge">${q.subject}</div>
-                <p><b>Q${i+1}:</b> ${q.question}</p>
-                <p style="margin-top:10px;">Your Ans: <b style="color:${isCorrect?'var(--success)':'var(--danger)'}">${answers[i] || 'Skipped'}</b> | Correct: <b style="color:var(--success)">${q.answer}</b></p>
-                ${!isCorrect ? `<button class="ai-btn" onclick="window.explainAI(${i}, this)">✨ AI Explain (${q.subject})</button>` : ''}
-                <div class="explanation" id="exp-${i}">Generating...</div>
-            `;
-            container.appendChild(card);
-        });
-    }
-
-    window.explainAI = async (idx, btn) => {
-        const q = currentTest.questions[idx];
-        const box = document.getElementById(`exp-${idx}`);
-        box.style.display = "block"; btn.disabled = true;
-
-        let logic = q.subject === "Physics" ? "Use formula and step-by-step numerical logic." : 
-                    q.subject === "Chemistry" ? "Explain using chemical reactions or NCERT inorganic facts." : 
-                    "Use NCERT biological concepts and definitions.";
-
-        const prompt = `NEET Expert Mode: Explain Question: "${q.question}" with Answer: "${q.answer}". Subject: ${q.subject}. Logic: ${logic} Short & crisp.`;
-
-        try {
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_KEY}`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
-            const data = await res.json();
-            box.innerText = data.candidates[0].content.parts[0].text;
-        } catch (e) { box.innerText = "AI Offline. Check API Key."; }
-    };
-
-    // --- ADMIN PANEL LOGIC ---
-    window.addQuestionInput = () => {
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.style.background = "rgba(0,0,0,0.2)";
-        div.innerHTML = `
-            <input type="text" class="q-txt" placeholder="Question Text">
-            <input type="text" class="q-img-url" placeholder="Image URL (Optional)">
-            <select class="q-sub"><option value="">Auto-Detect Subject</option><option value="Physics">Physics</option><option value="Chemistry">Chemistry</option><option value="Biology">Biology</option></select>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <input type="text" class="q-oa" placeholder="Option A"> <input type="text" class="q-ob" placeholder="Option B">
-                <input type="text" class="q-oc" placeholder="Option C"> <input type="text" class="q-od" placeholder="Option D">
-            </div>
-            <select class="q-ans"><option value="A">Answer: A</option><option value="B">Answer: B</option><option value="C">Answer: C</option><option value="D">Answer: D</option></select>
-        `;
-        document.getElementById('questions-inputs').appendChild(div);
-    };
-
-    window.saveTest = async () => {
-        const name = document.getElementById('adm-test-name').value;
-        const dur = document.getElementById('adm-duration').value;
-        const qCards = document.querySelectorAll('#questions-inputs .card');
-        const questions = [];
-
-        qCards.forEach(c => {
-            questions.push({
-                question: c.querySelector('.q-txt').value,
-                imgUrl: c.querySelector('.q-img-url').value,
-                subject: c.querySelector('.q-sub').value,
-                options: [c.querySelector('.q-oa').value, c.querySelector('.q-ob').value, c.querySelector('.q-oc').value, c.querySelector('.q-od').value],
-                answer: c.querySelector('.q-ans').value
-            });
-        })
+        const report = document.getElementById('subject-report'); report.innerHTML = "";
+        let w
